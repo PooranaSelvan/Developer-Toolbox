@@ -25,6 +25,7 @@ const CssGradientGenerator = lazy(() => import('./tools/css-gradient/CssGradient
 const BoxShadowGenerator = lazy(() => import('./tools/box-shadow/BoxShadowGenerator'));
 const GlassmorphismGenerator = lazy(() => import('./tools/glassmorphism/GlassmorphismGenerator'));
 const CssUnitConverter = lazy(() => import('./tools/css-units/CssUnitConverter'));
+const FrontendPlayground = lazy(() => import('./tools/frontend-playground/FrontendPlayground'));
 
 // Utilities
 const TimestampConverter = lazy(() => import('./tools/timestamp-converter/TimestampConverter'));
@@ -66,6 +67,7 @@ export default function App() {
             <Route path="/box-shadow" element={<BoxShadowGenerator />} />
             <Route path="/glassmorphism" element={<GlassmorphismGenerator />} />
             <Route path="/css-units" element={<CssUnitConverter />} />
+            <Route path="/frontend-playground" element={<FrontendPlayground />} />
 
             {/* Utilities */}
             <Route path="/timestamp-converter" element={<TimestampConverter />} />

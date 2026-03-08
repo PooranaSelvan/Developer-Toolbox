@@ -123,12 +123,14 @@ export default function GlassmorphismGenerator() {
   }, []);
 
   const loadPreset = useCallback((preset) => {
+    const borderMatch = preset.border.match(/[\d.]+(?=\))/);
+    const borderOpacityVal = borderMatch ? Math.round(parseFloat(borderMatch[0]) * 100) : 20;
     setSettings({
       bgWhite: !preset.bg.startsWith('rgba(0'),
       opacity: preset.opacity,
       blur: preset.blur,
       saturation: preset.saturation,
-      borderOpacity: parseInt(preset.border.match(/[\d.]+(?=\))/)?.[0] * 100) || 20,
+      borderOpacity: borderOpacityVal,
       borderWidth: preset.borderWidth,
       radius: 16,
       shadow: 12,

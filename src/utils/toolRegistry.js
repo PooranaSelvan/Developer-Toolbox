@@ -1,7 +1,7 @@
 import {
   FileText, Send, Settings, Server, KeyRound, Regex, Palette,
   Blend, Square, Gem, Braces, Binary, Fingerprint,
-  Clock, Ruler,
+  Clock, Ruler, Layout,
 } from 'lucide-react';
 
 const TOOLS = [
@@ -125,6 +125,15 @@ const TOOLS = [
     path: '/css-units',
     category: 'frontend',
     tags: ['css', 'units', 'rem', 'px', 'converter'],
+  },
+  {
+    id: 'frontend-playground',
+    name: 'Frontend Playground',
+    description: 'Paste code and test quickly with typing intelligence',
+    icon: Layout,
+    path: '/frontend-playground',
+    category: 'frontend',
+    tags: ['html', 'css', 'javascript', 'playground', 'preview', 'live', 'editor'],
   },
 
   // ─── Utilities ───
