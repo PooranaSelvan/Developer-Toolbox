@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Layout, ChevronDown, Check } from 'lucide-react';
+import { Layout, ChevronDown, Check, Sparkles } from 'lucide-react';
 import { TEMPLATES } from '../../utils/readmeTemplates';
 
 export default function TemplateSelector({ selected, onSelect }) {
@@ -57,8 +57,12 @@ export default function TemplateSelector({ selected, onSelect }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -8, scale: 0.96 }}
                 transition={{ duration: 0.2, ease: 'easeOut' }}
-                className="absolute left-0 top-full mt-1 w-64 bg-base-100 rounded-xl border border-base-300 shadow-xl z-50 py-1 overflow-hidden"
+                className="absolute left-0 top-full mt-1 w-72 bg-base-100 rounded-xl border border-base-300 shadow-2xl z-50 py-1.5 overflow-hidden"
               >
+                <div className="px-3 py-2 border-b border-base-200/60 flex items-center gap-2">
+                  <Sparkles size={11} className="text-primary" />
+                  <span className="text-[11px] font-bold text-base-content/50">Choose Template Style</span>
+                </div>
                 {Object.entries(TEMPLATES).map(([key, tmpl], i) => (
                   <motion.button
                     key={key}
@@ -66,14 +70,22 @@ export default function TemplateSelector({ selected, onSelect }) {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.04 }}
                     onClick={() => { onSelect(key); setIsOpen(false); }}
-                    className={`w-full text-left px-3 py-2.5 flex items-center gap-3 hover:bg-base-200 transition-colors ${selected === key ? 'bg-primary/10 text-primary' : ''}`}
+                    className={`w-full text-left px-3 py-2.5 flex items-center gap-3 hover:bg-base-200/80 transition-all duration-200 ${selected === key ? 'bg-primary/10 text-primary border-l-2 border-primary' : 'border-l-2 border-transparent'}`}
                   >
-                    <span className="text-base">{tmpl.emoji}</span>
-                    <div className="flex-1">
-                      <div className="text-xs font-medium">{tmpl.name}</div>
-                      <div className="text-[10px] opacity-50">{tmpl.description}</div>
+                    <span className="text-lg w-7 text-center">{tmpl.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-bold">{tmpl.name}</div>
+                      <div className="text-[10px] opacity-50 truncate">{tmpl.description}</div>
                     </div>
-                    {selected === key && <Check size={12} className="text-primary shrink-0" />}
+                    {selected === key && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0"
+                      >
+                        <Check size={10} className="text-primary-content" />
+                      </motion.div>
+                    )}
                   </motion.button>
                 ))}
               </motion.div>

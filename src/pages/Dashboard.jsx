@@ -1,139 +1,252 @@
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight, Wrench, Zap, Shield, Clock, Sparkles,
+  Search, X, Command, Heart,
 } from 'lucide-react';
-import { getTools } from '../utils/toolRegistry';
+import { getTools, CATEGORIES, getToolsByCategory, searchTools } from '../utils/toolRegistry';
 
 export default function Dashboard() {
   const tools = getTools().filter((t) => t.id !== 'settings');
+  const [query, setQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const searchRef = useRef(null);
+
+  // Keyboard shortcut: Cmd/Ctrl+K to focus search
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+      if (e.key === 'Escape') {
+        setQuery('');
+        searchRef.current?.blur();
+      }
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, []);
+
+  const filteredTools = useMemo(() => {
+    let result = tools;
+    if (query.trim()) {
+      result = searchTools(query);
+    }
+    if (selectedCategory !== 'all') {
+      result = result.filter((t) => t.category === selectedCategory);
+    }
+    return result;
+  }, [tools, query, selectedCategory]);
+
+  const displayCategories = CATEGORIES.filter((c) => c.id !== 'preferences');
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       {/* ── Hero Section ── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-center mb-12 pt-4"
+        className="text-center mb-10 pt-2"
       >
-        <div className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 mx-auto mb-6">
-          <Wrench size={36} className="text-primary-content" />
+        <div className="relative w-20 h-20 mx-auto mb-6">
+          <div className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center shadow-xl shadow-primary/25 relative overflow-hidden">
+            <Wrench size={36} className="text-primary-content relative z-10" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+          </div>
+          <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-lg bg-secondary flex items-center justify-center shadow-md ring-2 ring-base-200">
+            <Sparkles size={14} className="text-secondary-content" />
+          </div>
         </div>
 
-        <h1 className="text-3xl font-extrabold mb-3">
-          Welcome to <span className="gradient-text">Developer Toolbox</span>
+        <h1 className="text-3xl sm:text-4xl font-extrabold mb-3 tracking-tight leading-tight">
+          Developer <span className="gradient-text">Toolbox</span>
         </h1>
-        <p className="max-w-lg mx-auto text-base opacity-60">
-          Your all-in-one collection of developer utilities. Select a tool to get started.
+        <p className="max-w-lg mx-auto text-sm sm:text-base opacity-55 leading-relaxed">
+          {tools.length} free, fast, and privacy-first developer utilities — all running client-side.
         </p>
       </motion.div>
 
-      {/* ── Feature Highlights ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-10">
-        {[
-          { icon: Zap, label: 'Lightning Fast', desc: 'Instant results', color: 'text-warning', bg: 'bg-warning/10' },
-          { icon: Shield, label: 'Privacy First', desc: 'All client-side', color: 'text-success', bg: 'bg-success/10' },
-          { icon: Clock, label: 'Save Time', desc: 'Automate tasks', color: 'text-info', bg: 'bg-info/10' },
-        ].map(({ icon: Icon, label, desc, color, bg }, i) => (
-          <motion.div
-            key={label}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 + i * 0.1, duration: 0.4 }}
-          >
-            <div className="rounded-xl border border-base-300 bg-base-100 p-5 flex items-center gap-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
-              <div className={`w-12 h-12 rounded-xl ${bg} flex items-center justify-center shrink-0`}>
-                <Icon size={22} className={color} />
-              </div>
-              <div>
-                <p className="text-sm font-bold">{label}</p>
-                <p className="text-xs opacity-50 mt-0.5">{desc}</p>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      {/* ── Search Bar ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.4 }}
+        className="mb-8"
+      >
+        <div className="relative max-w-xl mx-auto">
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30" />
+          <input
+            ref={searchRef}
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search tools... (e.g. JSON, color, API, hash)"
+            className="input w-full pl-11 pr-24 h-12 text-sm rounded-2xl shadow-sm border-base-300/50 focus:shadow-lg focus:shadow-primary/5 transition-shadow"
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            {query && (
+              <button onClick={() => setQuery('')} className="btn btn-ghost btn-xs btn-circle">
+                <X size={14} />
+              </button>
+            )}
+            <kbd className="kbd kbd-xs opacity-30 hidden sm:inline-flex gap-0.5">
+              <Command size={10} />K
+            </kbd>
+          </div>
+        </div>
+      </motion.div>
 
-      {/* ── Tool Cards ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {tools.map((tool, i) => {
-          const Icon = tool.icon;
+      {/* ── Feature Highlights ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.4 }}
+        className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8"
+      >
+        {[
+          { icon: Zap, label: 'Lightning Fast', desc: 'Instant results, zero latency', color: 'text-warning', bg: 'bg-warning/10' },
+          { icon: Shield, label: 'Privacy First', desc: 'Everything runs client-side', color: 'text-success', bg: 'bg-success/10' },
+          { icon: Clock, label: 'Save Time', desc: 'Automate repetitive tasks', color: 'text-info', bg: 'bg-info/10' },
+        ].map(({ icon: Icon, label, desc, color, bg }) => (
+          <div
+            key={label}
+            className="rounded-xl border border-base-300/40 bg-base-100 p-4 flex items-center gap-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-base-content/[0.04] group"
+          >
+            <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105`}>
+              <Icon size={20} className={color} />
+            </div>
+            <div>
+              <p className="text-sm font-bold">{label}</p>
+              <p className="text-xs text-base-content/45 mt-0.5">{desc}</p>
+            </div>
+          </div>
+        ))}
+      </motion.div>
+
+      {/* ── Category Filter ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.4 }}
+        className="flex flex-wrap items-center gap-2 mb-6"
+      >
+        <button
+          onClick={() => setSelectedCategory('all')}
+          className={`btn btn-sm rounded-xl gap-1.5 ${
+            selectedCategory === 'all' ? 'btn-primary shadow-sm' : 'btn-ghost border border-base-300/50'
+          }`}
+        >
+          <Sparkles size={13} />
+          All Tools
+          <span className={`badge badge-xs ${selectedCategory === 'all' ? 'bg-primary-content/20 text-primary-content border-0' : 'badge-ghost'}`}>
+            {tools.length}
+          </span>
+        </button>
+        {displayCategories.map((cat) => {
+          const count = getToolsByCategory(cat.id).length;
           return (
-            <motion.div
-              key={tool.id}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 + i * 0.12, duration: 0.4 }}
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`btn btn-sm rounded-xl gap-1.5 ${
+                selectedCategory === cat.id ? 'btn-primary shadow-sm' : 'btn-ghost border border-base-300/50'
+              }`}
             >
-              <Link to={tool.path} className="group block">
-                <div className="rounded-xl border border-base-300 bg-base-100 p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-primary/30">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-primary transition-all duration-200 group-hover:bg-primary/15 group-hover:scale-105">
-                      <Icon size={24} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-semibold mb-1.5 group-hover:text-primary transition-colors">
-                        {tool.name}
-                      </h3>
-                      <p className="text-sm opacity-60 leading-relaxed">
-                        {tool.description}
-                      </p>
-                    </div>
-                    <ArrowRight
-                      size={18}
-                      className="shrink-0 mt-1 opacity-30 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-70 group-hover:text-primary"
-                    />
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
+              <span className="text-xs">{cat.emoji}</span>
+              {cat.label}
+              <span className={`badge badge-xs ${selectedCategory === cat.id ? 'bg-primary-content/20 text-primary-content border-0' : 'badge-ghost'}`}>
+                {count}
+              </span>
+            </button>
           );
         })}
-      </div>
+      </motion.div>
 
-      {/* ── Quick Tips Section ── */}
+      {/* ── Tool Cards ── */}
+      <AnimatePresence mode="popLayout">
+        {filteredTools.length > 0 ? (
+          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredTools.map((tool, i) => {
+              const Icon = tool.icon;
+              const category = CATEGORIES.find((c) => c.id === tool.category);
+              return (
+                <motion.div
+                  key={tool.id}
+                  layout
+                  initial={{ opacity: 0, y: 16, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ delay: i * 0.03, duration: 0.3 }}
+                >
+                  <Link to={tool.path} className="group block h-full">
+                    <div className="h-full rounded-xl border border-base-300/40 bg-base-100 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-base-content/[0.06] hover:border-primary/20 relative overflow-hidden">
+                      {/* Subtle hover glow */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: 'radial-gradient(ellipse at top left, color-mix(in oklch, var(--color-primary) 4%, transparent), transparent 70%)' }} />
+                      <div className="relative flex items-start gap-3.5">
+                        <div className="w-11 h-11 rounded-xl bg-primary/8 flex items-center justify-center shrink-0 text-primary transition-all duration-300 group-hover:bg-primary/12 group-hover:scale-[1.06] group-hover:shadow-md group-hover:shadow-primary/10">
+                          <Icon size={22} strokeWidth={1.8} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <h3 className="text-sm font-semibold group-hover:text-primary transition-colors duration-200 truncate">
+                              {tool.name}
+                            </h3>
+                            <ArrowRight
+                              size={14}
+                              strokeWidth={2}
+                              className="shrink-0 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-40 group-hover:text-primary"
+                            />
+                          </div>
+                          <p className="text-xs text-base-content/50 leading-relaxed line-clamp-2">
+                            {tool.description}
+                          </p>
+                          {category && (
+                            <div className="mt-3">
+                              <span className="badge badge-ghost badge-xs gap-1 text-base-content/40">
+                                {category.emoji} {category.label}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-20"
+          >
+            <div className="w-16 h-16 rounded-2xl bg-base-200 flex items-center justify-center mx-auto mb-4">
+              <Search size={24} className="opacity-25" />
+            </div>
+            <p className="text-sm font-medium opacity-50 mb-1">No tools found for "{query}"</p>
+            <p className="text-xs opacity-30 mb-4">Try a different search term</p>
+            <button onClick={() => { setQuery(''); setSelectedCategory('all'); }} className="btn btn-sm btn-ghost">
+              Clear filters
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Footer Credits ── */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ delay: 0.6, duration: 0.4 }}
+        className="text-center mt-16 mb-4"
       >
-        <div className="rounded-xl border border-base-300 bg-base-100 p-6 mt-10">
-          <h3 className="text-sm font-semibold flex items-center gap-2 mb-3">
-            <Sparkles size={16} className="text-warning" />
-            Quick Tips
-          </h3>
-          <ul className="space-y-2.5 text-sm opacity-60">
-            <li className="flex items-center gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-              Use the <strong className="opacity-100">README Generator</strong> to create professional docs in seconds
-            </li>
-            <li className="flex items-center gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-              The <strong className="opacity-100">API Tester</strong> supports auth, environments, code generation & more
-            </li>
-            <li className="flex items-center gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-              Generate realistic test data with the <strong className="opacity-100">Mock API Generator</strong> — users, products, posts & more
-            </li>
-            <li className="flex items-center gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-              Decode and inspect <strong className="opacity-100">JWT tokens</strong> with color-coded parts, claim descriptions & expiry checks
-            </li>
-            <li className="flex items-center gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-              Build & test <strong className="opacity-100">Regex patterns</strong> with live matching, presets & code generation in 6 languages
-            </li>
-            <li className="flex items-center gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-              Generate stunning <strong className="opacity-100">Color Palettes</strong>, <strong className="opacity-100">CSS Gradients</strong>, <strong className="opacity-100">Box Shadows</strong> & <strong className="opacity-100">Glassmorphism</strong> effects
-            </li>
-            <li className="flex items-center gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-              Open <strong className="opacity-100">Settings</strong> to switch between 30+ beautiful themes
-            </li>
-          </ul>
-        </div>
+        <div className="separator mb-6" />
+        <p className="text-xs opacity-30 flex items-center justify-center gap-1.5">
+          Built with <Heart size={12} className="text-error inline" /> using React, Tailwind CSS & DaisyUI
+        </p>
       </motion.div>
     </div>
   );

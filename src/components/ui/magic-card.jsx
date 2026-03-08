@@ -99,11 +99,11 @@ export function MagicCard({
       onPointerEnter={reset}
       style={{
         background: useMotionTemplate`
-        linear-gradient(var(--color-background) 0 0) padding-box,
+        linear-gradient(var(--color-base-100) 0 0) padding-box,
         radial-gradient(${gradientSize}px circle at ${mouseX}px ${mouseY}px,
           ${gradientFrom}, 
           ${gradientTo},
-          var(--color-border) 100%
+          var(--color-base-300) 100%
         ) border-box
         `,
       }}>

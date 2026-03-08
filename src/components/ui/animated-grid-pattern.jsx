@@ -94,9 +94,10 @@ export function AnimatedGridPattern({
       ref={containerRef}
       aria-hidden="true"
       className={cn(
-        "pointer-events-none absolute inset-0 h-full w-full fill-gray-400/30 stroke-gray-400/30",
+        "pointer-events-none absolute inset-0 h-full w-full",
         className
       )}
+      style={{ fill: "color-mix(in oklch, var(--color-base-content) 15%, transparent)", stroke: "color-mix(in oklch, var(--color-base-content) 15%, transparent)" }}
       {...props}>
       <defs>
         <pattern

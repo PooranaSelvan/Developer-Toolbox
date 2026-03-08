@@ -30,18 +30,24 @@ export const Meteors = ({
   return (
     <>
       {[...meteorStyles].map((style, idx) => (
-        // Meteor Head
-        (<span
+        <span
           key={idx}
-          style={{ ...style }}
+          style={{
+            ...style,
+            transform: `rotate(${style["--angle"]})`,
+          }}
           className={cn(
-            "animate-meteor pointer-events-none absolute size-0.5 rotate-(--angle) rounded-full bg-zinc-500 shadow-[0_0_0_1px_#ffffff10]",
+            "animate-meteor pointer-events-none absolute w-0.5 h-0.5 rounded-full shadow-[0_0_0_1px_rgba(255,255,255,0.06)]",
             className
           )}>
-          {/* Meteor Tail */}
           <div
-            className="pointer-events-none absolute top-1/2 -z-10 h-px w-12.5 -translate-y-1/2 bg-linear-to-r from-zinc-500 to-transparent" />
-        </span>)
+            className="pointer-events-none absolute top-1/2 -z-10 h-px w-[50px] -translate-y-1/2"
+            style={{
+              background: "linear-gradient(to right, var(--color-base-content), transparent)",
+              opacity: 0.3,
+            }}
+          />
+        </span>
       ))}
     </>
   );

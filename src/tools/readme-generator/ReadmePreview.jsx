@@ -1,12 +1,32 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import { Eye, Code, FileText, Hash, Clock, AlignLeft, Sparkles } from 'lucide-react';
+import { Eye, Code, FileText, Hash, Clock, AlignLeft, Sparkles, BarChart3 } from 'lucide-react';
 
 export default function ReadmePreview({ markdown, stats }) {
   const [view, setView] = useState('preview');
+
+  const qualityScore = useMemo(() => {
+    if (!markdown.trim()) return 0;
+    let score = 0;
+    if (stats.sections >= 3) score += 20;
+    else if (stats.sections >= 1) score += 10;
+    if (stats.words >= 200) score += 20;
+    else if (stats.words >= 50) score += 10;
+    if (markdown.includes('```')) score += 15; // Has code blocks
+    if (markdown.includes('|') && markdown.includes('---')) score += 10; // Has tables
+    if (markdown.includes('shields.io') || markdown.includes('badge')) score += 10; // Has badges
+    if (markdown.includes('## ')) score += 10; // Has sections
+    if (markdown.includes('Contributing') || markdown.includes('contributing')) score += 5;
+    if (markdown.includes('License') || markdown.includes('license')) score += 5;
+    if (markdown.includes('Installation') || markdown.includes('install')) score += 5;
+    return Math.min(100, score);
+  }, [markdown, stats]);
+
+  const qualityLabel = qualityScore >= 80 ? 'Excellent' : qualityScore >= 60 ? 'Good' : qualityScore >= 30 ? 'Basic' : 'Getting Started';
+  const qualityColor = qualityScore >= 80 ? 'text-success' : qualityScore >= 60 ? 'text-primary' : qualityScore >= 30 ? 'text-warning' : 'text-base-content/40';
 
   return (
     <div className="rounded-xl border border-base-300 bg-base-100 flex flex-col h-full min-h-[400px] lg:min-h-[600px]">
@@ -39,31 +59,47 @@ export default function ReadmePreview({ markdown, stats }) {
               className={`btn btn-xs gap-1.5 rounded-lg transition-all duration-200 ${view === 'raw' ? 'btn-primary shadow-sm' : 'btn-ghost'}`}
             >
               <Code size={12} />
-              <span className="hidden sm:inline">Raw</span>
+              <span className="hidden sm:inline">Markdown</span>
             </button>
           </div>
         </div>
 
-        {/* Stats bar */}
+        {/* Stats bar + Quality score */}
         <AnimatePresence>
           {stats && markdown.trim() && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="flex items-center gap-3 sm:gap-4 mb-4 pb-3 border-b border-base-200/60 flex-wrap"
+              className="mb-4 pb-3 border-b border-base-200/60"
             >
-              {[
-                { icon: AlignLeft, label: `${stats.lines} lines` },
-                { icon: FileText, label: `${stats.words} words` },
-                { icon: Hash, label: `${stats.chars} chars` },
-                { icon: Clock, label: `${stats.readingTime} min` },
-              ].map(({ icon: Icon, label }, i) => (
-                <div key={i} className="flex items-center gap-1.5 text-[11px] opacity-40">
-                  <Icon size={10} />
-                  <span>{label}</span>
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
+                  {[
+                    { icon: AlignLeft, label: `${stats.lines} lines` },
+                    { icon: FileText, label: `${stats.words} words` },
+                    { icon: Hash, label: `${stats.chars} chars` },
+                    { icon: Clock, label: `${stats.readingTime} min` },
+                  ].map(({ icon: Icon, label }, i) => (
+                    <div key={i} className="flex items-center gap-1.5 text-[11px] opacity-40">
+                      <Icon size={10} />
+                      <span>{label}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+                <div className="flex items-center gap-2">
+                  <BarChart3 size={10} className={qualityColor} />
+                  <span className={`text-[11px] font-bold ${qualityColor}`}>{qualityLabel}</span>
+                  <div className="w-14 h-1.5 bg-base-200 rounded-full overflow-hidden">
+                    <motion.div
+                      className={`h-full rounded-full ${qualityScore >= 80 ? 'bg-success' : qualityScore >= 60 ? 'bg-primary' : qualityScore >= 30 ? 'bg-warning' : 'bg-base-300'}`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${qualityScore}%` }}
+                      transition={{ duration: 0.5, ease: 'easeOut' }}
+                    />
+                  </div>
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -94,15 +130,20 @@ export default function ReadmePreview({ markdown, stats }) {
               </ReactMarkdown>
             </motion.div>
           ) : (
-            <motion.pre
+            <motion.div
               key="raw"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
-              className="text-xs font-mono whitespace-pre-wrap leading-relaxed rounded-xl p-4 bg-base-200 border border-base-300 select-all"
+              className="relative"
             >
-              {markdown}
-            </motion.pre>
+              <pre className="text-xs font-mono whitespace-pre-wrap leading-relaxed rounded-xl p-4 bg-base-200/80 border border-base-300 select-all overflow-auto max-h-[70vh]">
+                {markdown}
+              </pre>
+              <div className="absolute top-2 right-2 badge badge-xs badge-ghost font-mono">
+                {stats.chars} chars
+              </div>
+            </motion.div>
           )}
         </div>
       </div>

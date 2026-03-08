@@ -5,6 +5,7 @@ import {
   Sun, Moon, Trash2, Database, Info, Sparkles
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { getTools } from '../utils/toolRegistry';
 
 export default function Settings() {
   const { theme, setTheme, themes } = useTheme();
@@ -100,7 +101,7 @@ export default function Settings() {
           </div>
 
           {/* Theme grid */}
-          <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
             {filteredThemes.map((t, i) => {
               const isActive = theme === t.id;
               return (
@@ -259,11 +260,13 @@ export default function Settings() {
           <div className="overflow-x-auto">
             <table className="table table-sm">
               <tbody>
-                <tr><td className="font-semibold opacity-70">Version</td><td>1.0.0</td></tr>
+                <tr><td className="font-semibold opacity-70">Version</td><td>2.0.0</td></tr>
                 <tr><td className="font-semibold opacity-70">Framework</td><td>React 19 + Vite 5</td></tr>
-                <tr><td className="font-semibold opacity-70">UI Library</td><td>DaisyUI + TailwindCSS</td></tr>
+                <tr><td className="font-semibold opacity-70">UI Library</td><td>DaisyUI 5 + TailwindCSS 3</td></tr>
+                <tr><td className="font-semibold opacity-70">Total Tools</td><td>{getTools().filter(t => t.id !== 'settings').length} developer tools</td></tr>
                 <tr><td className="font-semibold opacity-70">Available Themes</td><td>{themes.length} themes</td></tr>
-                <tr><td className="font-semibold opacity-70">Storage</td><td>Browser LocalStorage (client-side only)</td></tr>
+                <tr><td className="font-semibold opacity-70">Privacy</td><td>100% client-side — no data sent to any server</td></tr>
+                <tr><td className="font-semibold opacity-70">Storage</td><td>Browser LocalStorage only</td></tr>
               </tbody>
             </table>
           </div>

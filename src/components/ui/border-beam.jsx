@@ -18,27 +18,29 @@ export const BorderBeam = ({
 }) => {
   return (
     <div
-      className="pointer-events-none absolute inset-0 rounded-[inherit] border-(length:--border-beam-width) border-transparent mask-[linear-gradient(transparent,transparent),linear-gradient(#000,#000)] mask-intersect [mask-clip:padding-box,border-box]"
-      style={
-        {
-          "--border-beam-width": `${borderWidth}px`
-        }
-      }>
+      className="pointer-events-none absolute inset-0 rounded-[inherit] overflow-hidden"
+      style={{
+        borderWidth: `${borderWidth}px`,
+        borderStyle: "solid",
+        borderColor: "transparent",
+        maskImage: "linear-gradient(transparent, transparent), linear-gradient(#000, #000)",
+        WebkitMaskImage: "linear-gradient(transparent, transparent), linear-gradient(#000, #000)",
+        maskComposite: "intersect",
+        WebkitMaskComposite: "xor",
+        maskClip: "padding-box, border-box",
+        WebkitMaskClip: "padding-box, border-box",
+      }}>
       <motion.div
         className={cn(
           "absolute aspect-square",
-          "bg-linear-to-l from-(--color-from) via-(--color-to) to-transparent",
           className
         )}
-        style={
-          {
-            width: size,
-            offsetPath: `rect(0 auto auto 0 round ${size}px)`,
-            "--color-from": colorFrom,
-            "--color-to": colorTo,
-            ...style
-          }
-        }
+        style={{
+          width: size,
+          offsetPath: `rect(0 auto auto 0 round ${size}px)`,
+          background: `linear-gradient(to left, ${colorFrom}, ${colorTo}, transparent)`,
+          ...style,
+        }}
         initial={{ offsetDistance: `${initialOffset}%` }}
         animate={{
           offsetDistance: reverse
