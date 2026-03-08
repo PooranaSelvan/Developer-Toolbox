@@ -2,10 +2,41 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Settings as SettingsIcon, Palette, Monitor, Check,
-  Sun, Moon, Trash2, Database, Info, Sparkles
+  Sun, Moon, Trash2, Database, Info, Sparkles,
+  ExternalLink, Heart, Code2, Star,
+  Globe, MapPin
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { getTools } from '../utils/toolRegistry';
+
+// ─── Inline SVG icons (Github & Twitter are deprecated in lucide-react) ───
+const GithubIcon = ({ size = 16, className = '' }) => (
+  <svg viewBox="0 0 16 16" width={size} height={size} className={className} fill="currentColor">
+    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+  </svg>
+);
+
+const TwitterXIcon = ({ size = 16, className = '' }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} className={className} fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
+// ─── Author Details ───
+const AUTHOR = {
+  name: 'Poorana Selvan',
+  username: 'PooranaSelvan',
+  bio: 'Passionate Full-Stack Developer crafting clean, performant, and user-friendly web experiences.',
+  avatar: 'https://avatars.githubusercontent.com/u/130943602?v=4',
+  location: 'India',
+  github: 'https://github.com/PooranaSelvan',
+  twitter: 'https://x.com/POORANASELVAN_P',
+  portfolio: 'https://poorana-selvan.vercel.app/',
+  skills: ['React', 'JavaScript', 'TypeScript', 'Node.js', 'Tailwind CSS', 'MongoDB'],
+  repos: [
+    { name: 'Developer Toolbox', desc: 'All-in-one developer toolkit', stars: '⭐', lang: 'React' },
+  ],
+};
 
 export default function Settings() {
   const { theme, setTheme, themes } = useTheme();
@@ -240,11 +271,166 @@ export default function Settings() {
         </div>
       </motion.div>
 
-      {/* About Section */}
+      {/* ─── Author / Creator Section ─── */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.4 }}
+      >
+        <div className="rounded-xl border border-base-300 bg-base-100 overflow-hidden">
+          {/* Author Header Banner */}
+          <div className="relative h-28 sm:h-32 overflow-hidden">
+            <div
+              className="absolute inset-0"
+              style={{
+                background: `linear-gradient(135deg, 
+                  color-mix(in oklch, var(--color-primary) 80%, var(--color-secondary)) 0%, 
+                  var(--color-primary) 40%, 
+                  color-mix(in oklch, var(--color-secondary, var(--color-primary)) 70%, var(--color-primary)) 100%)`,
+              }}
+            />
+            {/* Decorative pattern overlay */}
+            <div className="absolute inset-0 opacity-10" style={{
+              backgroundImage: `radial-gradient(circle at 20% 50%, white 1px, transparent 1px),
+                                radial-gradient(circle at 80% 20%, white 1px, transparent 1px),
+                                radial-gradient(circle at 60% 80%, white 1px, transparent 1px)`,
+              backgroundSize: '60px 60px, 80px 80px, 40px 40px',
+            }} />
+            {/* Floating shapes */}
+            <div className="absolute top-4 right-8 w-16 h-16 rounded-full border border-white/10 animate-float-slow" />
+            <div className="absolute bottom-4 left-12 w-10 h-10 rounded-lg border border-white/10 rotate-12 animate-float" />
+            <div className="absolute top-8 left-1/3 w-6 h-6 rounded-full bg-white/5" />
+          </div>
+
+          <div className="px-6 pb-6">
+            {/* Avatar - overlapping banner */}
+            <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 sm:-mt-10 mb-5">
+              <div className="relative shrink-0">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden ring-4 ring-base-100 shadow-xl">
+                  <img
+                    src={AUTHOR.avatar}
+                    alt={AUTHOR.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(AUTHOR.name)}&size=96&background=6366f1&color=fff&bold=true`;
+                    }}
+                  />
+                </div>
+                {/* Online indicator */}
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-success ring-2 ring-base-100 flex items-center justify-center">
+                  <Check size={12} className="text-success-content" />
+                </div>
+              </div>
+
+              <div className="flex-1 min-w-0 sm:pb-1">
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                  <h2 className="text-xl font-extrabold tracking-tight">{AUTHOR.name}</h2>
+                  <span className="badge badge-primary badge-sm gap-1 font-semibold shadow-sm shadow-primary/15">
+                    <Code2 size={10} />
+                    Creator
+                  </span>
+                </div>
+                <p className="text-xs opacity-50 flex items-center gap-1.5">
+                  <GithubIcon size={12} />
+                  @{AUTHOR.username}
+                  {AUTHOR.location && (
+                    <>
+                      <span className="opacity-30 mx-0.5">·</span>
+                      <MapPin size={11} />
+                      {AUTHOR.location}
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+
+            {/* Bio */}
+            <p className="text-sm leading-relaxed opacity-65 mb-5">
+              {AUTHOR.bio}
+            </p>
+
+            {/* Tech Skills */}
+            <div className="mb-5">
+              <p className="text-[10px] font-bold uppercase tracking-widest opacity-35 mb-2.5">Tech Stack</p>
+              <div className="flex flex-wrap gap-1.5">
+                {AUTHOR.skills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="badge badge-ghost badge-sm font-medium hover:bg-primary/10 hover:text-primary transition-colors duration-200 cursor-default"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Social Links */}
+            <div className="flex flex-wrap gap-2">
+              <a
+                href={AUTHOR.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-sm gap-2 rounded-xl bg-[#24292e] hover:bg-[#1b1f23] text-white border-0 shadow-sm hover:shadow-md hover:shadow-black/10 transition-all duration-200 hover:-translate-y-0.5"
+              >
+                <GithubIcon size={15} />
+                GitHub
+                <ExternalLink size={11} className="opacity-50" />
+              </a>
+              <a
+                href={AUTHOR.portfolio}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-sm gap-2 rounded-xl btn-primary shadow-sm hover:shadow-md hover:shadow-primary/20 transition-all duration-200 hover:-translate-y-0.5"
+              >
+                <Globe size={15} />
+                Portfolio
+                <ExternalLink size={11} className="opacity-50" />
+              </a>
+              <a
+                href={AUTHOR.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-sm gap-2 rounded-xl bg-[#1DA1F2] hover:bg-[#1a8cd8] text-white border-0 shadow-sm hover:shadow-md hover:shadow-[#1DA1F2]/20 transition-all duration-200 hover:-translate-y-0.5"
+              >
+                <TwitterXIcon size={15} />
+                Twitter / X
+                <ExternalLink size={11} className="opacity-50" />
+              </a>
+            </div>
+
+            {/* Separator */}
+            <div className="gradient-line my-5" />
+
+            {/* Open Source CTA */}
+            <div className="rounded-xl bg-gradient-to-r from-primary/5 via-base-200/50 to-secondary/5 border border-primary/10 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Star size={20} className="text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold mb-0.5">Enjoying Developer Toolbox?</p>
+                <p className="text-xs opacity-50">Star the repo on GitHub to show your support and help others discover it!</p>
+              </div>
+              <a
+                href={`${AUTHOR.github}/developer-toolbox`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-sm btn-outline btn-primary rounded-xl gap-2 shrink-0 hover:shadow-md hover:shadow-primary/15 transition-all duration-200"
+              >
+                <Star size={14} />
+                Star on GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* About Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.4 }}
       >
         <div className="rounded-xl border border-base-300 bg-base-100 p-6">
           <div className="flex items-center gap-3 mb-5">
@@ -269,6 +455,38 @@ export default function Settings() {
                 <tr><td className="font-semibold opacity-70">Storage</td><td>Browser LocalStorage only</td></tr>
               </tbody>
             </table>
+          </div>
+
+          {/* Footer attribution */}
+          <div className="mt-5 pt-4 border-t border-base-200">
+            <p className="text-xs opacity-40 flex items-center justify-center gap-1.5 flex-wrap">
+              Made with <Heart size={12} className="text-error" /> by
+              <a
+                href={AUTHOR.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-primary hover:underline"
+              >
+                {AUTHOR.name}
+              </a>
+              <span className="opacity-50">·</span>
+              <a
+                href={AUTHOR.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="opacity-60 hover:opacity-100 transition-opacity"
+              >
+                <GithubIcon size={12} />
+              </a>
+              <a
+                href={AUTHOR.portfolio}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="opacity-60 hover:opacity-100 transition-opacity"
+              >
+                <Globe size={12} />
+              </a>
+            </p>
           </div>
         </div>
       </motion.div>
