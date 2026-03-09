@@ -43,8 +43,7 @@ export default function Dashboard() {
   const displayCategories = CATEGORIES.filter((c) => c.id !== 'preferences');
 
   return (
-    <div className="max-w-5xl mx-auto">
-      {/* ── Hero Section ── */}
+    <div className="max-w-5xl mx-auto">{/* ── Hero Section ── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -52,13 +51,40 @@ export default function Dashboard() {
         className="text-center mb-10 pt-2"
       >
         <div className="relative w-20 h-20 mx-auto mb-6">
-          <div className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center shadow-xl shadow-primary/25 relative overflow-hidden">
+          <motion.div 
+            className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-xl shadow-primary/25 relative overflow-hidden"
+            whileHover={{ scale: 1.05, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
             <Wrench size={36} className="text-primary-content relative z-10" />
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-          </div>
-          <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-lg bg-secondary flex items-center justify-center shadow-md ring-2 ring-base-200">
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0"
+              animate={{ 
+                x: ['-100%', '100%'],
+              }}
+              transition={{ 
+                duration: 3, 
+                repeat: Infinity, 
+                ease: "linear",
+                repeatDelay: 1
+              }}
+            />
+          </motion.div>
+          <motion.div 
+            className="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-lg bg-secondary flex items-center justify-center shadow-md ring-2 ring-base-200"
+            animate={{ 
+              scale: [1, 1.1, 1],
+              rotate: [0, 10, 0]
+            }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          >
             <Sparkles size={14} className="text-secondary-content" />
-          </div>
+          </motion.div>
         </div>
 
         <h1 className="text-3xl sm:text-4xl font-extrabold mb-3 tracking-tight leading-tight">
@@ -181,10 +207,12 @@ export default function Dashboard() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ delay: i * 0.03, duration: 0.3 }}
                 >
-                  <Link to={tool.path} className="group block h-full">
-                    <div className="h-full rounded-xl border border-base-300/40 bg-base-100 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-base-content/[0.06] hover:border-primary/20 relative overflow-hidden">
+                <Link to={tool.path} className="group block h-full">
+                    <div className="h-full rounded-xl border border-base-300/50 bg-base-100 p-5 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/30 relative overflow-hidden">
                       {/* Subtle hover glow */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: 'radial-gradient(ellipse at top left, color-mix(in oklch, var(--color-primary) 4%, transparent), transparent 70%)' }} />
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{ background: 'radial-gradient(ellipse at top left, color-mix(in oklch, var(--color-primary) 6%, transparent), transparent 70%)' }} />
+                      {/* Shine effect */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ background: 'linear-gradient(135deg, transparent 0%, color-mix(in oklch, var(--color-primary) 3%, transparent) 50%, transparent 100%)' }} />
                       <div className="relative flex items-start gap-3.5">
                         <div className="w-11 h-11 rounded-xl bg-primary/8 flex items-center justify-center shrink-0 text-primary transition-all duration-300 group-hover:bg-primary/12 group-hover:scale-[1.06] group-hover:shadow-md group-hover:shadow-primary/10">
                           <Icon size={22} strokeWidth={1.8} />

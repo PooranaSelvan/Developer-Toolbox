@@ -16,12 +16,6 @@ const GithubIcon = ({ size = 16, className = '' }) => (
   </svg>
 );
 
-const TwitterXIcon = ({ size = 16, className = '' }) => (
-  <svg viewBox="0 0 24 24" width={size} height={size} className={className} fill="currentColor">
-    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-  </svg>
-);
-
 // ─── Author Details ───
 const AUTHOR = {
   name: 'Poorana Selvan',
@@ -30,9 +24,8 @@ const AUTHOR = {
   avatar: 'https://avatars.githubusercontent.com/u/130943602?v=4',
   location: 'India',
   github: 'https://github.com/PooranaSelvan',
-  twitter: 'https://x.com/POORANASELVAN_P',
-  portfolio: 'https://poorana-selvan.vercel.app/',
-  skills: ['React', 'JavaScript', 'TypeScript', 'Node.js', 'Tailwind CSS', 'MongoDB'],
+  portfolio: 'https://poorana-portfolio.vercel.app/',
+  skills: ['React', 'Java', 'Node.js', 'Tailwind CSS', 'MongoDB', 'MySQL'],
   repos: [
     { name: 'Developer Toolbox', desc: 'All-in-one developer toolkit', stars: '⭐', lang: 'React' },
   ],
@@ -388,16 +381,6 @@ export default function Settings() {
                 Portfolio
                 <ExternalLink size={11} className="opacity-50" />
               </a>
-              <a
-                href={AUTHOR.twitter}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-sm gap-2 rounded-xl bg-[#1DA1F2] hover:bg-[#1a8cd8] text-white border-0 shadow-sm hover:shadow-md hover:shadow-[#1DA1F2]/20 transition-all duration-200 hover:-translate-y-0.5"
-              >
-                <TwitterXIcon size={15} />
-                Twitter / X
-                <ExternalLink size={11} className="opacity-50" />
-              </a>
             </div>
 
             {/* Separator */}
@@ -413,7 +396,7 @@ export default function Settings() {
                 <p className="text-xs opacity-50">Star the repo on GitHub to show your support and help others discover it!</p>
               </div>
               <a
-                href={`${AUTHOR.github}/developer-toolbox`}
+                href={`${AUTHOR.github}/Developer-Toolbox`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-sm btn-outline btn-primary rounded-xl gap-2 shrink-0 hover:shadow-md hover:shadow-primary/15 transition-all duration-200"

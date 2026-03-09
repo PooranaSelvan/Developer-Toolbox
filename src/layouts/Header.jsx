@@ -12,10 +12,8 @@ export default function Header({ onMenuToggle }) {
   const quickThemes = ['emerald', 'forest', 'light', 'dark', 'dracula', 'nord', 'cyberpunk', 'coffee'];
   const isHome = location.pathname === '/';
   const toolCategory = currentTool ? CATEGORIES.find(c => c.id === currentTool.category) : null;
-
-  return (
-    <header className="h-14 sm:h-16 bg-base-100/80 backdrop-blur-xl border-b border-base-300/30 flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-20">
-      <div className="flex items-center gap-3 min-w-0">
+return (
+    <header className="h-14 sm:h-16 bg-base-100/85 backdrop-blur-xl border-b border-base-300/40 flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-20 shadow-sm">      <div className="flex items-center gap-3 min-w-0">
         {/* Mobile hamburger */}
         <button onClick={onMenuToggle} className="btn btn-ghost btn-sm btn-square lg:hidden shrink-0">
           <Menu size={20} />

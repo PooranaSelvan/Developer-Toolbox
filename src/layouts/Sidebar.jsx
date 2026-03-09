@@ -61,11 +61,10 @@ export default function Sidebar({ isOpen, onClose }) {
 
   return (
     <aside
-      className={`fixed left-0 top-0 bottom-0 w-[272px] bg-base-100 border-r border-base-300/50 flex flex-col z-40 transition-transform duration-300 ease-out lg:translate-x-0 ${
-        isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+      className={`fixed left-0 top-0 bottom-0 w-[272px] bg-base-100 border-r border-base-300/60 flex flex-col z-40 transition-transform duration-300 ease-out lg:translate-x-0 shadow-xl ${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
-    >
-      {/* ─── Logo ─── */}
+    >      {/* ─── Logo ─── */}
       <div className="h-16 flex items-center gap-3 px-5 border-b border-base-300/50 shrink-0">
         <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
           <Wrench size={20} className="text-primary-content" />

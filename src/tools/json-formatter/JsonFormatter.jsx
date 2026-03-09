@@ -1,3 +1,10 @@
+
+
+
+
+
+
+
 import { useState, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -122,7 +129,7 @@ function TreeView({ data, level = 0, searchTerm = '' }) {
             <span className="text-xs font-mono font-semibold text-primary">{key}</span>
             <span className="badge badge-xs badge-secondary">Object{`{${keys.length}}`}</span>
           </div>
-          {!isCollapsed && keys.map(k => <TreeView key={k} data={{ [k]: value[k] }} level={level + 1} searchTerm={searchTerm} />)}
+          {!isCollapsed && keys.map(k => renderValue(k, value[k], fullPath))}
         </div>
       );
     }

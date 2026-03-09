@@ -6,10 +6,8 @@ import Header from './Header';
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-
-  return (
-    <div className="min-h-screen bg-base-200">
-      {/* Mobile overlay */}
+return (
+    <div className="min-h-screen bg-gradient-to-br from-base-200 via-base-200 to-base-300/30">      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-30 lg:hidden transition-opacity duration-300"

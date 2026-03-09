@@ -14,73 +14,10 @@ import {
 } from 'lucide-react';
 import useCopyToClipboard from '../../hooks/useCopyToClipboard';
 import useLocalStorage from '../../hooks/useLocalStorage';
+import CodeMirrorEditor from './CodeMirrorEditor';
 import './FrontendPlayground.css';
 
-/* ═══════════════════════════════════════════════════════════
-   AUTOCOMPLETE DEFINITIONS
-   ═══════════════════════════════════════════════════════════ */
-const HTML_TAGS=['div','span','p','a','img','ul','ol','li','h1','h2','h3','h4','h5','h6','header','footer','nav','main','section','article','aside','figure','figcaption','form','input','button','select','option','textarea','label','fieldset','legend','table','thead','tbody','tfoot','tr','th','td','caption','colgroup','col','video','audio','source','canvas','svg','path','circle','rect','line','polygon','details','summary','dialog','template','slot','blockquote','pre','code','em','strong','small','sub','sup','mark','del','ins','abbr','time','br','hr','wbr','iframe','embed','object','picture','map','area','datalist','output','progress','meter','ruby','rt','rp','bdi','bdo'];
-const HTML_ATTRIBUTES={global:['id','class','style','title','lang','dir','tabindex','hidden','draggable','contenteditable','spellcheck','data-','aria-','role','accesskey','autofocus'],a:['href','target','rel','download','hreflang','type'],img:['src','alt','width','height','loading','decoding','srcset','sizes'],input:['type','name','value','placeholder','required','disabled','readonly','min','max','step','pattern','autocomplete','checked','multiple','accept'],button:['type','disabled','form','name','value'],form:['action','method','enctype','target','novalidate','autocomplete'],select:['name','multiple','size','required','disabled'],textarea:['name','rows','cols','placeholder','required','disabled','readonly','maxlength','wrap'],video:['src','controls','autoplay','loop','muted','poster','width','height','preload'],audio:['src','controls','autoplay','loop','muted','preload'],iframe:['src','width','height','sandbox','allow','loading','name'],table:['border','cellpadding','cellspacing'],td:['colspan','rowspan','headers'],th:['colspan','rowspan','headers','scope'],label:['for'],option:['value','selected','disabled'],source:['src','type','srcset','sizes','media'],link:['rel','href','type','media'],meta:['name','content','charset','http-equiv'],script:['src','type','async','defer','crossorigin'],canvas:['width','height'],svg:['viewBox','xmlns','fill','stroke','width','height'],progress:['value','max'],meter:['value','min','max','low','high','optimum'],details:['open'],dialog:['open']};
-const CSS_PROPERTIES=['align-content','align-items','align-self','animation','animation-delay','animation-direction','animation-duration','animation-fill-mode','animation-iteration-count','animation-name','animation-play-state','animation-timing-function','aspect-ratio','backdrop-filter','backface-visibility','background','background-attachment','background-blend-mode','background-clip','background-color','background-image','background-origin','background-position','background-repeat','background-size','border','border-bottom','border-collapse','border-color','border-image','border-left','border-radius','border-right','border-spacing','border-style','border-top','border-width','bottom','box-decoration-break','box-shadow','box-sizing','caption-side','caret-color','clear','clip-path','color','column-count','column-gap','column-rule','columns','content','counter-increment','counter-reset','cursor','direction','display','empty-cells','filter','flex','flex-basis','flex-direction','flex-flow','flex-grow','flex-shrink','flex-wrap','float','font','font-family','font-feature-settings','font-kerning','font-size','font-stretch','font-style','font-variant','font-weight','gap','grid','grid-area','grid-auto-columns','grid-auto-flow','grid-auto-rows','grid-column','grid-column-end','grid-column-start','grid-gap','grid-row','grid-row-end','grid-row-start','grid-template','grid-template-areas','grid-template-columns','grid-template-rows','height','hyphens','image-rendering','inset','isolation','justify-content','justify-items','justify-self','left','letter-spacing','line-height','list-style','list-style-image','list-style-position','list-style-type','margin','margin-bottom','margin-left','margin-right','margin-top','mask','max-height','max-width','min-height','min-width','mix-blend-mode','object-fit','object-position','opacity','order','outline','outline-color','outline-offset','outline-style','outline-width','overflow','overflow-wrap','overflow-x','overflow-y','padding','padding-bottom','padding-left','padding-right','padding-top','page-break-after','page-break-before','page-break-inside','perspective','perspective-origin','place-content','place-items','place-self','pointer-events','position','quotes','resize','right','rotate','row-gap','scale','scroll-behavior','scroll-margin','scroll-padding','scroll-snap-align','scroll-snap-stop','scroll-snap-type','tab-size','table-layout','text-align','text-align-last','text-decoration','text-decoration-color','text-decoration-line','text-decoration-style','text-indent','text-overflow','text-shadow','text-transform','top','transform','transform-origin','transform-style','transition','transition-delay','transition-duration','transition-property','transition-timing-function','translate','unicode-bidi','user-select','vertical-align','visibility','white-space','widows','width','will-change','word-break','word-spacing','word-wrap','writing-mode','z-index','zoom'];
-const CSS_VALUE_HINTS={display:['none','block','inline','inline-block','flex','inline-flex','grid','inline-grid','table','contents'],position:['static','relative','absolute','fixed','sticky'],'flex-direction':['row','row-reverse','column','column-reverse'],'flex-wrap':['nowrap','wrap','wrap-reverse'],'justify-content':['flex-start','flex-end','center','space-between','space-around','space-evenly'],'align-items':['flex-start','flex-end','center','baseline','stretch'],'align-content':['flex-start','flex-end','center','space-between','space-around','stretch'],'text-align':['left','right','center','justify','start','end'],'text-transform':['none','capitalize','uppercase','lowercase'],'text-decoration':['none','underline','overline','line-through'],overflow:['visible','hidden','scroll','auto','clip'],'overflow-x':['visible','hidden','scroll','auto','clip'],'overflow-y':['visible','hidden','scroll','auto','clip'],cursor:['auto','default','pointer','move','text','wait','help','not-allowed','grab','grabbing','crosshair','zoom-in','zoom-out'],visibility:['visible','hidden','collapse'],'box-sizing':['content-box','border-box'],float:['none','left','right'],clear:['none','left','right','both'],'font-weight':['normal','bold','bolder','lighter','100','200','300','400','500','600','700','800','900'],'font-style':['normal','italic','oblique'],'white-space':['normal','nowrap','pre','pre-wrap','pre-line','break-spaces'],'word-break':['normal','break-all','keep-all','break-word'],'list-style-type':['none','disc','circle','square','decimal'],'background-size':['auto','cover','contain'],'background-repeat':['repeat','repeat-x','repeat-y','no-repeat','space','round'],'background-attachment':['scroll','fixed','local'],'border-style':['none','solid','dashed','dotted','double','groove','ridge','inset','outset'],'object-fit':['fill','contain','cover','none','scale-down'],'user-select':['none','auto','text','all'],'pointer-events':['auto','none'],resize:['none','both','horizontal','vertical'],'animation-fill-mode':['none','forwards','backwards','both'],'animation-direction':['normal','reverse','alternate','alternate-reverse'],'animation-timing-function':['ease','linear','ease-in','ease-out','ease-in-out','step-start','step-end'],'transition-timing-function':['ease','linear','ease-in','ease-out','ease-in-out'],'grid-auto-flow':['row','column','dense','row dense','column dense']};
-const JS_GLOBALS=['document','window','console','setTimeout','setInterval','clearTimeout','clearInterval','requestAnimationFrame','cancelAnimationFrame','fetch','Promise','JSON','Math','Date','Array','Object','String','Number','Boolean','RegExp','Map','Set','WeakMap','WeakSet','Symbol','Error','TypeError','RangeError','SyntaxError','parseInt','parseFloat','isNaN','isFinite','encodeURI','decodeURI','encodeURIComponent','decodeURIComponent','alert','confirm','prompt','localStorage','sessionStorage','location','history','navigator','performance','crypto','atob','btoa','URL','URLSearchParams','FormData','Headers','Request','Response','AbortController','IntersectionObserver','MutationObserver','ResizeObserver','EventTarget','Event','CustomEvent','HTMLElement','NodeList','Element','Node','DocumentFragment'];
-const JS_METHODS={document:['getElementById','getElementsByClassName','getElementsByTagName','querySelector','querySelectorAll','createElement','createTextNode','createDocumentFragment','addEventListener','removeEventListener','write','writeln','open','close','hasFocus','exitFullscreen','getSelection','execCommand'],console:['log','warn','error','info','debug','table','dir','time','timeEnd','group','groupEnd','clear','count','assert','trace'],Math:['abs','ceil','floor','round','max','min','pow','sqrt','random','sign','trunc','log','log2','log10','sin','cos','tan','PI','E'],JSON:['parse','stringify'],Array:['from','isArray','of'],Object:['keys','values','entries','assign','freeze','seal','create','defineProperty','getPrototypeOf','hasOwn'],Promise:['all','allSettled','any','race','resolve','reject'],_array:['push','pop','shift','unshift','splice','slice','concat','join','reverse','sort','find','findIndex','filter','map','reduce','reduceRight','forEach','some','every','includes','indexOf','lastIndexOf','flat','flatMap','fill','copyWithin','at','entries','keys','values'],_string:['charAt','charCodeAt','codePointAt','concat','includes','endsWith','startsWith','indexOf','lastIndexOf','match','matchAll','padEnd','padStart','repeat','replace','replaceAll','search','slice','split','substring','toLowerCase','toUpperCase','trim','trimStart','trimEnd','at'],_element:['addEventListener','removeEventListener','appendChild','removeChild','insertBefore','replaceChild','cloneNode','contains','getAttribute','setAttribute','removeAttribute','hasAttribute','classList','closest','matches','querySelector','querySelectorAll','getBoundingClientRect','scrollIntoView','focus','blur','innerHTML','textContent','innerText','style','className','dataset','parentElement','children','firstChild','lastChild','nextSibling','previousSibling']};
-const JS_KEYWORDS=['const','let','var','function','return','if','else','for','while','do','switch','case','break','continue','default','try','catch','finally','throw','new','delete','typeof','instanceof','in','of','class','extends','super','this','import','export','from','async','await','yield','static','get','set','true','false','null','undefined','void','with','debugger','=>'];
-const JS_SNIPPETS=[{label:'forEach',insert:'forEach((item) => {\n  \n})',detail:'Array forEach loop'},{label:'map',insert:'map((item) => {\n  return item;\n})',detail:'Array map'},{label:'filter',insert:'filter((item) => {\n  return true;\n})',detail:'Array filter'},{label:'addEventListener',insert:"addEventListener('click', (e) => {\n  \n})",detail:'Add event listener'},{label:'querySelector',insert:"querySelector('')",detail:'Select element'},{label:'fetch',insert:"fetch('')\n  .then(res => res.json())\n  .then(data => {\n    console.log(data);\n  })\n  .catch(err => console.error(err));",detail:'Fetch API call'},{label:'async function',insert:'async function name() {\n  try {\n    \n  } catch (err) {\n    console.error(err);\n  }\n}',detail:'Async function'},{label:'class',insert:'class ClassName {\n  constructor() {\n    \n  }\n}',detail:'ES6 Class'}];
 
-/* ═══════════════════════════════════════════════════════════
-   EMMET-LIKE EXPANSION ENGINE
-   ═══════════════════════════════════════════════════════════ */
-function expandEmmet(abbreviation) {
-  try {
-    const trimmed = abbreviation.trim();
-    if (!trimmed || trimmed.includes(' ')) return null;
-    function parseNode(str) {
-      const tagMatch = str.match(/^([a-z][a-z0-9]*)/i);
-      const tag = tagMatch ? tagMatch[1] : 'div';
-      let rest = tagMatch ? str.slice(tagMatch[0].length) : str;
-      let id = '', classes = [], text = '', attrs = {};
-      const idMatch = rest.match(/^#([\w-]+)/);
-      if (idMatch) { id = idMatch[1]; rest = rest.slice(idMatch[0].length); }
-      while (rest.startsWith('.')) {
-        const clsMatch = rest.match(/^\.([\w-]+)/);
-        if (clsMatch) { classes.push(clsMatch[1]); rest = rest.slice(clsMatch[0].length); } else break;
-      }
-      const attrMatch = rest.match(/^\[([^\]]+)\]/);
-      if (attrMatch) { attrMatch[1].split(',').forEach(pair => { const [k, v] = pair.split('='); if (k) attrs[k.trim()] = v ? v.replace(/['"]/g, '').trim() : ''; }); rest = rest.slice(attrMatch[0].length); }
-      const textMatch = rest.match(/^\{([^}]*)\}/);
-      if (textMatch) { text = textMatch[1]; rest = rest.slice(textMatch[0].length); }
-      let count = 1;
-      const countMatch = rest.match(/^\*(\d+)/);
-      if (countMatch) { count = parseInt(countMatch[1], 10); rest = rest.slice(countMatch[0].length); }
-      let attrStr = '';
-      if (id) attrStr += ` id="${id}"`;
-      if (classes.length) attrStr += ` class="${classes.join(' ')}"`;
-      Object.entries(attrs).forEach(([k, v]) => { attrStr += v ? ` ${k}="${v}"` : ` ${k}`; });
-      const selfClosing = ['br','hr','img','input','meta','link','source','area','embed','wbr'].includes(tag);
-      const html = selfClosing ? `<${tag}${attrStr} />` : `<${tag}${attrStr}>${text}</${tag}>`;
-      return { html, count, rest, tag, attrStr, text };
-    }
-    function expand(str, indent = 0) {
-      if (!str) return '';
-      const pad = '  '.repeat(indent);
-      let result = '';
-      const siblings = []; let depth = 0, current = '';
-      for (let i = 0; i < str.length; i++) { const ch = str[i]; if (ch === '(') depth++; else if (ch === ')') depth--; else if (ch === '+' && depth === 0) { siblings.push(current); current = ''; continue; } current += ch; }
-      siblings.push(current);
-      for (const sib of siblings) {
-        const childIdx = sib.indexOf('>');
-        if (childIdx > -1) {
-          const parentStr = sib.substring(0, childIdx), childStr = sib.substring(childIdx + 1);
-          const node = parseNode(parentStr); if (!node) continue;
-          for (let i = 0; i < node.count; i++) { const childHtml = expand(childStr, indent + 1); result += `${pad}<${node.tag}${node.attrStr}>\n${childHtml}\n${pad}</${node.tag}>\n`; }
-        } else { const node = parseNode(sib); if (!node) continue; for (let i = 0; i < node.count; i++) result += `${pad}${node.html}\n`; }
-      }
-      return result.replace(/\n$/, '');
-    }
-    return expand(trimmed) || null;
-  } catch { return null; }
-}
 
 /* ═══════════════════════════════════════════════════════════
    CDN LIBRARIES
@@ -160,123 +97,7 @@ const SAMPLES = [
     js: "document.querySelectorAll('.grid-item').forEach(item=>{item.addEventListener('click',()=>{item.style.transform='scale(0.9) rotate(5deg)';setTimeout(()=>item.style.transform='',300)});item.addEventListener('mousemove',(e)=>{const r=item.getBoundingClientRect();item.style.transform=`perspective(600px) rotateY(${((e.clientX-r.left)/r.width-.5)*10}deg) rotateX(${(.5-(e.clientY-r.top)/r.height)*10}deg) scale(1.05)`});item.addEventListener('mouseleave',()=>item.style.transform='')});" },
 ];
 
-/* ═══════════════════════════════════════════════════════════
-   AUTOCOMPLETE ENGINE
-   ═══════════════════════════════════════════════════════════ */
-function getAutocompleteSuggestions(code, cursorPos, language) {
-  const textBeforeCursor = code.substring(0, cursorPos);
-  const currentLine = textBeforeCursor.split('\n').pop() || '';
-  const suggestions = [];
-  if (language === 'html') {
-    const tagMatch = currentLine.match(/<(\w*)$/);
-    if (tagMatch) { const partial = tagMatch[1].toLowerCase(); HTML_TAGS.filter(t => t.startsWith(partial)).slice(0, 12).forEach(tag => suggestions.push({ label: tag, insert: tag, detail: 'HTML tag', kind: 'tag' })); return { suggestions, prefix: partial, type: 'tag' }; }
-    const closeMatch = currentLine.match(/<\/(\w*)$/);
-    if (closeMatch) { const partial = closeMatch[1].toLowerCase(); const openTags = [...textBeforeCursor.matchAll(/<(\w+)[^>]*>/g)].map(m => m[1]); const closeTags = [...textBeforeCursor.matchAll(/<\/(\w+)>/g)].map(m => m[1]); const unclosed = []; openTags.forEach(t => { const i = closeTags.indexOf(t); if (i >= 0) closeTags.splice(i, 1); else unclosed.push(t); }); [...new Set(unclosed.reverse())].filter(t => t.toLowerCase().startsWith(partial)).slice(0, 8).forEach(tag => suggestions.push({ label: `/${tag}`, insert: `${tag}>`, detail: 'Close tag', kind: 'tag' })); return { suggestions, prefix: partial, type: 'close-tag' }; }
-    const attrMatch = currentLine.match(/<(\w+)\s+(?:[^>]*\s+)?(\w*)$/);
-    if (attrMatch) { const tagName = attrMatch[1].toLowerCase(); const partial = attrMatch[2].toLowerCase(); const attrs = [...(HTML_ATTRIBUTES.global || []), ...(HTML_ATTRIBUTES[tagName] || [])]; [...new Set(attrs)].filter(a => a.startsWith(partial)).slice(0, 12).forEach(attr => suggestions.push({ label: attr, insert: `${attr}=""`, detail: `<${tagName}>`, kind: 'attribute' })); return { suggestions, prefix: partial, type: 'attribute' }; }
-  }
-  if (language === 'css') {
-    const valueMatch = currentLine.match(/([\w-]+)\s*:\s*([\w-]*)$/);
-    if (valueMatch) { const prop = valueMatch[1]; const partial = valueMatch[2].toLowerCase(); const values = CSS_VALUE_HINTS[prop] || []; values.filter(v => v.startsWith(partial)).slice(0, 12).forEach(val => suggestions.push({ label: val, insert: val, detail: `${prop}`, kind: 'value' })); if (suggestions.length > 0) return { suggestions, prefix: partial, type: 'value' }; }
-    const propMatch = currentLine.match(/(?:^|[{;]\s*)([\w-]*)$/);
-    if (propMatch) { const partial = propMatch[1].toLowerCase(); if (partial.length > 0) { CSS_PROPERTIES.filter(p => p.startsWith(partial)).slice(0, 12).forEach(prop => suggestions.push({ label: prop, insert: `${prop}: `, detail: 'property', kind: 'property' })); return { suggestions, prefix: partial, type: 'property' }; } }
-  }
-  if (language === 'js') {
-    const dotMatch = currentLine.match(/(\w+)\.\s*(\w*)$/);
-    if (dotMatch) { const obj = dotMatch[1]; const partial = dotMatch[2].toLowerCase(); const methods = JS_METHODS[obj] || JS_METHODS._element || []; methods.filter(m => m.toLowerCase().startsWith(partial)).slice(0, 12).forEach(method => suggestions.push({ label: method, insert: method, detail: `${obj}`, kind: 'method' })); if (suggestions.length === 0) [...(JS_METHODS._array || []), ...(JS_METHODS._string || [])].filter(m => m.toLowerCase().startsWith(partial)).slice(0, 12).forEach(method => suggestions.push({ label: method, insert: method, detail: 'method', kind: 'method' })); return { suggestions, prefix: partial, type: 'method' }; }
-    const wordMatch = currentLine.match(/(\w+)$/);
-    if (wordMatch) { const partial = wordMatch[1].toLowerCase(); if (partial.length >= 2) { JS_KEYWORDS.filter(k => k.startsWith(partial) && k !== partial).slice(0, 5).forEach(kw => suggestions.push({ label: kw, insert: kw, detail: 'keyword', kind: 'keyword' })); JS_GLOBALS.filter(g => g.toLowerCase().startsWith(partial) && g.toLowerCase() !== partial).slice(0, 6).forEach(g => suggestions.push({ label: g, insert: g, detail: 'global', kind: 'global' })); JS_SNIPPETS.filter(s => s.label.toLowerCase().startsWith(partial)).slice(0, 4).forEach(s => suggestions.push({ label: s.label, insert: s.insert, detail: s.detail, kind: 'snippet' })); return { suggestions, prefix: partial, type: 'word' }; } }
-  }
-  return { suggestions: [], prefix: '', type: null };
-}
 
-/* ═══════════════════════════════════════════════════════════
-   SMART CODE EDITOR
-   ═══════════════════════════════════════════════════════════ */
-function SmartEditor({ value, onChange, language, placeholder, minRows = 18, wordWrap = false, onCursorChange, fontSize = 13 }) {
-  const textareaRef = useRef(null), autocompleteRef = useRef(null), gutterRef = useRef(null);
-  const [autocomplete, setAutocomplete] = useState({ visible: false, suggestions: [], index: 0, prefix: '', type: null, position: { top: 0, left: 0 } });
-  const lineHeight = fontSize * 1.846;
-  const getCaretCoordinates = useCallback(() => {
-    const ta = textareaRef.current; if (!ta) return { top: 0, left: 0 };
-    const div = document.createElement('div'); const style = window.getComputedStyle(ta);
-    ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','wordSpacing','textIndent','paddingTop','paddingLeft','paddingRight','borderTopWidth','borderLeftWidth','boxSizing','whiteSpace','wordWrap','overflowWrap','tabSize'].forEach(p => div.style[p] = style[p]);
-    div.style.position = 'absolute'; div.style.visibility = 'hidden'; div.style.whiteSpace = 'pre-wrap'; div.style.wordWrap = 'break-word'; div.style.width = ta.offsetWidth + 'px'; div.style.height = 'auto'; div.style.overflow = 'hidden';
-    div.appendChild(document.createTextNode(ta.value.substring(0, ta.selectionEnd))); const marker = document.createElement('span'); marker.textContent = '|'; div.appendChild(marker); document.body.appendChild(div);
-    const top = marker.offsetTop, left = marker.offsetLeft; document.body.removeChild(div);
-    return { top: top - ta.scrollTop + parseInt(style.paddingTop) + parseInt(style.borderTopWidth), left: Math.min(left, ta.offsetWidth - 250) };
-  }, []);
-  const triggerAutocomplete = useCallback((newValue, cursorPos) => {
-    const result = getAutocompleteSuggestions(newValue, cursorPos, language);
-    if (result.suggestions.length > 0) { const pos = getCaretCoordinates(); setAutocomplete({ visible: true, suggestions: result.suggestions, index: 0, prefix: result.prefix, type: result.type, position: { top: pos.top + 22, left: Math.max(0, pos.left - (result.prefix.length * 7.2)) } }); }
-    else setAutocomplete(prev => ({ ...prev, visible: false }));
-  }, [language, getCaretCoordinates]);
-  const applySuggestion = useCallback((suggestion) => {
-    const ta = textareaRef.current; if (!ta) return;
-    const cursorPos = ta.selectionEnd, prefix = autocomplete.prefix;
-    onChange(value.substring(0, cursorPos - prefix.length) + suggestion.insert + value.substring(cursorPos));
-    setAutocomplete(prev => ({ ...prev, visible: false }));
-    requestAnimationFrame(() => { const newPos = (cursorPos - prefix.length) + suggestion.insert.length; ta.focus(); ta.setSelectionRange(newPos, newPos); });
-  }, [value, onChange, autocomplete.prefix]);
-  const handleScroll = useCallback(() => { if (textareaRef.current && gutterRef.current) gutterRef.current.scrollTop = textareaRef.current.scrollTop; }, []);
-  const handleKeyDown = useCallback((e) => {
-    if (autocomplete.visible) {
-      if (e.key === 'ArrowDown') { e.preventDefault(); setAutocomplete(prev => ({ ...prev, index: (prev.index + 1) % prev.suggestions.length })); return; }
-      if (e.key === 'ArrowUp') { e.preventDefault(); setAutocomplete(prev => ({ ...prev, index: (prev.index - 1 + prev.suggestions.length) % prev.suggestions.length })); return; }
-      if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); applySuggestion(autocomplete.suggestions[autocomplete.index]); return; }
-      if (e.key === 'Escape') { e.preventDefault(); setAutocomplete(prev => ({ ...prev, visible: false })); return; }
-    }
-    if (e.key === 'Tab' && !autocomplete.visible) {
-      e.preventDefault(); const ta = e.target, s = ta.selectionStart, end = ta.selectionEnd;
-      if (language === 'html' && !e.shiftKey) { const tb = value.substring(0, s); const ls = tb.lastIndexOf('\n') + 1; const cl = tb.substring(ls).trim(); if (cl && /^[a-z][\w.#\[\]{}*>+\-]*$/i.test(cl)) { const expanded = expandEmmet(cl); if (expanded) { const indent = tb.substring(ls).match(/^(\s*)/)[1]; const ie = expanded.split('\n').map(l => indent + l).join('\n'); onChange(value.substring(0, ls) + ie + value.substring(s)); requestAnimationFrame(() => { const np = ls + ie.length; ta.setSelectionRange(np, np); }); return; } } }
-      if (e.shiftKey) { const ls = value.lastIndexOf('\n', s - 1) + 1; const line = value.substring(ls, end); if (line.startsWith('  ')) { onChange(value.substring(0, ls) + line.substring(2) + value.substring(end)); requestAnimationFrame(() => ta.setSelectionRange(Math.max(ls, s - 2), end - 2)); } }
-      else { onChange(value.substring(0, s) + '  ' + value.substring(end)); requestAnimationFrame(() => ta.setSelectionRange(s + 2, s + 2)); }
-      return;
-    }
-    const pairs = { '(': ')', '[': ']', '{': '}', '"': '"', "'": "'", '`': '`' };
-    if (pairs[e.key]) { const ta = e.target, s = ta.selectionStart, end = ta.selectionEnd; if (s !== end) { e.preventDefault(); onChange(value.substring(0, s) + e.key + value.substring(s, end) + pairs[e.key] + value.substring(end)); requestAnimationFrame(() => ta.setSelectionRange(s + 1, end + 1)); return; } e.preventDefault(); onChange(value.substring(0, s) + e.key + pairs[e.key] + value.substring(end)); requestAnimationFrame(() => ta.setSelectionRange(s + 1, s + 1)); return; }
-    if ([')', ']', '}', '"', "'", '`'].includes(e.key)) { const ta = e.target, pos = ta.selectionStart; if (value[pos] === e.key) { e.preventDefault(); requestAnimationFrame(() => ta.setSelectionRange(pos + 1, pos + 1)); return; } }
-    if (e.key === 'Enter' && !autocomplete.visible) {
-      const ta = e.target, pos = ta.selectionStart, tB = value.substring(0, pos), cl = tB.split('\n').pop() || '', indent = cl.match(/^(\s*)/)[1], cB = value[pos - 1], cA = value[pos];
-      if ((cB === '{' && cA === '}') || (cB === '(' && cA === ')') || (cB === '[' && cA === ']')) { e.preventDefault(); const ni = indent + '  '; onChange(value.substring(0, pos) + '\n' + ni + '\n' + indent + value.substring(pos)); requestAnimationFrame(() => { ta.setSelectionRange(pos + 1 + ni.length, pos + 1 + ni.length); }); return; }
-      let extra = ''; if (cB === '{' || (cB === ':' && language === 'css')) extra = '  ';
-      if (indent || extra) { e.preventDefault(); onChange(value.substring(0, pos) + '\n' + indent + extra + value.substring(pos)); requestAnimationFrame(() => { const np = pos + 1 + indent.length + extra.length; ta.setSelectionRange(np, np); }); }
-    }
-    if (e.key === '/' && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault(); const ta = e.target, s = ta.selectionStart, ls = value.lastIndexOf('\n', s - 1) + 1, le = value.indexOf('\n', s), line = value.substring(ls, le === -1 ? value.length : le);
-      let cp, cs; if (language === 'html') { cp = '<!-- '; cs = ' -->'; } else if (language === 'css') { cp = '/* '; cs = ' */'; } else { cp = '// '; cs = ''; }
-      let nv, np;
-      if (language === 'js' && line.trimStart().startsWith('//')) { const st = line.replace(/^(\s*)\/\/\s?/, '$1'); nv = value.substring(0, ls) + st + value.substring(le === -1 ? value.length : le); np = s - (line.length - st.length); }
-      else if (language === 'css' && line.trimStart().startsWith('/*')) { const st = line.replace(/^(\s*)\/\*\s?/, '$1').replace(/\s?\*\/\s*$/, ''); nv = value.substring(0, ls) + st + value.substring(le === -1 ? value.length : le); np = s - (line.length - st.length); }
-      else if (language === 'html' && line.trimStart().startsWith('<!--')) { const st = line.replace(/^(\s*)<!--\s?/, '$1').replace(/\s?-->\s*$/, ''); nv = value.substring(0, ls) + st + value.substring(le === -1 ? value.length : le); np = s - (line.length - st.length); }
-      else { const cm = line.replace(/^(\s*)/, `$1${cp}`) + cs; nv = value.substring(0, ls) + cm + value.substring(le === -1 ? value.length : le); np = s + cp.length; }
-      onChange(nv); requestAnimationFrame(() => ta.setSelectionRange(Math.max(0, np), Math.max(0, np)));
-    }
-  }, [autocomplete, applySuggestion, value, onChange, language]);
-  const handleInput = useCallback((e) => { const nv = e.target.value; onChange(nv); const cp = e.target.selectionEnd; requestAnimationFrame(() => triggerAutocomplete(nv, cp)); }, [onChange, triggerAutocomplete]);
-  const handleBlur = useCallback(() => { setTimeout(() => setAutocomplete(prev => ({ ...prev, visible: false })), 200); }, []);
-  const handleCursorChange = useCallback((e) => { if (!onCursorChange) return; const ta = e.target, pos = ta.selectionStart, lines = ta.value.substring(0, pos).split('\n'); onCursorChange({ line: lines.length, col: lines[lines.length - 1].length + 1 }); }, [onCursorChange]);
-  useEffect(() => { if (autocomplete.visible && autocompleteRef.current) { const ai = autocompleteRef.current.querySelector('[data-active="true"]'); if (ai) ai.scrollIntoView({ block: 'nearest' }); } }, [autocomplete.index, autocomplete.visible]);
-  const lineCount = Math.max(value.split('\n').length, minRows);
-  const kindIcons = { tag: '🏷️', attribute: '📎', property: '🎨', value: '💎', method: '⚡', keyword: '🔑', global: '🌐', snippet: '✨', selector: '🎯', 'close-tag': '🏷️' };
-  return (
-    <div className="playground-editor-wrap relative flex h-full">
-      <div ref={gutterRef} className="playground-gutter" style={{ fontSize: `${fontSize * 0.846}px`, lineHeight: `${lineHeight}px` }}>
-        <div className="py-[0.625rem]">{Array.from({ length: lineCount }, (_, i) => (<div key={i} className="playground-line-num" style={{ height: `${lineHeight}px`, lineHeight: `${lineHeight}px` }}>{i < value.split('\n').length ? i + 1 : ''}</div>))}</div>
-      </div>
-      <textarea ref={textareaRef} value={value} onChange={handleInput} onKeyDown={handleKeyDown} onBlur={handleBlur} onScroll={handleScroll} onClick={handleCursorChange} onKeyUp={handleCursorChange} placeholder={placeholder} className="playground-textarea" spellCheck={false} autoComplete="off" autoCorrect="off" autoCapitalize="off" style={{ whiteSpace: wordWrap ? 'pre-wrap' : 'pre', overflowX: wordWrap ? 'hidden' : 'auto', fontSize: `${fontSize}px`, lineHeight: `${lineHeight}px` }} />
-      <AnimatePresence>
-        {autocomplete.visible && autocomplete.suggestions.length > 0 && (
-          <motion.div ref={autocompleteRef} initial={{ opacity: 0, y: -6, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6, scale: 0.96 }} transition={{ duration: 0.12, ease: [0.23, 1, 0.32, 1] }} className="playground-autocomplete" style={{ top: autocomplete.position.top, left: autocomplete.position.left + 48 }}>
-            <div className="playground-ac-header"><span>{autocomplete.type === 'method' ? 'Methods' : autocomplete.type === 'tag' ? 'HTML Tags' : autocomplete.type === 'property' ? 'CSS Properties' : autocomplete.type === 'value' ? 'Values' : autocomplete.type === 'attribute' ? 'Attributes' : 'Suggestions'}</span><span>{autocomplete.suggestions.length}</span></div>
-            <div className="playground-ac-body scrollbar-thin">{autocomplete.suggestions.map((s, i) => (<div key={`${s.label}-${i}`} data-active={i === autocomplete.index} className={`playground-ac-item ${i === autocomplete.index ? 'active' : ''}`} onMouseDown={(e) => { e.preventDefault(); applySuggestion(s); }} onMouseEnter={() => setAutocomplete(prev => ({ ...prev, index: i }))}><span className="playground-ac-icon">{kindIcons[s.kind] || '📝'}</span><span className="playground-ac-label">{s.label}</span><span className="playground-ac-detail">{s.detail}</span></div>))}</div>
-            <div className="playground-ac-footer"><span><kbd>↑↓</kbd> nav</span><span><kbd>Tab</kbd> accept</span><span><kbd>Esc</kbd> close</span></div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
 
 /* ═══════════════════════════════════════════════════════════
    FIND & REPLACE PANEL
@@ -395,7 +216,6 @@ export default function FrontendPlayground() {
 
   useEffect(() => { const h = (e) => { if (e.data?.type === 'console') { setConsoleOutput(prev => [...prev, { level: e.data.level, args: e.data.args, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }].slice(-200)); if (e.data.level === 'error') setShowConsole(true); } }; window.addEventListener('message', h); return () => window.removeEventListener('message', h); }, []);
   useEffect(() => { if (!autoRun) return; if (debounceRef.current) clearTimeout(debounceRef.current); debounceRef.current = setTimeout(() => setPreviewKey(k => k + 1), 600); return () => clearTimeout(debounceRef.current); }, [html, css, js, autoRun]);
-  useEffect(() => { const h = (e) => { if ((e.ctrlKey || e.metaKey) && e.key === 'f') { const pg = document.querySelector('.playground-root'); if (pg?.contains(document.activeElement)) { e.preventDefault(); setShowFindReplace(prev => !prev); } } if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { const pg = document.querySelector('.playground-root'); if (pg?.contains(document.activeElement)) { e.preventDefault(); handleUndo(); } } if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { const pg = document.querySelector('.playground-root'); if (pg?.contains(document.activeElement)) { e.preventDefault(); handleRedo(); } } }; window.addEventListener('keydown', h); return () => window.removeEventListener('keydown', h); }, [handleUndo, handleRedo]);
 
   const runPreview = useCallback(() => { setConsoleOutput([]); setPreviewKey(k => k + 1); }, []);
   const handleReset = useCallback(() => { setHtml(''); setCss(''); setJs(''); setConsoleOutput([]); setPreviewKey(k => k + 1); setUndoStack({ html: [], css: [], js: [] }); setRedoStack({ html: [], css: [], js: [] }); }, [setHtml, setCss, setJs]);
@@ -425,7 +245,7 @@ export default function FrontendPlayground() {
           <div className="playground-header-icon"><SquareCode size={22} /></div>
           <div>
             <h1 className="text-xl font-bold tracking-tight">Frontend Playground</h1>
-            <p className="playground-subtitle">Write HTML, CSS & JS with intelligent autocomplete<span className="playground-badge-intellisense"><Zap size={8} /> IntelliSense</span>{enabledCdns.length > 0 && <span className="playground-badge-cdn"><Library size={8} /> {enabledCdns.length} CDN</span>}</p>
+            <p className="playground-subtitle">Write HTML, CSS & JS with full code intelligence<span className="playground-badge-intellisense"><Zap size={8} /> CodeMirror</span>{enabledCdns.length > 0 && <span className="playground-badge-cdn"><Library size={8} /> {enabledCdns.length} CDN</span>}</p>
           </div>
         </div>
         <div className="playground-actions">
@@ -491,7 +311,15 @@ export default function FrontendPlayground() {
           </div>
           <AnimatePresence>{showFindReplace && <FindReplacePanel code={currentCode} onReplace={handleFindReplace} onClose={() => setShowFindReplace(false)} />}</AnimatePresence>
           <div className={`playground-editor-body ${isVertical ? 'stacked' : ''}`}>
-            <AnimatePresence mode="wait"><motion.div key={activeTab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.08 }} className="h-full"><SmartEditor value={currentCode} onChange={setCurrentCode} language={activeTab} placeholder={activeTab === 'html' ? '<div class="container">\n  <h1>Hello World</h1>\n</div>' : activeTab === 'css' ? 'body {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  min-height: 100vh;\n}' : 'document.querySelector("h1")\n  .addEventListener("click", () => {\n    console.log("Hello!");\n  });'} minRows={isVertical ? 12 : 22} wordWrap={wordWrap} onCursorChange={setCursorPos} fontSize={editorFontSize} /></motion.div></AnimatePresence>
+            <CodeMirrorEditor
+              value={currentCode}
+              onChange={setCurrentCode}
+              language={activeTab}
+              placeholder={activeTab === 'html' ? 'Start typing HTML... (try typing < for tag suggestions)' : activeTab === 'css' ? 'Start typing CSS... (try typing a property name)' : 'Start typing JavaScript... (try clg → console.log)'}
+              wordWrap={wordWrap}
+              onCursorChange={setCursorPos}
+              fontSize={editorFontSize}
+            />
           </div>
           <div className="playground-statusbar">
             <div className="flex items-center gap-3"><span className="playground-statusbar-item"><span style={{ color: activeTab === 'html' ? '#e34c26' : activeTab === 'css' ? '#2965f1' : '#f0db4f', fontWeight: 700 }}>{activeTab.toUpperCase()}</span></span><span className="playground-statusbar-item">Ln {cursorPos.line}, Col {cursorPos.col}</span><span className="playground-statusbar-item">{currentCode.length} chars</span>{wordWrap && <span className="playground-statusbar-item" style={{ color: 'var(--color-primary)' }}>Wrap ON</span>}</div>
@@ -516,8 +344,8 @@ export default function FrontendPlayground() {
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="playground-empty">
           <div className="playground-empty-icon"><SquareCode size={26} /></div>
           <p className="playground-empty-title">Start coding or pick a template</p>
-          <p className="playground-empty-desc">Write HTML, CSS & JavaScript with smart autocomplete, Emmet expansion, snippets, CDN injection, and live preview</p>
-          <div className="playground-empty-hints"><span><kbd>Tab</kbd> Accept / Emmet expand</span><span><kbd>Ctrl /</kbd> Toggle comment</span><span><kbd>Ctrl F</kbd> Find & Replace</span><span><kbd>Ctrl Z</kbd> Undo</span><span>Auto-close <code>( ) [ ] { } " "</code></span></div>
+          <p className="playground-empty-desc">Powered by CodeMirror 6 — real syntax highlighting, context-aware autocomplete, bracket matching, code folding, multi-cursor, snippets, CDN injection & live preview</p>
+          <div className="playground-empty-hints"><span><kbd>Tab</kbd> Accept suggestion</span><span><kbd>Ctrl+Space</kbd> Force autocomplete</span><span><kbd>Ctrl /</kbd> Toggle comment</span><span><kbd>Ctrl F</kbd> Find & Replace</span><span><kbd>!</kbd> HTML5 boilerplate</span><span><kbd>clg</kbd> console.log snippet</span></div>
         </motion.div>
       )}
 
@@ -529,7 +357,7 @@ export default function FrontendPlayground() {
             <div className="pointer-events-auto w-full max-w-md mx-4 playground-shortcuts-modal">
               <div className="playground-shortcuts-modal-header"><div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}><Keyboard size={16} style={{ color: 'var(--color-primary)' }} /><span style={{ fontWeight: 700, fontSize: '0.9rem' }}>Keyboard Shortcuts</span></div><button onClick={() => setShowShortcuts(false)} className="playground-preview-btn"><X size={14} /></button></div>
               <div className="playground-shortcuts-modal-body">
-                {[{ category: 'Editor', shortcuts: [{ key: 'Tab', desc: 'Indent / Accept / Emmet expand' },{ key: 'Shift+Tab', desc: 'Outdent selection' },{ key: 'Ctrl+/', desc: 'Toggle line comment' },{ key: 'Ctrl+F', desc: 'Find & Replace' },{ key: 'Ctrl+Z', desc: 'Undo' },{ key: 'Ctrl+Y', desc: 'Redo' },{ key: '↑↓', desc: 'Navigate autocomplete' },{ key: 'Esc', desc: 'Close panels' }] },{ category: 'Brackets & Pairs', shortcuts: [{ key: '( [ { " \'', desc: 'Auto-close brackets & quotes' },{ key: 'Select + bracket', desc: 'Wrap selection' }] },{ category: 'Emmet (HTML)', shortcuts: [{ key: 'div.class>p', desc: 'Expand to nested HTML' },{ key: 'ul>li*3', desc: 'Multiply elements' },{ key: '#id.cls', desc: 'ID + class shorthand' }] },{ category: 'Playground', shortcuts: [{ key: 'Run button', desc: 'Execute & refresh preview' },{ key: 'Auto toggle', desc: 'Live preview on keystroke' },{ key: '+/- buttons', desc: 'Editor font size' }] }].map(group => (
+                {[{ category: 'Editor (CodeMirror)', shortcuts: [{ key: 'Tab', desc: 'Indent / Accept autocomplete' },{ key: 'Shift+Tab', desc: 'Outdent selection' },{ key: 'Ctrl+/', desc: 'Toggle line comment' },{ key: 'Ctrl+F', desc: 'Find & Replace (built-in)' },{ key: 'Ctrl+H', desc: 'Find & Replace with replace' },{ key: 'Ctrl+Z', desc: 'Undo' },{ key: 'Ctrl+Shift+Z / Ctrl+Y', desc: 'Redo' },{ key: '↑↓', desc: 'Navigate autocomplete' },{ key: 'Ctrl+D', desc: 'Select next occurrence' },{ key: 'Esc', desc: 'Close panels / autocomplete' }] },{ category: 'Code Intelligence', shortcuts: [{ key: 'Type to trigger', desc: 'Context-aware autocomplete' },{ key: '< (in HTML)', desc: 'HTML tag suggestions' },{ key: '. (after object)', desc: 'Property/method suggestions' },{ key: 'Snippets: clg, qs, ael', desc: 'JS shorthand snippets' },{ key: '! (in HTML)', desc: 'HTML5 boilerplate snippet' },{ key: 'Ctrl+Space', desc: 'Force autocomplete menu' }] },{ category: 'Brackets & Folding', shortcuts: [{ key: '( [ { " \'', desc: 'Auto-close brackets & quotes' },{ key: 'Select + bracket', desc: 'Wrap selection in brackets' },{ key: 'Click ▸ in gutter', desc: 'Fold / unfold code block' },{ key: 'Bracket highlight', desc: 'Matching brackets glow' }] },{ category: 'Playground', shortcuts: [{ key: 'Run button', desc: 'Execute & refresh preview' },{ key: 'Auto toggle', desc: 'Live preview on keystroke' },{ key: '+/- buttons', desc: 'Editor font size' }] }].map(group => (
                   <div key={group.category} className="playground-shortcuts-group"><div className="playground-shortcuts-category">{group.category}</div>{group.shortcuts.map(s => (<div key={s.key} className="playground-shortcuts-row"><span className="playground-shortcuts-desc">{s.desc}</span><kbd className="playground-shortcuts-key">{s.key}</kbd></div>))}</div>
                 ))}
               </div>
