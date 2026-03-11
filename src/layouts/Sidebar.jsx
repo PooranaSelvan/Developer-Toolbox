@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Wrench, ChevronRight, ChevronDown, X, Sparkles, Search, Home, LayoutDashboard } from 'lucide-react';
 import { getTools, CATEGORIES, getToolsByCategory, searchTools } from '../utils/toolRegistry';
 import { useTheme } from '../contexts/ThemeContext';
@@ -101,13 +102,14 @@ export default function Sidebar({ isOpen, onClose }) {
     >
       {/* ── Brand ── */}
       <div className="h-16 flex items-center gap-3 px-5 border-b border-base-300/40 shrink-0">
-        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25 relative overflow-hidden">
-          <Wrench size={20} className="text-primary-content relative z-10" />
+        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25 relative overflow-hidden group/logo transition-transform duration-300 hover:scale-105 cursor-pointer">
+          <Wrench size={20} className="text-primary-content relative z-10 transition-transform duration-300 group-hover/logo:rotate-[-12deg]" />
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+          <div className="absolute inset-0 bg-white/0 group-hover/logo:bg-white/5 transition-colors duration-300" />
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-sm font-extrabold leading-tight tracking-tight">Developer</h1>
-          <h1 className="text-sm font-extrabold leading-tight gradient-text">Toolbox</h1>
+          <h1 className="text-sm font-extrabold leading-tight tracking-tight">Web</h1>
+          <h1 className="text-sm font-extrabold leading-tight gradient-text">Toolkit</h1>
         </div>
         <button 
           onClick={onClose} 
@@ -120,8 +122,8 @@ export default function Sidebar({ isOpen, onClose }) {
 
       {/* ── Sidebar Quick Search ── */}
       <div className="px-3 pt-3 pb-1 shrink-0">
-        <div className="relative">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30" />
+        <div className="relative group/search">
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30 transition-all duration-200 group-focus-within/search:opacity-60 group-focus-within/search:text-primary" />
           <input
             ref={sidebarSearchRef}
             type="text"
@@ -129,9 +131,9 @@ export default function Sidebar({ isOpen, onClose }) {
             onChange={(e) => setSidebarSearch(e.target.value)}
             placeholder="Quick find..."
             aria-label="Search tools"
-            className="input input-sm w-full pl-8 pr-3 rounded-xl bg-base-200/50 border-base-300/30 h-8 text-xs placeholder:text-base-content/30 focus:bg-base-100"
+            className="input input-sm w-full pl-8 pr-14 rounded-xl bg-base-200/50 border-base-300/30 h-8 text-xs placeholder:text-base-content/30 focus:bg-base-100 focus:shadow-[0_0_0_3px] focus:shadow-primary/10 transition-shadow duration-200"
           />
-          {sidebarSearch && (
+          {sidebarSearch ? (
             <button 
               onClick={() => setSidebarSearch('')} 
               className="absolute right-2 top-1/2 -translate-y-1/2 opacity-30 hover:opacity-60"
@@ -139,27 +141,40 @@ export default function Sidebar({ isOpen, onClose }) {
             >
               <X size={12} />
             </button>
+          ) : (
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 kbd-hint pointer-events-none">/</span>
           )}
         </div>
 
         {/* Quick search results overlay */}
-        {sidebarResults.length > 0 && (
-          <div className="mt-1.5 rounded-xl border border-base-300/40 bg-base-100 shadow-lg overflow-hidden">
-            {sidebarResults.map((tool) => {
-              const Icon = tool.icon;
-              return (
-                <button
-                  key={tool.id}
-                  onClick={() => { navigate(tool.path); handleNavClick(); }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-primary/[0.06] transition-colors duration-150"
-                >
-                  <Icon size={14} className="text-primary opacity-60 shrink-0" />
-                  <span className="text-xs font-medium truncate">{tool.name}</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
+        <AnimatePresence>
+          {sidebarResults.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -4, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -4, scale: 0.98 }}
+              transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="mt-1.5 rounded-xl border border-base-300/40 bg-base-100 shadow-lg overflow-hidden"
+            >
+              {sidebarResults.map((tool, idx) => {
+                const Icon = tool.icon;
+                return (
+                  <motion.button
+                    key={tool.id}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.03, duration: 0.2 }}
+                    onClick={() => { navigate(tool.path); handleNavClick(); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-primary/[0.06] transition-colors duration-150"
+                  >
+                    <Icon size={14} className="text-primary opacity-60 shrink-0" />
+                    <span className="text-xs font-medium truncate">{tool.name}</span>
+                  </motion.button>
+                );
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
 {/* Navigation */}
@@ -245,10 +260,10 @@ export default function Sidebar({ isOpen, onClose }) {
                 <span className="text-sm leading-none">{category.emoji}</span>
                 <span className="flex-1 text-left truncate">{category.label}</span>
                 <span
-                  className={`text-[9px] font-semibold tabular-nums min-w-[18px] h-[18px] flex items-center justify-center rounded-md transition-colors ${
+                  className={`text-[9px] font-semibold tabular-nums min-w-[18px] h-[18px] flex items-center justify-center rounded-md transition-all duration-200 ${
                     hasActiveTool
-                      ? 'bg-primary/10 text-primary'
-                      : 'bg-base-200/80 text-base-content/30 group-hover:bg-base-200 group-hover:text-base-content/40'
+                      ? 'bg-primary/10 text-primary scale-105'
+                      : 'bg-base-200/80 text-base-content/30 group-hover:bg-base-200 group-hover:text-base-content/40 group-hover:scale-105'
                   }`}
                 >
                   {categoryTools.length}
@@ -261,53 +276,73 @@ export default function Sidebar({ isOpen, onClose }) {
                 />
               </button>
 
-              {/* Category tools */}
-              {isExpanded && (
-                <div className="space-y-0.5 pt-1 pb-2 pl-1">
-                  {categoryTools.map((tool) => {
-                    const Icon = tool.icon;
-                    return (
-                      <NavLink
-                        key={tool.id}
-                        to={tool.path}
-                        onClick={handleNavClick}
-                        className={({ isActive }) =>
-                          `group/link relative flex items-center gap-2.5 px-3 py-[9px] rounded-xl text-[13px] font-medium transition-colors duration-200 ${
-                            isActive
-                              ? 'bg-primary/[0.08] text-primary font-semibold shadow-sm'
-                              : 'text-base-content/55 hover:text-base-content/80 hover:bg-base-200/60'
-                          }`
-                        }
-                      >
-                        {({ isActive }) => (
-                          <>
-                            {isActive && (
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
-                            )}
-                            <div
-                              className={`flex items-center justify-center w-7 h-7 rounded-lg transition-colors duration-200 shrink-0 ${
-                                isActive
-                                  ? 'bg-primary/12 text-primary'
-                                  : 'text-base-content/40 group-hover/link:bg-base-200/80 group-hover/link:text-base-content/60'
-                              }`}
+              {/* Category tools with animated expand/collapse */}
+              <AnimatePresence initial={false}>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="space-y-0.5 pt-1 pb-2 pl-1">
+                      {categoryTools.map((tool, toolIdx) => {
+                        const Icon = tool.icon;
+                        return (
+                          <motion.div
+                            key={tool.id}
+                            initial={{ opacity: 0, x: -8 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: toolIdx * 0.03, duration: 0.2 }}
+                          >
+                            <NavLink
+                              to={tool.path}
+                              onClick={handleNavClick}
+                              className={({ isActive }) =>
+                                `group/link relative flex items-center gap-2.5 px-3 py-[9px] rounded-xl text-[13px] font-medium transition-all duration-200 ${
+                                  isActive
+                                    ? 'bg-primary/[0.08] text-primary font-semibold shadow-sm'
+                                    : 'text-base-content/55 hover:text-base-content/80 hover:bg-base-200/60'
+                                }`
+                              }
                             >
-                              <Icon size={15} strokeWidth={isActive ? 2.2 : 1.8} />
-                            </div>
-                            <span className="flex-1 truncate">{tool.name}</span>
-                            <ChevronRight
-                              size={13}
-                              strokeWidth={2}
-                              className={`shrink-0 transition-opacity duration-200 ${
-                                isActive ? 'opacity-40' : 'opacity-0 group-hover/link:opacity-30'
-                              }`}
-                            />
-                          </>
-                        )}
-                      </NavLink>
-                    );
-                  })}
-                </div>
-              )}
+                              {({ isActive }) => (
+                                <>
+                                  {isActive && (
+                                    <motion.div
+                                      layoutId="sidebar-active-bar"
+                                      className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full"
+                                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                                    />
+                                  )}
+                                  <div
+                                    className={`flex items-center justify-center w-7 h-7 rounded-lg transition-all duration-200 shrink-0 ${
+                                      isActive
+                                        ? 'bg-primary/12 text-primary'
+                                        : 'text-base-content/40 group-hover/link:bg-base-200/80 group-hover/link:text-base-content/60'
+                                    }`}
+                                  >
+                                    <Icon size={15} strokeWidth={isActive ? 2.2 : 1.8} />
+                                  </div>
+                                  <span className="flex-1 truncate">{tool.name}</span>
+                                  <ChevronRight
+                                    size={13}
+                                    strokeWidth={2}
+                                    className={`shrink-0 transition-all duration-200 ${
+                                      isActive ? 'opacity-40' : 'opacity-0 group-hover/link:opacity-30 group-hover/link:translate-x-0.5'
+                                    }`}
+                                  />
+                                </>
+                              )}
+                            </NavLink>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}
@@ -377,7 +412,7 @@ export default function Sidebar({ isOpen, onClose }) {
               loading="lazy"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = 'https://ui-avatars.com/api/?name=PS&size=28&background=6366f1&color=fff&bold=true&font-size=0.45';
+                e.target.src = 'https://ui-avatars.com/api/?name=PS&size=28&background=2D79FF&color=fff&bold=true&font-size=0.45';
               }}
             />
           </div>
@@ -404,10 +439,16 @@ export default function Sidebar({ isOpen, onClose }) {
           </div>
           <div className="flex items-center gap-1.5">
             <div className="badge badge-ghost badge-xs text-base-content/20 font-mono text-[9px]">v4.0</div>
-            <div className="badge badge-primary badge-xs gap-1 font-bold shadow-sm shadow-primary/15">
+            <motion.div
+              key={toolCount}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+              className="badge badge-primary badge-xs gap-1 font-bold shadow-sm shadow-primary/15"
+            >
               <Sparkles size={8} />
               {toolCount}
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

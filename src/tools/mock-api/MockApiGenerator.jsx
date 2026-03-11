@@ -718,22 +718,30 @@ export default function MockApiGenerator() {
   }, [setEndpoints]);
 
   /* ── Import config ── */
-  const handleImport = useCallback((e) => {
+const handleImport = useCallback((e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        const config = JSON.parse(ev.target.result);
-        if (config.endpoints && Array.isArray(config.endpoints)) {
-          setEndpoints(config.endpoints.map(ep => ({ ...DEFAULT_ENDPOINT, ...ep, id: uuid() })));
+    try {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const config = JSON.parse(ev.target.result);
+          if (config.endpoints && Array.isArray(config.endpoints)) {
+            setEndpoints(config.endpoints.map(ep => ({ ...DEFAULT_ENDPOINT, ...ep, id: uuid() })));
+          }
+        } catch (err) {
+          console.error('Failed to parse imported Mock API config:', err);
         }
-      } catch { /* ignore */ }
-    };
-    reader.readAsText(file);
+      };
+      reader.onerror = () => {
+        console.error('Failed to read file:', reader.error?.message || 'Unknown error');
+      };
+      reader.readAsText(file);
+    } catch (err) {
+      console.error('Import failed:', err);
+    }
     e.target.value = '';
   }, [setEndpoints]);
-
   /* ── Stats ── */
   const stats = useMemo(() => {
     const methods = {};
@@ -746,14 +754,15 @@ export default function MockApiGenerator() {
 
   /* ── Export ── */
   const exportConfig = useCallback((format = 'json') => {
-    const config = {
-      name: 'Mock API Configuration',
-      version: '2.0.0',
-      generatedAt: new Date().toISOString(),
-      endpoints: endpoints.map(({ id, ...rest }) => rest),
-    };
+    try {
+      const config = {
+        name: 'Mock API Configuration',
+        version: '2.0.0',
+        generatedAt: new Date().toISOString(),
+        endpoints: endpoints.map(({ id, ...rest }) => rest),
+      };
 
-    if (format === 'openapi') {
+      if (format === 'openapi') {
       const paths = {};
       endpoints.forEach(ep => {
         const path = ep.path.replace(/:(\w+)/g, '{$1}');
@@ -777,9 +786,12 @@ export default function MockApiGenerator() {
       return;
     }
 
-    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'mock-api-config.json'; a.click(); URL.revokeObjectURL(url);
+      const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'mock-api-config.json'; a.click(); URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed:', err);
+    }
   }, [endpoints]);
 
   return (

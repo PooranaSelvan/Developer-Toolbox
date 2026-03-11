@@ -17,12 +17,12 @@ export async function executeRequest({ method, url, headers = {}, params = {}, b
   try {
     // Build clean headers (filter empty keys/values)
     const cleanHeaders = Object.fromEntries(
-      Object.entries(headers).filter(([k, v]) => k.trim() && v.trim())
+      Object.entries(headers).filter(([k, v]) => k && String(k).trim() && v != null && String(v).trim())
     );
 
     // Build clean params
     const cleanParams = Object.fromEntries(
-      Object.entries(params).filter(([k, v]) => k.trim() && v.trim())
+      Object.entries(params).filter(([k, v]) => k && String(k).trim() && v != null && String(v).trim())
     );
 
     // Parse body if string

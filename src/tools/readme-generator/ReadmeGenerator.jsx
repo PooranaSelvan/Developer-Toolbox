@@ -58,10 +58,11 @@ const _autosaveCache = (() => {
         };
       }
     }
-  } catch { /* ignore */ }
+  } catch (err) {
+    console.warn('Failed to load README autosave:', err?.message || 'Unknown error');
+  }
   return null;
 })();
-
 export default function ReadmeGenerator() {
   const [formData, setFormData] = useState(() => _autosaveCache ? _autosaveCache.formData : INITIAL_FORM);
   const [template, setTemplate] = useState(() => _autosaveCache ? _autosaveCache.template : 'openSource');
@@ -103,16 +104,17 @@ export default function ReadmeGenerator() {
     });
     if (!hasContent) return;
 
-    const timer = setTimeout(() => {
+const timer = setTimeout(() => {
       try {
         localStorage.setItem('readme-generator-autosave', JSON.stringify({
           formData,
           template,
           savedAt: Date.now(),
         }));
-      } catch { /* storage full */ }
-    }, 30000);
-    return () => clearTimeout(timer);
+      } catch (err) {
+        console.warn('Failed to autosave README draft:', err?.message || 'Storage quota exceeded');
+      }
+    }, 30000);    return () => clearTimeout(timer);
   }, [formData, template]);
 
   
@@ -135,15 +137,23 @@ export default function ReadmeGenerator() {
 
     setGithubLoading(true);
 
-    const result = await deepAnalyzeRepo(parsed.owner, parsed.repo, (step) => {
-      setGithubProgress(step);
-    });
+    let result;
+    try {
+      result = await deepAnalyzeRepo(parsed.owner, parsed.repo, (step) => {
+        setGithubProgress(step);
+      });
+    } catch (err) {
+      setGithubLoading(false);
+      setGithubProgress(0);
+      setGithubError(`Unexpected error during analysis: ${err?.message || 'Unknown error'}`);
+      return;
+    }
 
     setGithubLoading(false);
     setGithubProgress(0);
 
-    if (!result.success) {
-      setGithubError(result.error);
+    if (!result || !result.success) {
+      setGithubError(result?.error || 'Analysis failed with an unknown error.');
       return;
     }
 
@@ -217,7 +227,8 @@ export default function ReadmeGenerator() {
   };
 
   const handleExportHtml = () => {
-    const html = `<!DOCTYPE html>
+    try {
+      const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -236,6 +247,9 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
 </body>
 </html>`;
     downloadFile(html, 'README.html', 'text/html');
+    } catch (err) {
+      console.error('HTML export failed:', err);
+    }
   };
 
   return (

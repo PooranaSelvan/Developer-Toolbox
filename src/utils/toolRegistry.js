@@ -1,8 +1,9 @@
 import {
   FileText, Send, Settings, Server, KeyRound, Regex, Palette,
   Blend, Square, Gem, Braces,
-  Layout,
-  Lock, Ruler,
+  Layout, Grid3X3,
+  Lock,
+  GraduationCap,
 } from 'lucide-react';
 
 const TOOLS = [
@@ -109,14 +110,15 @@ const TOOLS = [
   },
   
   {
-    id: 'css-units',
-    name: 'CSS Unit Converter',
-    description: 'Convert between px, rem, em, vw, vh, pt & more',
-    icon: Ruler,
-    path: '/css-units',
+    id: 'grid-generator',
+    name: 'Grid Generator',
+    description: 'Click & drag to build CSS Grid layouts and export clean code',
+    icon: Grid3X3,
+    path: '/grid-generator',
     category: 'frontend',
-    tags: ['css', 'units', 'px', 'rem', 'em', 'vw', 'converter', 'responsive'],
+    tags: ['grid', 'css', 'layout', 'responsive', 'generator', 'columns', 'rows', 'drag'],
   },
+  
   {
     id: 'frontend-playground',
     name: 'Frontend Playground',
@@ -125,6 +127,17 @@ const TOOLS = [
     path: '/frontend-playground',
     category: 'frontend',
     tags: ['html', 'css', 'javascript', 'playground', 'preview', 'live', 'editor'],
+  },
+
+  // ─── Learning Tools ───
+  {
+    id: 'sorting-visualizer',
+    name: 'Sorting Visualizer',
+    description: 'Learn sorting algorithms visually with step-by-step animations',
+    icon: GraduationCap,
+    path: '/sorting-visualizer',
+    category: 'learning',
+    tags: ['sorting', 'algorithms', 'visualization', 'selection', 'merge', 'bubble', 'insertion', 'dsa', 'learning'],
   },
 
   // ─── Preferences ───
@@ -142,7 +155,7 @@ const TOOLS = [
 export const CATEGORIES = [
   { id: 'developer', label: 'Developer Tools', emoji: '🛠️' },
   { id: 'frontend', label: 'Frontend Tools', emoji: '🎨' },
-  
+  { id: 'learning', label: 'Learning', emoji: '📚' },
   { id: 'preferences', label: 'Preferences', emoji: '⚙️' },
 ];
 

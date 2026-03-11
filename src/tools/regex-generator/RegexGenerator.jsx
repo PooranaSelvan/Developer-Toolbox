@@ -608,40 +608,52 @@ export default function RegexGenerator() {
   }, [pattern, flags, testString, patternName, savedPatterns, setSavedPatterns]);
 
   const handleExport = useCallback(() => {
-    const data = {
-      pattern, flags, testString, replacement,
-      matchCount: result.matches.length,
-      exportedAt: new Date().toISOString(),
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `regex-${Date.now()}.json`; a.click();
-    URL.revokeObjectURL(url);
+    try {
+      const data = {
+        pattern, flags, testString, replacement,
+        matchCount: result.matches.length,
+        exportedAt: new Date().toISOString(),
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `regex-${Date.now()}.json`; a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Regex export failed:', err);
+    }
   }, [pattern, flags, testString, replacement, result]);
 
-  const handleImport = useCallback(() => {
-    const input = document.createElement('input');
-    input.type = 'file'; input.accept = '.json';
-    input.onchange = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        try {
-          const data = JSON.parse(ev.target.result);
-          if (data.pattern) setPattern(data.pattern);
-          if (data.flags) setFlags(data.flags);
-          if (data.testString) setTestString(data.testString);
-          if (data.replacement) setReplacement(data.replacement);
-          setActiveTab('test');
-        } catch { /* ignore bad json */ }
+const handleImport = useCallback(() => {
+    try {
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = '.json';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            if (data.pattern) setPattern(data.pattern);
+            if (data.flags) setFlags(data.flags);
+            if (data.testString) setTestString(data.testString);
+            if (data.replacement) setReplacement(data.replacement);
+            setActiveTab('test');
+          } catch (err) {
+            console.error('Failed to parse imported regex file:', err);
+          }
+        };
+        reader.onerror = () => {
+          console.error('Failed to read file:', reader.error?.message || 'Unknown error');
+        };
+        reader.readAsText(file);
       };
-      reader.readAsText(file);
-    };
-    input.click();
+      input.click();
+    } catch (err) {
+      console.error('Import failed:', err);
+    }
   }, []);
-
   const TABS = [
     { id: 'test', label: 'Test & Match', icon: Play },
     { id: 'explain', label: 'Explain', icon: Eye },

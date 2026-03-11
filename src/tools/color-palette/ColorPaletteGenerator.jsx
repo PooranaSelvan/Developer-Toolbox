@@ -13,6 +13,9 @@ import useLocalStorage from '../../hooks/useLocalStorage';
 /*           COLOR HELPERS                   */
 /* ══════════════════════════════════════════ */
 function hexToHSL(hex) {
+  if (!hex || typeof hex !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    return { h: 0, s: 0, l: 0 };
+  }
   let r = parseInt(hex.slice(1, 3), 16) / 255;
   let g = parseInt(hex.slice(3, 5), 16) / 255;
   let b = parseInt(hex.slice(5, 7), 16) / 255;
@@ -42,6 +45,9 @@ function hslToHex(h, s, l) {
 }
 
 function hexToRGB(hex) {
+  if (!hex || typeof hex !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    return { r: 0, g: 0, b: 0 };
+  }
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
@@ -114,7 +120,7 @@ function generateShades(hex, count = 10) {
 const CURATED_PALETTES = [
   { name: 'Ocean Breeze', colors: ['#0077B6', '#00B4D8', '#90E0EF', '#CAF0F8', '#023E8A'], tags: ['cool', 'blue'] },
   { name: 'Sunset Glow', colors: ['#FF6B6B', '#FFA06B', '#FFD93D', '#6BCB77', '#4D96FF'], tags: ['warm', 'vibrant'] },
-  { name: 'Forest', colors: ['#2D6A4F', '#40916C', '#52B788', '#74C69D', '#95D5B2'], tags: ['green', 'nature'] },
+  { name: 'Deep Blue', colors: ['#1E3A5F', '#2D79FF', '#5B9BFF', '#8CB8FF', '#BDD7FF'], tags: ['blue', 'nature'] },
   { name: 'Lavender Dream', colors: ['#7B2CBF', '#9D4EDD', '#C77DFF', '#E0AAFF', '#F3D5FF'], tags: ['purple', 'soft'] },
   { name: 'Warm Earth', colors: ['#6B4226', '#A0522D', '#D2691E', '#DEB887', '#FAEBD7'], tags: ['brown', 'warm'] },
   { name: 'Neon Night', colors: ['#FF006E', '#FB5607', '#FFBE0B', '#8338EC', '#3A86FF'], tags: ['neon', 'vibrant'] },
@@ -123,7 +129,7 @@ const CURATED_PALETTES = [
   { name: 'Cherry Blossom', colors: ['#FFB7C5', '#FF87AB', '#FF5C8A', '#E8365D', '#C81D4E'], tags: ['pink', 'warm'] },
   { name: 'Arctic', colors: ['#CAF0F8', '#ADE8F4', '#90E0EF', '#48CAE4', '#0096C7'], tags: ['cool', 'blue'] },
   { name: 'Slate Modern', colors: ['#0F172A', '#1E293B', '#334155', '#64748B', '#94A3B8'], tags: ['gray', 'modern'] },
-  { name: 'Emerald', colors: ['#064E3B', '#065F46', '#047857', '#059669', '#10B981'], tags: ['green', 'vibrant'] },
+  { name: 'Royal Blue', colors: ['#1E3A8A', '#1D4ED8', '#2563EB', '#3B82F6', '#60A5FA'], tags: ['blue', 'vibrant'] },
 ];
 
 const HARMONY_TYPES = [

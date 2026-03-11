@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 export default function SEO({ 
-  title = 'Developer Toolbox',
+  title = 'WebToolkit',
   description = 'Your all-in-one developer toolkit with 20+ free utilities',
   keywords = 'developer tools, json formatter, api tester, code generator',
   image = '/favicon.svg',
@@ -13,7 +13,7 @@ export default function SEO({
 
   useEffect(() => {
     // Update document title
-    document.title = title.includes('Developer Toolbox') ? title : `${title} | Developer Toolbox`;
+    document.title = title.includes('WebToolkit') ? title : `${title} | WebToolkit`;
 
     // Update meta tags
     updateMetaTag('description', description);

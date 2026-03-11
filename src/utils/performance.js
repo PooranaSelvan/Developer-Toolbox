@@ -85,18 +85,18 @@ export function prefersReducedMotion() {
 
 // Local storage with quota handling
 export const safeLocalStorage = {
-  setItem: (key, value) => {
+  setItem: (key, value, _retryCount = 0) => {
     try {
       localStorage.setItem(key, JSON.stringify(value));
       return true;
     } catch (e) {
-      if (e.name === 'QuotaExceededError') {
+      if (e.name === 'QuotaExceededError' && _retryCount < 3) {
         console.warn('LocalStorage quota exceeded. Clearing old data...');
-        // Clear old data or implement LRU cache
+        // Clear old data with retry limit to prevent infinite recursion
         const keys = Object.keys(localStorage);
         if (keys.length > 0) {
           localStorage.removeItem(keys[0]);
-          return safeLocalStorage.setItem(key, value);
+          return safeLocalStorage.setItem(key, value, _retryCount + 1);
         }
       }
       console.error('Error saving to localStorage:', e);

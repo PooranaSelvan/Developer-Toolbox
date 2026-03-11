@@ -27,7 +27,7 @@ const AUTHOR = {
   portfolio: 'https://poorana-portfolio.vercel.app/',
   skills: ['React', 'Java', 'Node.js', 'Tailwind CSS', 'MongoDB', 'MySQL'],
   repos: [
-    { name: 'Developer Toolbox', desc: 'All-in-one developer toolkit', stars: '⭐', lang: 'React' },
+    { name: 'WebToolkit', desc: 'All-in-one developer toolkit', stars: '⭐', lang: 'React' },
   ],
 };
 
@@ -76,7 +76,7 @@ export default function Settings() {
           Settings
         </h1>
         <p className="text-sm opacity-60 mt-1 ml-[52px]">
-          Customize your Developer Toolbox experience
+          Customize your WebToolkit experience
         </p>
       </motion.div>
 
@@ -105,20 +105,29 @@ export default function Settings() {
             </div>
           </div>
 
-          {/* Filter tabs */}
-          <div className="flex gap-1.5 w-fit p-1.5 rounded-xl mb-6 overflow-x-auto glass-base !bg-base-200/40">
+          {/* Filter tabs with sliding indicator */}
+          <div className="flex gap-1.5 w-fit p-1.5 rounded-xl mb-6 overflow-x-auto glass-base !bg-base-200/40 relative">
             {['all', 'light', 'dark'].map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${filter === f ? 'bg-primary text-primary-content shadow-sm' : 'hover:bg-base-100 text-base-content/60'}`}
+                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-300 ${filter === f ? 'text-primary-content shadow-sm' : 'hover:bg-base-100 text-base-content/60'}`}
               >
-                {f === 'all' && <Monitor size={14} />}
-                {f === 'light' && <Sun size={14} />}
-                {f === 'dark' && <Moon size={14} />}
-                {f.charAt(0).toUpperCase() + f.slice(1)}
-                <span className={`badge badge-xs ${filter === f ? 'bg-primary-content/20 text-primary-content border-0' : 'badge-ghost'}`}>
-                  {f === 'all' ? themes.length : themes.filter(t => t.category.toLowerCase() === f).length}
+                {filter === f && (
+                  <motion.div
+                    layoutId="settings-filter-pill"
+                    className="absolute inset-0 bg-primary rounded-lg"
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-2">
+                  {f === 'all' && <Monitor size={14} />}
+                  {f === 'light' && <Sun size={14} />}
+                  {f === 'dark' && <Moon size={14} />}
+                  {f.charAt(0).toUpperCase() + f.slice(1)}
+                  <span className={`badge badge-xs ${filter === f ? 'bg-primary-content/20 text-primary-content border-0' : 'badge-ghost'}`}>
+                    {f === 'all' ? themes.length : themes.filter(t => t.category.toLowerCase() === f).length}
+                  </span>
                 </span>
               </button>
             ))}
@@ -142,13 +151,13 @@ export default function Settings() {
                       : 'border border-base-300 hover:border-primary/30'
                   }`}
                 >
-                  {/* Theme preview */}
-                  <div className="bg-base-100 p-3">
+                  {/* Theme preview with shine effect */}
+                  <div className="bg-base-100 p-3 relative overflow-hidden group-hover:after:animate-shine-sweep">
                     {/* Color dots */}
                     <div className="flex gap-1.5 mb-2.5">
-                      <div className="w-2 h-2 rounded-full bg-primary" />
-                      <div className="w-2 h-2 rounded-full bg-secondary" />
-                      <div className="w-2 h-2 rounded-full bg-accent" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-primary transition-transform duration-200 group-hover:scale-110" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-secondary transition-transform duration-200 group-hover:scale-110" style={{ transitionDelay: '50ms' }} />
+                      <div className="w-2.5 h-2.5 rounded-full bg-accent transition-transform duration-200 group-hover:scale-110" style={{ transitionDelay: '100ms' }} />
                     </div>
 
                     {/* Lines */}
@@ -219,19 +228,29 @@ export default function Settings() {
 
           {}
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="rounded-xl glass-base !bg-base-200/30 p-4">              <div className="flex items-center justify-between mb-2">
+            <div className="rounded-xl glass-base !bg-base-200/30 p-4 group/card hover:!bg-base-200/50 transition-colors duration-200">
+              <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-medium opacity-50">Storage Used</span>
-                <Database size={16} className="text-primary opacity-40" />
+                <Database size={16} className="text-primary opacity-40 group-hover/card:opacity-70 transition-opacity duration-200" />
               </div>
               <p className="text-2xl font-bold">
                 {storageUsed} <span className="text-sm font-normal opacity-50">KB</span>
               </p>
-              <p className="text-[11px] opacity-40 mt-1">API history, collections, theme prefs</p>
+              {/* Animated progress bar for storage */}
+              <div className="mt-2 h-1.5 bg-base-300/40 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min((parseFloat(storageUsed) / 5120) * 100, 100)}%` }}
+                  transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  className="h-full bg-primary/60 rounded-full"
+                />
+              </div>
+              <p className="text-[11px] opacity-40 mt-1.5">API history, collections, theme prefs</p>
             </div>
-            <div className="rounded-xl glass-base !bg-base-200/30 p-4">
+            <div className="rounded-xl glass-base !bg-base-200/30 p-4 group/card hover:!bg-base-200/50 transition-colors duration-200">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-medium opacity-50">Storage Items</span>
-                <Info size={16} className="text-secondary opacity-40" />
+                <Info size={16} className="text-secondary opacity-40 group-hover/card:opacity-70 transition-opacity duration-200" />
               </div>
               <p className="text-2xl font-bold">
                 {localStorage.length}
@@ -269,9 +288,9 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.4 }}
       >
-        <div className="rounded-xl glass-card overflow-hidden">
+        <div className="rounded-xl glass-card overflow-hidden gradient-border-hover">
           {/* Author Header Banner */}
-          <div className="relative h-28 sm:h-32 overflow-hidden">
+          <div className="relative h-28 sm:h-32 overflow-hidden group/banner">
             <div
               className="absolute inset-0"
               style={{
@@ -288,10 +307,10 @@ export default function Settings() {
                                 radial-gradient(circle at 60% 80%, white 1px, transparent 1px)`,
               backgroundSize: '60px 60px, 80px 80px, 40px 40px',
             }} />
-            {/* Floating shapes */}
-            <div className="absolute top-4 right-8 w-16 h-16 rounded-full border border-white/10 animate-float-slow" />
-            <div className="absolute bottom-4 left-12 w-10 h-10 rounded-lg border border-white/10 rotate-12 animate-float" />
-            <div className="absolute top-8 left-1/3 w-6 h-6 rounded-full bg-white/5" />
+            {/* Floating shapes with enhanced animation */}
+            <div className="absolute top-4 right-8 w-16 h-16 rounded-full border border-white/10 animate-float-slow group-hover/banner:scale-110 transition-transform duration-500" />
+            <div className="absolute bottom-4 left-12 w-10 h-10 rounded-lg border border-white/10 rotate-12 animate-float group-hover/banner:rotate-45 transition-transform duration-500" />
+            <div className="absolute top-8 left-1/3 w-6 h-6 rounded-full bg-white/5 group-hover/banner:bg-white/10 transition-colors duration-500" />
           </div>
 
           <div className="px-6 pb-6">
@@ -306,7 +325,7 @@ export default function Settings() {
                     loading="lazy"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(AUTHOR.name)}&size=96&background=6366f1&color=fff&bold=true`;
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(AUTHOR.name)}&size=96&background=2D79FF&color=fff&bold=true`;
                     }}
                   />
                 </div>
@@ -391,7 +410,7 @@ export default function Settings() {
                 <Star size={20} className="text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold mb-0.5">Enjoying Developer Toolbox?</p>
+                <p className="text-sm font-bold mb-0.5">Enjoying WebToolkit?</p>
                 <p className="text-xs opacity-50">Star the repo on GitHub to show your support and help others discover it!</p>
               </div>
               <a
@@ -421,7 +440,7 @@ export default function Settings() {
             </div>
             <div>
               <h2 className="text-lg font-bold">About</h2>
-              <p className="text-xs opacity-60">Developer Toolbox information</p>
+              <p className="text-xs opacity-60">WebToolkit information</p>
             </div>
           </div>
 

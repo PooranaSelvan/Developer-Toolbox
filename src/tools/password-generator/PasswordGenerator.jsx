@@ -72,74 +72,100 @@ function estimateCrackTime(entropy) {
   if (seconds < 31536000 * 1e6) return `${Math.round(seconds / 31536000 / 1000)}K years`;
   return `${(seconds / 31536000 / 1e6).toFixed(0)}M+ years`;
 }
-
 function generatePassword(options) {
-  const { length, lowercase, uppercase, digits, symbols, excludeAmbiguous, excludeSimilar, customChars, mustInclude } = options;
+  try {
+    const { length, lowercase, uppercase, digits, symbols, excludeAmbiguous, excludeSimilar, customChars, mustInclude } = options;
 
-  let pool = '';
-  if (lowercase) pool += LOWERCASE;
-  if (uppercase) pool += UPPERCASE;
-  if (digits) pool += DIGITS;
-  if (symbols) pool += SYMBOLS;
-  if (customChars) pool += customChars;
+    let pool = '';
+    if (lowercase) pool += LOWERCASE;
+    if (uppercase) pool += UPPERCASE;
+    if (digits) pool += DIGITS;
+    if (symbols) pool += SYMBOLS;
+    if (customChars) pool += customChars;
 
-  if (excludeAmbiguous) pool = pool.split('').filter(c => !AMBIGUOUS.includes(c)).join('');
-  if (excludeSimilar) pool = pool.split('').filter(c => !SIMILAR_CHARS.includes(c)).join('');
+    if (excludeAmbiguous) pool = pool.split('').filter(c => !AMBIGUOUS.includes(c)).join('');
+    if (excludeSimilar) pool = pool.split('').filter(c => !SIMILAR_CHARS.includes(c)).join('');
 
-  if (!pool) return '';
+    if (!pool) return '';
 
-  // Generate cryptographically secure random values
-  const arr = new Uint32Array(length);
-  crypto.getRandomValues(arr);
-  let password = Array.from(arr).map(n => pool[n % pool.length]).join('');
+    const arr = new Uint32Array(length);
+    crypto.getRandomValues(arr);
+    let password = Array.from(arr).map(n => pool[n % pool.length]).join('');
 
-  // Ensure at least one from each required category
-  const required = [];
-  if (lowercase && mustInclude) required.push(LOWERCASE);
-  if (uppercase && mustInclude) required.push(UPPERCASE);
-  if (digits && mustInclude) required.push(DIGITS);
-  if (symbols && mustInclude) required.push(SYMBOLS);
+    const required = [];
+    if (lowercase && mustInclude) required.push(LOWERCASE);
+    if (uppercase && mustInclude) required.push(UPPERCASE);
+    if (digits && mustInclude) required.push(DIGITS);
+    if (symbols && mustInclude) required.push(SYMBOLS);
 
-  if (required.length > 0 && password.length >= required.length) {
-    const chars = password.split('');
-    const positions = Array.from({ length: password.length }, (_, i) => i);
-    // Shuffle positions
-    for (let i = positions.length - 1; i > 0; i--) {
-      const randArr = new Uint32Array(1);
-      crypto.getRandomValues(randArr);
-      const j = randArr[0] % (i + 1);
-      [positions[i], positions[j]] = [positions[j], positions[i]];
+    if (required.length > 0 && password.length >= required.length) {
+      const chars = password.split('');
+      const positions = Array.from({ length: password.length }, (_, i) => i);
+
+      for (let i = positions.length - 1; i > 0; i--) {
+        const randArr = new Uint32Array(1);
+        crypto.getRandomValues(randArr);
+        const j = randArr[0] % (i + 1);
+        [positions[i], positions[j]] = [positions[j], positions[i]];
+      }
+      required.forEach((pool, idx) => {
+        const randArr = new Uint32Array(1);
+        crypto.getRandomValues(randArr);
+        chars[positions[idx]] = pool[randArr[0] % pool.length];
+      });
+      password = chars.join('');
     }
-    required.forEach((pool, idx) => {
-      const randArr = new Uint32Array(1);
-      crypto.getRandomValues(randArr);
-      chars[positions[idx]] = pool[randArr[0] % pool.length];
-    });
-    password = chars.join('');
-  }
 
-  return password;
+    return password;
+  } catch (err) {
+    console.error('Password generation failed:', err);
+    // Fallback using Math.random if crypto API fails
+    const { length, lowercase, uppercase, digits, symbols, customChars } = options;
+    let pool = '';
+    if (lowercase) pool += LOWERCASE;
+    if (uppercase) pool += UPPERCASE;
+    if (digits) pool += DIGITS;
+    if (symbols) pool += SYMBOLS;
+    if (customChars) pool += customChars;
+    if (!pool) return '';
+    return Array.from({ length }, () => pool[Math.floor(Math.random() * pool.length)]).join('');
+  }
 }
 
 function generatePassphrase(options) {
-  const { wordCount, separator, capitalize, includeNumber } = options;
-  const arr = new Uint32Array(wordCount);
-  crypto.getRandomValues(arr);
-  let words = Array.from(arr).map(n => WORDS[n % WORDS.length]);
-  if (capitalize) words = words.map(w => w.charAt(0).toUpperCase() + w.slice(1));
-  let phrase = words.join(separator);
-  if (includeNumber) {
-    const numArr = new Uint32Array(1);
-    crypto.getRandomValues(numArr);
-    phrase += separator + (numArr[0] % 1000);
+  try {
+    const { wordCount, separator, capitalize, includeNumber } = options;
+    const arr = new Uint32Array(wordCount);
+    crypto.getRandomValues(arr);
+    let words = Array.from(arr).map(n => WORDS[n % WORDS.length]);
+    if (capitalize) words = words.map(w => w.charAt(0).toUpperCase() + w.slice(1));
+    let phrase = words.join(separator);
+    if (includeNumber) {
+      const numArr = new Uint32Array(1);
+      crypto.getRandomValues(numArr);
+      phrase += separator + (numArr[0] % 1000);
+    }
+    return phrase;
+  } catch (err) {
+    console.error('Passphrase generation failed:', err);
+    const { wordCount, separator, capitalize, includeNumber } = options;
+    let words = Array.from({ length: wordCount }, () => WORDS[Math.floor(Math.random() * WORDS.length)]);
+    if (capitalize) words = words.map(w => w.charAt(0).toUpperCase() + w.slice(1));
+    let phrase = words.join(separator);
+    if (includeNumber) phrase += separator + Math.floor(Math.random() * 1000);
+    return phrase;
   }
-  return phrase;
 }
 
 function generatePin(length) {
-  const arr = new Uint32Array(length);
-  crypto.getRandomValues(arr);
-  return Array.from(arr).map(n => n % 10).join('');
+  try {
+    const arr = new Uint32Array(length);
+    crypto.getRandomValues(arr);
+    return Array.from(arr).map(n => n % 10).join('');
+  } catch (err) {
+    console.error('PIN generation failed:', err);
+    return Array.from({ length }, () => Math.floor(Math.random() * 10)).join('');
+  }
 }
 
 export default function PasswordGenerator() {

@@ -201,22 +201,44 @@ export default function JsonFormatter() {
   const handleFileUpload = useCallback((e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => setInput(ev.target.result);
-    reader.readAsText(file);
+    try {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          setInput(ev.target.result || '');
+        } catch (err) {
+          console.error('Failed to process file content:', err);
+        }
+      };
+      reader.onerror = () => {
+        console.error('Failed to read file:', reader.error?.message || 'Unknown error');
+      };
+      reader.readAsText(file);
+    } catch (err) {
+      console.error('File upload failed:', err);
+    }
   }, []);
 
   const handlePaste = useCallback(async () => {
-    try { setInput(await navigator.clipboard.readText()); } catch {}
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) setInput(text);
+    } catch (err) {
+      console.warn('Clipboard paste failed:', err?.message || 'Access denied. Use Ctrl+V to paste manually.');
+    }
   }, []);
 
   const handleExport = useCallback(() => {
     if (!formatted) return;
-    const blob = new Blob([formatted], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `formatted-${Date.now()}.json`; a.click();
-    URL.revokeObjectURL(url);
+    try {
+      const blob = new Blob([formatted], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `formatted-${Date.now()}.json`; a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed:', err);
+    }
   }, [formatted]);
 
   const savings = useMemo(() => {

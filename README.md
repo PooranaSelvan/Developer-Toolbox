@@ -20,6 +20,9 @@
   <a href="#-features">Features</a> •
   <a href="#-tools-overview">Tools</a> •
   <a href="#-quick-start">Quick Start</a> •
+  <a href="#-user-flow">User Flow</a> •
+  <a href="#-developer-flow">Developer Flow</a> •
+  <a href="#-architecture--data-flow">Architecture</a> •
   <a href="#-tech-stack">Tech Stack</a> •
   <a href="#-project-structure">Structure</a> •
   <a href="#-theming">Theming</a> •
@@ -45,7 +48,7 @@
 
 ## 🧰 Tools Overview
 
-Developer Toolbox ships with **13 professional-grade tools** organized into two categories:
+Developer Toolbox ships with **15 professional-grade tools** organized into three categories:
 
 ### 🛠️ Developer Tools (7)
 
@@ -59,7 +62,7 @@ Developer Toolbox ships with **13 professional-grade tools** organized into two 
 | 6 | **Regex Generator** | Build, test & generate regex patterns | Live pattern matching, test string highlighting, common pattern library |
 | 7 | **Password Generator** | Generate secure passwords & passphrases | Customizable length & character sets, passphrase mode, PIN generation, strength meter |
 
-### 🎨 Frontend Tools (5)
+### 🎨 Frontend Tools (6)
 
 | # | Tool | Description | Key Features |
 |---|------|-------------|--------------|
@@ -67,13 +70,20 @@ Developer Toolbox ships with **13 professional-grade tools** organized into two 
 | 9 | **CSS Gradient** | Create CSS gradients with live preview | Linear & radial gradients, multi-stop colors, angle control, one-click CSS copy |
 | 10 | **Box Shadow** | Create layered box shadows with a visual editor | Multiple shadow layers, inset shadows, visual controls, live preview with CSS output |
 | 11 | **Glassmorphism** | Create frosted glass UI effects | Blur, transparency, border & color controls, live preview, ready-to-use CSS output |
-| 12 | **Frontend Playground** | Live HTML/CSS/JS code editor & preview | CodeMirror editor with autocomplete, instant live preview, multi-pane layout |
+| 12 | **Grid Generator** | Build CSS Grid layouts visually | Click & drag grid builder, named areas, responsive columns/rows, clean CSS export |
+| 13 | **Frontend Playground** | Live HTML/CSS/JS code editor & preview | CodeMirror editor with autocomplete, instant live preview, multi-pane layout |
+
+### 📚 Learning Tools (1)
+
+| # | Tool | Description | Key Features |
+|---|------|-------------|--------------|
+| 14 | **Sorting Visualizer** | Learn sorting algorithms visually | Bubble, Selection, Insertion, Merge, Quick Sort with step-by-step animation, speed control, sound feedback, complexity comparison |
 
 ### ⚙️ Preferences (1)
 
 | # | Tool | Description |
 |---|------|-------------|
-| 13 | **Settings** | Theme gallery with 31 themes, data management, storage overview, about info |
+| 15 | **Settings** | Theme gallery with 31 themes, data management, storage overview, about info |
 
 ---
 
@@ -118,6 +128,750 @@ npm run preview
 
 ---
 
+## 👤 User Flow
+
+This section documents how end-users interact with the application from first visit through regular usage.
+
+### First Visit Experience
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        FIRST VISIT                              │
+│                                                                 │
+│  Browser loads index.html                                       │
+│       │                                                         │
+│       ▼                                                         │
+│  ThemeProvider initializes                                      │
+│  ├─ Checks localStorage for 'devtoolbox-theme'                 │
+│  ├─ No saved theme found → defaults to 'toolbox' (light)       │
+│  └─ Sets data-theme="toolbox" on <html>                        │
+│       │                                                         │
+│       ▼                                                         │
+│  App shell renders (AppLayout)                                  │
+│  ├─ Sidebar: navigation with tool categories                   │
+│  ├─ Header: breadcrumbs + quick theme switcher                 │
+│  └─ Main: animated route content via <Outlet />                │
+│       │                                                         │
+│       ▼                                                         │
+│  HomePage renders (not lazy-loaded — immediate)                 │
+│  ├─ Hero section with animated counter stats                   │
+│  ├─ Feature cards (Speed, Privacy, Tools, Themes)              │
+│  ├─ Featured tools showcase (6 popular tools)                  │
+│  ├─ Category browser (Developer / Frontend / Learning)         │
+│  └─ Full tool grid with all 15 tools                           │
+│       │                                                         │
+│       ▼                                                         │
+│  User clicks a tool card                                        │
+│  ├─ Tool ID saved to localStorage 'devtoolbox-recent-tools'    │
+│  ├─ React Router navigates to /tool-path                       │
+│  ├─ React.lazy() triggers chunk download                       │
+│  ├─ <Suspense> shows SkeletonToolPage while loading            │
+│  └─ Tool component mounts and renders                          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Navigation Model
+
+```
+┌────────────────────────────────────────────────────────┐
+│                    APP SHELL                            │
+│                                                        │
+│  ┌──────────┐  ┌────────────────────────────────────┐  │
+│  │          │  │  Header                             │  │
+│  │          │  │  ├─ Menu toggle (mobile)            │  │
+│  │ Sidebar  │  │  ├─ Breadcrumb (Home / Tool Name)  │  │
+│  │          │  │  └─ Theme dropdown (8 quick themes) │  │
+│  │ ┌──────┐ │  ├────────────────────────────────────┤  │
+│  │ │ Logo │ │  │                                     │  │
+│  │ └──────┘ │  │          Main Content               │  │
+│  │ Search   │  │                                     │  │
+│  │ ──────── │  │    ┌───────────────────────────┐    │  │
+│  │ Home     │  │    │                           │    │  │
+│  │ Dashbrd  │  │    │   Active Tool Component   │    │  │
+│  │ ──────── │  │    │   (lazy-loaded on demand) │    │  │
+│  │ 🛠️ Dev   │  │    │                           │    │  │
+│  │  ├─Tool1 │  │    └───────────────────────────┘    │  │
+│  │  ├─Tool2 │  │                                     │  │
+│  │  └─...   │  │    Framer Motion page transitions   │  │
+│  │ 🎨 Front │  │    (fade + slide + blur)            │  │
+│  │  ├─Tool1 │  │                                     │  │
+│  │  └─...   │  │                                     │  │
+│  │ 📚 Learn │  │                                     │  │
+│  │  └─Sort  │  │                                     │  │
+│  │ ──────── │  │                                     │  │
+│  │ Settings │  │                                     │  │
+│  │ ──────── │  │                                     │  │
+│  │ Author   │  │                                     │  │
+│  │ v4.0 [15]│  │                                     │  │
+│  └──────────┘  └────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────┘
+```
+
+**Sidebar behavior:**
+- **Desktop (≥1024px):** Fixed 272px sidebar, always visible.
+- **Mobile (<1024px):** Off-canvas overlay with backdrop blur; toggles via hamburger menu; auto-closes on navigation.
+- **Quick Find:** `/` key focuses the sidebar search bar. Filters tools by name, description, and tags in real-time (max 6 results).
+- **Categories:** Collapsible accordion groups. Active tool's category auto-expands. Tool count badge per category.
+- **Active indicator:** Animated blue bar slides between active links via Framer Motion `layoutId`.
+
+### Tool Usage Patterns
+
+Each tool follows a consistent UX pattern:
+
+```
+User opens tool
+    │
+    ▼
+┌─────────────────────────────────────────────┐
+│  SEO component updates <title> + meta tags  │
+│  Tool header (icon + name + description)    │
+│  ────────────────────────────────────────── │
+│  Input Section                               │
+│  ├─ Text inputs, sliders, dropdowns         │
+│  ├─ File upload / paste area (where needed) │
+│  └─ Action buttons (Generate / Format / Run)│
+│  ────────────────────────────────────────── │
+│  Output Section                              │
+│  ├─ Live preview / results panel            │
+│  ├─ Copy to clipboard (useCopyToClipboard)  │
+│  ├─ Download as file (useDownloadFile)      │
+│  └─ Export in multiple formats              │
+│  ────────────────────────────────────────── │
+│  (Optional) Secondary tabs                   │
+│  └─ History / Saved / Info / Code Gen       │
+└─────────────────────────────────────────────┘
+    │
+    ▼
+Data persisted to localStorage (where applicable)
+via useLocalStorage hook
+```
+
+### Theme Switching Flow
+
+```
+User wants to change theme
+    │
+    ├──── Quick switch: Header dropdown → pick from 8 popular themes
+    │
+    └──── Full gallery: Settings page → visual preview of all 31 themes
+              │
+              ▼
+        ThemeContext.setTheme(newTheme)
+              │
+              ├─ Updates React state
+              ├─ Sets data-theme attribute on <html> element
+              ├─ Saves to localStorage key 'devtoolbox-theme'
+              └─ DaisyUI CSS variables cascade instantly
+                  (all colors, backgrounds, borders update via oklch)
+```
+
+### Search & Discovery Flow
+
+```
+┌──────────────────────────────────────────────────────┐
+│                  FINDING A TOOL                       │
+│                                                       │
+│  Method 1: Sidebar Quick Find                         │
+│  ├─ Press "/" or click search box in sidebar          │
+│  ├─ Type query → filters by name/desc/tags           │
+│  ├─ Results appear inline (max 6)                    │
+│  └─ Click result → navigate + clear search           │
+│                                                       │
+│  Method 2: Dashboard Search                           │
+│  ├─ Press Ctrl/⌘+K or click search on Dashboard     │
+│  ├─ Full-text search across all tools                │
+│  ├─ Filter by category buttons (All/Dev/Front/Learn) │
+│  └─ Results show as full tool cards                  │
+│                                                       │
+│  Method 3: Category Browsing                          │
+│  ├─ Sidebar accordion → expand category              │
+│  ├─ Dashboard → click category filter button         │
+│  └─ Homepage → "Explore by Category" section         │
+│                                                       │
+│  Method 4: Recent Tools                               │
+│  ├─ Homepage → "Continue Where You Left Off"         │
+│  └─ Dashboard → "Recently Used" section              │
+│      (stored in localStorage, max 8 entries)         │
+└──────────────────────────────────────────────────────┘
+```
+
+### Data Persistence Model
+
+```
+┌────────────────────────────────────────────────────┐
+│              localStorage Keys                      │
+│                                                     │
+│  devtoolbox-theme ────────── Active theme ID        │
+│  devtoolbox-recent-tools ─── Array of tool IDs     │
+│  [tool-specific keys] ────── Per-tool saved state  │
+│                                                     │
+│  ┌───────────────────────────────────────────────┐ │
+│  │  Read: useLocalStorage(key, defaultValue)     │ │
+│  │  ├─ Returns [value, setValue, removeValue]    │ │
+│  │  ├─ Initializes from localStorage or default │ │
+│  │  └─ Auto-syncs on setValue() calls           │ │
+│  │                                               │ │
+│  │  Write: All writes are try-catch wrapped      │ │
+│  │  ├─ QuotaExceededError → auto-clears old data│ │
+│  │  └─ Parse errors → graceful fallback         │ │
+│  └───────────────────────────────────────────────┘ │
+│                                                     │
+│  Settings page → "Clear All Data" button            │
+│  └─ Clears all devtoolbox-* keys from localStorage │
+└────────────────────────────────────────────────────┘
+```
+
+### Keyboard Shortcuts
+
+| Shortcut | Context | Action |
+|----------|---------|--------|
+| `/` | Anywhere | Focus sidebar search |
+| `Ctrl/⌘ + K` | Dashboard | Focus dashboard search |
+| `Escape` | Search focused | Clear search & blur |
+| `Escape` | Mobile sidebar open | Close sidebar |
+| `Tab` | Anywhere | Navigate interactive elements |
+| `Enter` | Focused tool card | Open tool |
+
+### Error Handling (User Perspective)
+
+| Scenario | What Happens |
+|----------|-------------|
+| **Tool crashes** | ErrorBoundary catches → "Oops! Something broke" card → Try Again / Reload / Go Home buttons |
+| **Invalid URL** | Redirects to `/404` → custom "Page Not Found" with animation → Back to Dashboard button |
+| **Network error (API Tester)** | Graceful error response displayed in response panel with status 0 and error message |
+| **localStorage full** | `safeLocalStorage` auto-evicts oldest key, retries up to 3 times |
+| **Clipboard denied** | `useCopyToClipboard` falls back to legacy `document.execCommand('copy')` via hidden textarea |
+
+---
+
+## 🔧 Developer Flow
+
+This section documents the development workflow, architecture decisions, and how to extend the codebase.
+
+### Development Setup
+
+```bash
+# 1. Clone & install
+git clone https://github.com/PooranaSelvan/Developer-Toolbox.git
+cd Developer-Toolbox
+npm install
+
+# 2. Start dev server (Vite with HMR)
+npm run dev
+# → http://localhost:5173
+
+# 3. Lint (ESLint flat config)
+npm run lint
+
+# 4. Production build
+npm run build     # → dist/
+npm run preview   # → preview at http://localhost:4173
+```
+
+### Application Bootstrap Sequence
+
+```
+index.html
+    │
+    ▼
+src/main.jsx
+    │
+    ├─ <StrictMode>
+    │   └─ <ThemeProvider>          ← Theme context wraps entire app
+    │       └─ <App />             ← Route definitions
+    │
+    ▼
+src/App.jsx
+    │
+    ├─ <ErrorBoundary>              ← Top-level crash handler
+    │   └─ <BrowserRouter>
+    │       └─ <Suspense fallback={SkeletonToolPage}>
+    │           └─ <Routes>
+    │               └─ <Route element={<AppLayout />}>   ← Shell (sidebar + header)
+    │                   ├─ /                → HomePage (eager-loaded)
+    │                   ├─ /dashboard       → Dashboard (eager-loaded)
+    │                   ├─ /readme-generator → lazy(ReadmeGenerator)
+    │                   ├─ /api-tester      → lazy(ApiTester)
+    │                   ├─ /mock-api        → lazy(MockApiGenerator)
+    │                   ├─ /jwt-decoder     → lazy(JwtDecoder)
+    │                   ├─ /json-formatter  → lazy(JsonFormatter)
+    │                   ├─ /regex-generator → lazy(RegexGenerator)
+    │                   ├─ /password-gen... → lazy(PasswordGenerator)
+    │                   ├─ /sorting-visual..→ lazy(SortingVisualizer)
+    │                   ├─ /color-palette   → lazy(ColorPaletteGenerator)
+    │                   ├─ /css-gradient    → lazy(CssGradientGenerator)
+    │                   ├─ /box-shadow      → lazy(BoxShadowGenerator)
+    │                   ├─ /glassmorphism   → lazy(GlassmorphismGenerator)
+    │                   ├─ /frontend-play.. → lazy(FrontendPlayground)
+    │                   ├─ /grid-generator  → lazy(GridGenerator)
+    │                   ├─ /settings        → lazy(Settings)
+    │                   ├─ /404             → lazy(NotFound)
+    │                   └─ *                → Redirect to /404
+```
+
+### Adding a New Tool (Step-by-Step)
+
+This is the complete developer workflow for adding a new tool to the application:
+
+```
+Step 1: Create tool directory & component
+─────────────────────────────────────────
+
+  mkdir src/tools/your-tool-name
+  touch src/tools/your-tool-name/YourTool.jsx
+
+
+Step 2: Build the component (follow the pattern)
+─────────────────────────────────────────────────
+```
+
+```jsx
+// src/tools/your-tool-name/YourTool.jsx
+import { useState } from 'react';
+import { ToolIcon } from 'lucide-react';
+import SEO from '../../components/SEO';
+
+export default function YourTool() {
+  const [input, setInput] = useState('');
+
+  return (
+    <>
+      {/* SEO meta tags — REQUIRED for every tool */}
+      <SEO
+        title="Your Tool - Developer Toolbox"
+        description="Brief tool description for search engines"
+        keywords="relevant, search, keywords"
+      />
+
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* ── Tool Header ── */}
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10
+                          flex items-center justify-center">
+            <ToolIcon size={20} className="text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold">Your Tool Name</h1>
+            <p className="text-sm opacity-50">Tool description</p>
+          </div>
+        </div>
+
+        {/* ── Main Content ── */}
+        <div className="section-card p-6">
+          {/* Input controls */}
+        </div>
+
+        {/* ── Output / Preview ── */}
+        <div className="section-card p-6">
+          {/* Results, preview, export buttons */}
+        </div>
+      </div>
+    </>
+  );
+}
+```
+
+```
+Step 3: Register in Tool Registry
+──────────────────────────────────
+
+  Edit: src/utils/toolRegistry.js
+```
+
+```js
+// Add to the TOOLS array in the appropriate category section:
+{
+  id: 'your-tool',
+  name: 'Your Tool',
+  description: 'Brief description of what your tool does',
+  icon: ToolIcon,         // from lucide-react
+  path: '/your-tool',
+  category: 'developer',  // 'developer' | 'frontend' | 'learning'
+  tags: ['relevant', 'search', 'tags'],
+},
+```
+
+```
+Step 4: Add the lazy route
+──────────────────────────
+
+  Edit: src/App.jsx
+```
+
+```jsx
+// Add lazy import at top:
+const YourTool = lazy(() => import('./tools/your-tool-name/YourTool'));
+
+// Add route inside <Route element={<AppLayout />}>:
+<Route path="/your-tool" element={<ToolSkeleton><YourTool /></ToolSkeleton>} />
+```
+
+```
+Step 5: Verify
+──────────────
+
+  1. npm run dev          → Check HMR picks up changes
+  2. Navigate to /your-tool → Tool loads with skeleton
+  3. Check sidebar        → Tool appears under correct category
+  4. Check dashboard      → Tool appears in grid + searchable
+  5. npm run build        → Verify production build succeeds
+  6. npm run lint         → Verify no lint errors
+```
+
+### Component Architecture Patterns
+
+```
+┌───────────────────────────────────────────────────────────┐
+│                   COMPONENT PATTERNS                       │
+│                                                            │
+│  Shared Components (src/components/)                       │
+│  ├─ SEO.jsx           → useEffect to update <head> tags   │
+│  ├─ ErrorBoundary.jsx → Class component, catches renders  │
+│  ├─ EmptyState.jsx    → Reusable empty/no-data state      │
+│  ├─ LoadingSpinner.jsx→ Size variants (sm/md/lg)          │
+│  ├─ Toast.jsx         → Notification with auto-dismiss    │
+│  ├─ ToolCard.jsx      → default/compact/skeleton variants │
+│  ├─ Skeleton.jsx      → SkeletonToolPage, SkeletonCard    │
+│  ├─ ScrollToTop.jsx   → Scrolls to top on route change    │
+│  ├─ PageProgress.jsx  → Top progress bar on navigation    │
+│  └─ LazyImage.jsx     → Image with lazy loading + fadeIn  │
+│                                                            │
+│  Magic UI Components (src/components/ui/)                  │
+│  ├─ animated-gradient-text.jsx                             │
+│  ├─ border-beam.jsx                                        │
+│  ├─ dot-pattern.jsx                                        │
+│  ├─ magic-card.jsx                                         │
+│  ├─ number-ticker.jsx                                      │
+│  ├─ particles.jsx                                          │
+│  └─ shimmer-button.jsx                                     │
+│                                                            │
+│  Tool Components (src/tools/{tool-name}/)                  │
+│  ├─ Self-contained: each tool is a standalone component    │
+│  ├─ Single-file tools: BoxShadow, Glassmorphism, etc.     │
+│  └─ Multi-file tools: ApiTester (6 files), README Gen (7) │
+└───────────────────────────────────────────────────────────┘
+```
+
+### State Management Strategy
+
+```
+┌────────────────────────────────────────────────────────────┐
+│                   STATE MANAGEMENT                          │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  Layer 1: React Context (Global)                    │   │
+│  │  └─ ThemeContext                                    │   │
+│  │     ├─ theme: string (current theme ID)             │   │
+│  │     ├─ setTheme(id): updates theme + localStorage   │   │
+│  │     └─ themes: array of 31 theme objects            │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  Layer 2: URL State (Navigation)                    │   │
+│  │  └─ React Router v7                                 │   │
+│  │     ├─ Route path → determines active tool          │   │
+│  │     └─ Search params → category filter on dashboard │   │
+│  │        e.g., /dashboard?category=frontend            │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  Layer 3: Component-Local State (Per-Tool)          │   │
+│  │  ├─ useState: transient UI state (inputs, toggles)  │   │
+│  │  └─ useLocalStorage: persistent data (history, etc.)│   │
+│  │     ├─ API Tester → request history, collections    │   │
+│  │     ├─ README Gen → form data, badge list           │   │
+│  │     └─ Other tools → tool-specific preferences      │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  Design Decision: NO global state library (Redux/Zustand)  │
+│  Reason: Tools are independent — no cross-tool state       │
+│  sharing needed. Context handles the only global concern   │
+│  (theme). This keeps the bundle small and tools isolated.  │
+└────────────────────────────────────────────────────────────┘
+```
+
+### Custom Hooks API Reference
+
+```
+┌───────────────────────────────────────────────────────────────┐
+│  useCopyToClipboard(resetDelay?: number)                      │
+│  ├─ Returns: { copied: boolean, copyToClipboard: (text) => } │
+│  ├─ Uses Clipboard API with textarea fallback                 │
+│  └─ Auto-resets `copied` after resetDelay ms (default: 2000) │
+│                                                               │
+│  useLocalStorage(key: string, initialValue: any)              │
+│  ├─ Returns: [value, setValue, removeValue]                   │
+│  ├─ Auto-syncs to localStorage on every setValue call         │
+│  ├─ Handles JSON parse/stringify automatically                │
+│  └─ try-catch wrapped for SSR safety & quota errors           │
+│                                                               │
+│  useDownloadFile()                                            │
+│  ├─ Returns: { downloadFile: (content, filename, mime) => }  │
+│  ├─ Creates Blob → Object URL → triggers <a> download        │
+│  └─ Auto-revokes Object URL after download                   │
+│                                                               │
+│  useToast()                                                   │
+│  ├─ Returns: { toasts, addToast, removeToast,                │
+│  │             success, error, info, warning }               │
+│  ├─ Auto-increments toast IDs                                 │
+│  └─ Duration parameter controls auto-dismiss (default: 3s)   │
+└───────────────────────────────────────────────────────────────┘
+```
+
+### Services Layer
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  apiService.js — HTTP Request Executor                       │
+│  ├─ executeRequest({ method, url, headers, params, body })  │
+│  ├─ Uses Axios with validateStatus: () => true              │
+│  │   (never rejects — returns all status codes)              │
+│  ├─ Auto-detects JSON body and sets Content-Type            │
+│  ├─ Measures request duration via performance.now()         │
+│  └─ Returns: { success, status, statusText, headers,        │
+│               data, duration, size, error? }                │
+│                                                              │
+│  githubService.js — GitHub API Integration                   │
+│  ├─ parseGitHubUrl(url) → { owner, repo } | null           │
+│  ├─ fetchRepoDetails(owner, repo) → repo metadata           │
+│  └─ deepAnalyzeRepo(owner, repo, onProgress) → full analysis│
+│     ├─ Step 1: Fetch repo metadata + languages + tree       │
+│     ├─ Step 2: Analyze file structure                        │
+│     ├─ Step 3: Detect tech stack from deps + file patterns  │
+│     ├─ Step 4: Generate README form data auto-populated     │
+│     └─ Returns: { formData, meta } for ReadmeGenerator      │
+│                                                              │
+│  External network requests are ONLY made by:                 │
+│  1. API Tester → user-specified URLs                         │
+│  2. GitHub Import → api.github.com (README Generator)        │
+│  3. Google Fonts → Inter + JetBrains Mono (CSS)             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Styling Architecture
+
+```
+┌────────────────────────────────────────────────────────────┐
+│                    STYLING LAYERS                           │
+│                                                             │
+│  Layer 1: DaisyUI Theme Variables                           │
+│  ├─ 31 themes define CSS custom properties (oklch colors)  │
+│  ├─ 2 custom themes: 'toolbox' (light) & 'toolbox-dark'   │
+│  ├─ Applied via data-theme attribute on <html>             │
+│  └─ All colors cascade automatically on theme switch       │
+│                                                             │
+│  Layer 2: TailwindCSS Utilities                             │
+│  ├─ Utility-first classes for layout, spacing, typography  │
+│  ├─ DaisyUI semantic classes: btn, badge, card, tabs, etc. │
+│  └─ Custom animation utilities in tailwind.config.js       │
+│                                                             │
+│  Layer 3: Custom CSS (src/index.css)                        │
+│  ├─ Enhanced form controls (input/select/textarea sizing)  │
+│  ├─ Glass effects (.glass-card, .glass-elevated)           │
+│  ├─ Section cards (.section-card, .section-card-elevated)  │
+│  ├─ Gradient utilities (.gradient-text, .gradient-line)    │
+│  ├─ Animation effects (.card-shine, .cta-glow)            │
+│  ├─ Markdown preview styles (.markdown-preview)            │
+│  ├─ Skeleton loading animations                             │
+│  ├─ Accessibility: skip-link, focus-visible, reduced-motion│
+│  └─ Print styles, safe-area insets, touch targets          │
+│                                                             │
+│  Layer 4: Framer Motion (Runtime Animations)                │
+│  ├─ Page transitions (fade + slide + blur)                 │
+│  ├─ Sidebar accordion expand/collapse                       │
+│  ├─ Staggered list entrances (containerVariants/itemVariants)│
+│  ├─ Hover/tap micro-interactions on cards                  │
+│  └─ Layout animations (sidebar active indicator)           │
+│                                                             │
+│  Key CSS Classes for Tool Development:                      │
+│  ├─ .section-card → rounded card with glass effect + hover │
+│  ├─ .glass-base   → semi-transparent blurred background    │
+│  ├─ .gradient-text → primary→secondary gradient on text    │
+│  ├─ .field-label  → consistent form label styling          │
+│  ├─ .separator    → thin horizontal divider line           │
+│  └─ .scrollbar-thin → minimal custom scrollbar             │
+└────────────────────────────────────────────────────────────┘
+```
+
+### Performance Utilities
+
+```
+┌────────────────────────────────────────────────────────────┐
+│  src/utils/performance.js                                   │
+│                                                             │
+│  debounce(fn, wait)                                         │
+│  ├─ Delays execution until wait ms after last call         │
+│  └─ Used for: search inputs, resize handlers               │
+│                                                             │
+│  throttle(fn, limit)                                        │
+│  ├─ Executes at most once per limit ms                     │
+│  └─ Used for: scroll handlers, rapid UI updates            │
+│                                                             │
+│  prefersReducedMotion()                                     │
+│  ├─ Returns true if user has reduced motion preference     │
+│  └─ Used to disable animations for accessibility           │
+│                                                             │
+│  safeLocalStorage                                           │
+│  ├─ .setItem(key, value) → auto-retries on QuotaExceeded  │
+│  ├─ .getItem(key, default) → parse errors return default   │
+│  └─ .removeItem(key) → try-catch wrapped                   │
+│                                                             │
+│  requestIdleCallback / cancelIdleCallback                   │
+│  └─ Polyfilled for browsers without native support         │
+└────────────────────────────────────────────────────────────┘
+```
+
+### Code Splitting & Bundle Strategy
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    BUNDLE ARCHITECTURE                        │
+│                                                              │
+│  Entry chunk (always loaded):                                │
+│  ├─ React, React DOM, React Router                          │
+│  ├─ Framer Motion (animation engine)                        │
+│  ├─ ThemeContext, AppLayout, Header, Sidebar                │
+│  ├─ HomePage, Dashboard (not lazy — immediate navigation)   │
+│  ├─ Shared components (ErrorBoundary, SEO, Skeleton, etc.) │
+│  └─ Tool registry + utility modules                         │
+│                                                              │
+│  Lazy chunks (loaded on demand):                             │
+│  ├─ Each tool = separate JS chunk                           │
+│  │   e.g., SortingVisualizer-Blwc_r-b.js (27.85 kB)       │
+│  ├─ Settings page (includes theme gallery)                  │
+│  ├─ NotFound page                                           │
+│  └─ Heavy libraries (CodeMirror, Axios, React Markdown)    │
+│      loaded only when their respective tools are opened     │
+│                                                              │
+│  Vite Build Optimizations:                                   │
+│  ├─ Tree-shaking via Rollup                                 │
+│  ├─ CSS extraction and minification                         │
+│  ├─ Asset hashing for cache-busting                         │
+│  └─ Chunk splitting based on dynamic import() boundaries   │
+│                                                              │
+│  Path Alias:                                                 │
+│  └─ @ → src/ (configured in vite.config.js + jsconfig.json)│
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Testing Checklist (Pre-PR)
+
+```
+□ npm run build passes with zero errors
+□ npm run lint passes cleanly
+□ Tool appears in sidebar under correct category
+□ Tool appears in dashboard search results
+□ Tool renders correctly on desktop (≥1024px)
+□ Tool renders correctly on mobile (<768px)
+□ Keyboard navigation works (Tab, Enter, Escape)
+□ Theme switching doesn't break tool styling
+□ Copy-to-clipboard works
+□ No console errors during normal usage
+□ ErrorBoundary gracefully handles tool crashes
+□ SEO component updates page title and meta tags
+```
+
+---
+
+## 🏗️ Architecture & Data Flow
+
+### Request Lifecycle (API Tester Example)
+
+```
+User fills form (method, URL, headers, body)
+    │
+    ▼
+RequestConfig.jsx → collects input state
+    │
+    ▼
+ApiTester.jsx → calls executeRequest()
+    │
+    ▼
+apiService.js
+    ├─ Cleans headers/params (filters empty keys)
+    ├─ Parses JSON body string
+    ├─ Builds Axios config (validateStatus: () => true)
+    ├─ Starts timer: performance.now()
+    ├─ Sends HTTP request via Axios
+    ├─ Stops timer: calculates duration
+    └─ Returns normalized response object
+    │
+    ▼
+ApiTester.jsx → updates response state
+    │
+    ├─ ResponsePanel.jsx → renders status, headers, body
+    ├─ RequestHistory.jsx → saves to localStorage
+    └─ CodeGenerator.jsx → generates cURL/fetch/axios snippets
+```
+
+### GitHub Import Lifecycle (README Generator)
+
+```
+User pastes GitHub URL
+    │
+    ▼
+GitHubImport.jsx → parseGitHubUrl(url)
+    │
+    ▼
+deepAnalyzeRepo(owner, repo, onProgress)
+    │
+    ├─ Step 1 (parallel):
+    │   ├─ GET /repos/{owner}/{repo}         → metadata
+    │   ├─ GET /repos/{owner}/{repo}/languages → language stats
+    │   ├─ GET /repos/{owner}/{repo}/git/trees/HEAD?recursive=1 → file tree
+    │   └─ GET /repos/{owner}/{repo}/contributors?per_page=5
+    │
+    ├─ Step 2: Analyze file tree
+    │   ├─ Detect package.json, requirements.txt, Dockerfile, etc.
+    │   └─ Fetch file contents for: package.json, .env.example, CONTRIBUTING.md
+    │
+    ├─ Step 3: Infer tech stack
+    │   ├─ Map dependencies to framework names (React, Express, etc.)
+    │   ├─ Check file patterns (tsconfig.json → TypeScript, etc.)
+    │   └─ Deduplicate (TypeScript present → remove JavaScript)
+    │
+    └─ Step 4: Generate README form data
+        ├─ Auto-populate: name, description, install steps, usage, features
+        ├─ Detect prerequisites (Node.js version, package manager)
+        └─ Return formData + meta (stars, forks, files count)
+    │
+    ▼
+ReadmeGenerator.jsx → populates ReadmeForm
+    │
+    ▼
+ReadmePreview.jsx → renders live Markdown preview
+```
+
+### Sorting Visualizer Data Flow
+
+```
+User selects algorithm + array size + speed
+    │
+    ▼
+SortingVisualizer.jsx
+    │
+    ├─ generateArray(size) → random values 5..100
+    │
+    ├─ User clicks "Play"
+    │   ├─ Generator function yields step-by-step states
+    │   │   { array, comparing, swapping, sorted, phase }
+    │   ├─ Timer interval reads next step from generator
+    │   ├─ Each step updates state → triggers re-render
+    │   ├─ Bar heights/colors reflect current step state
+    │   └─ AudioContext plays tone proportional to bar value
+    │
+    ├─ User adjusts speed slider
+    │   └─ Timer interval restarts with new delay
+    │
+    ├─ User clicks "Pause"
+    │   └─ Timer interval cleared, step index preserved
+    │
+    └─ Algorithm completes
+        └─ All bars marked as "sorted" → green color
+```
+
+---
+
 ## 🏗️ Tech Stack
 
 | Technology | Version | Purpose |
@@ -150,8 +904,12 @@ Developer-Toolbox/
 │   ├── components/                   # Shared UI components
 │   │   ├── EmptyState.jsx            # Empty state placeholder
 │   │   ├── ErrorBoundary.jsx         # React error boundary with recovery UI
+│   │   ├── LazyImage.jsx             # Image with lazy loading
 │   │   ├── LoadingSpinner.jsx        # Loading indicator with size variants
+│   │   ├── PageProgress.jsx          # Top navigation progress bar
+│   │   ├── ScrollToTop.jsx           # Scroll restoration on navigation
 │   │   ├── SEO.jsx                   # Dynamic meta tags & Open Graph
+│   │   ├── Skeleton.jsx              # Skeleton loading placeholders
 │   │   ├── Toast.jsx                 # Toast notification component
 │   │   ├── ToolCard.jsx              # Reusable tool card with variants
 │   │   └── ui/                       # Magic UI animated components
@@ -208,6 +966,8 @@ Developer-Toolbox/
 │   │   │   └── FrontendPlayground.css  # Playground-specific styles
 │   │   ├── glassmorphism/
 │   │   │   └── GlassmorphismGenerator.jsx
+│   │   ├── grid-generator/
+│   │   │   └── GridGenerator.jsx
 │   │   ├── json-formatter/
 │   │   │   └── JsonFormatter.jsx
 │   │   ├── jwt-decoder/
@@ -224,8 +984,10 @@ Developer-Toolbox/
 │   │   │   ├── BadgeBuilder.jsx        # Shield.io badge generator
 │   │   │   ├── GitHubImport.jsx        # Import from GitHub repository
 │   │   │   └── CustomSections.jsx      # Add custom README sections
-│   │   └── regex-generator/
-│   │       └── RegexGenerator.jsx
+│   │   ├── regex-generator/
+│   │   │   └── RegexGenerator.jsx
+│   │   └── sorting-visualizer/
+│   │       └── SortingVisualizer.jsx
 │   │
 │   ├── utils/                        # Utility modules
 │   │   ├── toolRegistry.js           # Central tool registry with metadata
@@ -244,8 +1006,6 @@ Developer-Toolbox/
 ├── eslint.config.js                  # ESLint flat config
 ├── components.json                   # shadcn/ui configuration
 ├── jsconfig.json                     # Path alias configuration
-├── CHANGELOG.md                      # Version history
-├── STYLE_GUIDE.md                    # Design system documentation
 └── .gitignore                        # Git ignore rules
 ```
 
@@ -256,57 +1016,28 @@ Developer-Toolbox/
 Developer Toolbox supports **31 themes** powered by DaisyUI, organized into Light and Dark categories:
 
 ### Light Themes (19)
-Emerald *(default)*, Light, Cupcake, Corporate, Garden, Lo-Fi, Pastel, Fantasy, Wireframe, CMYK, Autumn, Acid, Lemonade, Winter, Nord, Retro, Valentine, Aqua, Cyberpunk
+
+Toolbox *(default)*, Light, Cupcake, Corporate, Garden, Lo-Fi, Pastel, Fantasy, Wireframe, CMYK, Autumn, Acid, Lemonade, Winter, Nord, Retro, Valentine, Aqua, Cyberpunk
 
 ### Dark Themes (12)
-Forest, Dark, Synthwave, Halloween, Black, Luxury, Dracula, Business, Night, Coffee, Dim, Sunset
+
+Toolbox Dark, Dark, Synthwave, Halloween, Black, Luxury, Dracula, Business, Night, Coffee, Dim, Sunset
+
+### Custom Toolbox Themes
+
+Two custom themes are defined in `src/index.css` using DaisyUI's CSS variable API:
+
+| Theme | Primary (#2D79FF) | Style |
+|-------|-------------------|-------|
+| `toolbox` | `oklch(57.5% 0.22 264)` | Clean white background, blue primary, light mode |
+| `toolbox-dark` | `oklch(57.5% 0.22 264)` | Dark slate background, same blue primary, dark mode |
 
 ### How to Switch Themes
 
 1. **Header Dropdown** — Quick access to 8 popular themes from any page
 2. **Settings Page** — Full visual theme gallery with live previews of all 31 themes
 
-Themes are persisted in `localStorage` and apply instantly across the entire application.
-
----
-
-## 🏛️ Architecture
-
-### Routing & Code Splitting
-
-All tool components are **lazy-loaded** using `React.lazy()` + `Suspense`, ensuring the initial bundle only contains the shell (layout, navigation, homepage). Each tool is loaded on-demand when the user navigates to it.
-
-```jsx
-const ApiTester = lazy(() => import('./tools/api-tester/ApiTester'));
-```
-
-### State Management
-
-- **Theme** — React Context (`ThemeContext`) with localStorage persistence
-- **Tool Data** — Component-local state with `useLocalStorage` hook for persistence
-- **Navigation** — React Router v7 with URL-based state (search params for category filters)
-
-### Custom Hooks
-
-| Hook | Purpose |
-|------|---------|
-| `useCopyToClipboard` | Clipboard API with textarea fallback for older browsers |
-| `useLocalStorage` | `useState`-like API with automatic localStorage sync |
-| `useDownloadFile` | Generate and download files via Blob URLs |
-| `useToast` | Toast notification management with auto-dismiss |
-
-### Services
-
-| Service | Purpose |
-|---------|---------|
-| `apiService.js` | Executes HTTP requests via Axios for the API Tester tool |
-| `githubService.js` | GitHub API integration — fetches repo metadata, analyzes tech stack, detects project structure, and auto-generates README content |
-
-### Error Handling
-
-- **ErrorBoundary** — Catches render errors with a recovery UI (retry + navigate home)
-- **404 Page** — Custom not-found page with navigation back to dashboard
-- **Graceful Fallbacks** — All localStorage reads/writes are try-catch wrapped
+Themes are persisted in `localStorage` key `devtoolbox-theme` and apply instantly across the entire application via DaisyUI's `data-theme` attribute.
 
 ---
 
@@ -314,10 +1045,10 @@ const ApiTester = lazy(() => import('./tools/api-tester/ApiTester'));
 
 - **Skip to main content** link for keyboard users
 - **ARIA labels** on all interactive elements
-- **Focus indicators** — Visible focus rings on keyboard navigation
+- **Focus indicators** — Visible focus rings on keyboard navigation (2px solid primary, 2px offset)
 - **Semantic HTML** — Proper heading hierarchy, landmarks, and roles
-- **Touch targets** — Minimum 44×44px for mobile interactions
-- **Reduced motion** — Respects `prefers-reduced-motion` preference
+- **Touch targets** — Minimum 44×44px for mobile interactions (enforced via CSS)
+- **Reduced motion** — Respects `prefers-reduced-motion` preference (disables all animations)
 - **Color contrast** — Meets WCAG 2.1 AA minimum ratios
 - **Screen reader** support with live regions and announcements
 
@@ -357,77 +1088,29 @@ The only external network requests are:
 - **Tree-shaking** via Vite's Rollup-based production builds
 - **Debounce/throttle** utilities for input-heavy tools
 - **Lazy image loading** throughout the application
+- **RequestIdleCallback** polyfill for deferred non-critical work
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's how to add a new tool:
+Contributions are welcome! Please follow the [Developer Flow](#-developer-flow) section above for the complete guide on adding new tools.
 
-### 1. Create the Tool Component
+### Quick Contribution Checklist
 
-```bash
-mkdir src/tools/your-tool-name
-touch src/tools/your-tool-name/YourTool.jsx
-```
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-tool-name`
+3. Follow the [Adding a New Tool](#adding-a-new-tool-step-by-step) pattern
+4. Run the [Testing Checklist](#testing-checklist-pre-pr)
+5. Submit a Pull Request
 
-### 2. Build Your Component
+### Code Style Guidelines
 
-Follow existing tool patterns — each tool is a self-contained React component:
-
-```jsx
-import { useState } from 'react';
-import SEO from '../../components/SEO';
-
-export default function YourTool() {
-  return (
-    <>
-      <SEO
-        title="Your Tool - Developer Toolbox"
-        description="Description of your tool"
-        keywords="relevant, keywords"
-      />
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Your tool UI */}
-      </div>
-    </>
-  );
-}
-```
-
-### 3. Register in Tool Registry
-
-Add your tool entry to `src/utils/toolRegistry.js`:
-
-```js
-{
-  id: 'your-tool',
-  name: 'Your Tool',
-  description: 'Brief description of what your tool does',
-  icon: IconName,       // from lucide-react
-  path: '/your-tool',
-  category: 'developer', // or 'frontend'
-  tags: ['relevant', 'search', 'tags'],
-},
-```
-
-### 4. Add the Route
-
-In `src/App.jsx`, add the lazy import and route:
-
-```jsx
-const YourTool = lazy(() => import('./tools/your-tool-name/YourTool'));
-
-// Inside <Routes>
-<Route path="/your-tool" element={<YourTool />} />
-```
-
-### 5. Submit a Pull Request
-
-- Ensure `npm run build` passes with no errors
-- Ensure `npm run lint` passes cleanly
-- Test responsiveness on mobile and desktop
-- Test keyboard navigation and accessibility
+- **Components:** Functional components with hooks only (no class components except ErrorBoundary)
+- **Styling:** TailwindCSS utilities + DaisyUI semantic classes + custom CSS from `index.css`
+- **State:** `useState` for local, `useLocalStorage` for persistent, `useContext` for theme only
+- **Naming:** PascalCase components, camelCase functions/variables, kebab-case file paths
+- **Exports:** Default export for page/tool components, named exports for utilities/hooks
 
 ---
 

@@ -467,7 +467,7 @@ function SignatureVerifier({ token, decoded }) {
   }, [token, secret, alg, isHmac]);
 
   return (
-    <CollapsibleSection title="Signature Verification" icon={Lock} color="bg-emerald-600" defaultOpen={true}>
+    <CollapsibleSection title="Signature Verification" icon={Lock} color="bg-blue-600" defaultOpen={true}>
       <div className="px-5 pb-5 space-y-4">
         {isHmac ? (
           <>
@@ -1155,42 +1155,55 @@ export default function JwtDecoder() {
 
   const handleExportDecoded = useCallback(() => {
     if (!decoded || decoded.error) return;
-    const blob = new Blob([JSON.stringify({
-      header: decoded.header,
-      payload: decoded.payload,
-      signature: decoded.signature,
-      metadata: {
-        algorithm: decoded.header?.alg,
-        algorithmInfo: ALGO_INFO[decoded.header?.alg] || null,
-        expired: isExpired(decoded.payload),
-        tokenAge: getTokenAge(decoded.payload),
-        tokenLifetime: getTokenLifetime(decoded.payload),
-        sizeBytes: getTokenSizeBytes(token),
-        securityAudit: runSecurityAudit(decoded.header, decoded.payload),
-        rfcCompliance: checkRfcCompliance(decoded.header, decoded.payload),
-        decodedAt: new Date().toISOString(),
-      }
-    }, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `jwt-decoded-${Date.now()}.json`; a.click(); URL.revokeObjectURL(url);
+    try {
+      const blob = new Blob([JSON.stringify({
+        header: decoded.header,
+        payload: decoded.payload,
+        signature: decoded.signature,
+        metadata: {
+          algorithm: decoded.header?.alg,
+          algorithmInfo: ALGO_INFO[decoded.header?.alg] || null,
+          expired: isExpired(decoded.payload),
+          tokenAge: getTokenAge(decoded.payload),
+          tokenLifetime: getTokenLifetime(decoded.payload),
+          sizeBytes: getTokenSizeBytes(token),
+          securityAudit: runSecurityAudit(decoded.header, decoded.payload),
+          rfcCompliance: checkRfcCompliance(decoded.header, decoded.payload),
+          decodedAt: new Date().toISOString(),
+        }
+      }, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = `jwt-decoded-${Date.now()}.json`; a.click(); URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('JWT export failed:', err);
+    }
   }, [decoded, token]);
 
-  const handleFileUpload = useCallback((e) => {
+const handleFileUpload = useCallback((e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      let text = ev.target?.result?.trim();
-      if (text) {
-        // Strip common prefixes/wrappers from file content
-        text = text.replace(/^Bearer\s+/i, '').replace(/^["']|["']$/g, '').trim();
-        setToken(text);
-      }
-    };
-    reader.readAsText(file);
+    try {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          let text = ev.target?.result?.trim();
+          if (text) {
+            text = text.replace(/^Bearer\s+/i, '').replace(/^["']|["']$/g, '').trim();
+            setToken(text);
+          }
+        } catch (err) {
+          console.error('Failed to process JWT file:', err);
+        }
+      };
+      reader.onerror = () => {
+        console.error('Failed to read JWT file:', reader.error?.message || 'Unknown error');
+      };
+      reader.readAsText(file);
+    } catch (err) {
+      console.error('JWT file upload failed:', err);
+    }
     e.target.value = '';
   }, []);
-
   const coloredParts = useMemo(() => {
     if (!token.trim()) return null;
     const parts = token.trim().split('.');

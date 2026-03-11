@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const THEMES = [
-  { id: 'emerald', name: 'Emerald', emoji: '💎', category: 'Light' },
+  { id: 'toolbox', name: 'Toolbox', emoji: '🔧', category: 'Light' },
   { id: 'light', name: 'Light', emoji: '☀️', category: 'Light' },
   { id: 'cupcake', name: 'Cupcake', emoji: '🧁', category: 'Light' },
   { id: 'corporate', name: 'Corporate', emoji: '🏢', category: 'Light' },
@@ -20,7 +20,7 @@ const THEMES = [
   { id: 'valentine', name: 'Valentine', emoji: '💕', category: 'Light' },
   { id: 'aqua', name: 'Aqua', emoji: '💧', category: 'Light' },
   { id: 'cyberpunk', name: 'Cyberpunk', emoji: '🤖', category: 'Light' },
-  { id: 'forest', name: 'Forest', emoji: '🌲', category: 'Dark' },
+  { id: 'toolbox-dark', name: 'Toolbox Dark', emoji: '🔷', category: 'Dark' },
   { id: 'dark', name: 'Dark', emoji: '🌙', category: 'Dark' },
   { id: 'synthwave', name: 'Synthwave', emoji: '🌆', category: 'Dark' },
   { id: 'halloween', name: 'Halloween', emoji: '🎃', category: 'Dark' },
@@ -44,9 +44,9 @@ export function ThemeProvider({ children }) {
       const saved = localStorage.getItem('devtoolbox-theme');
       // Only accept valid built-in theme IDs
       if (saved && VALID_THEME_IDS.has(saved)) return saved;
-      return 'emerald';
+      return 'toolbox';
     } catch {
-      return 'emerald';
+      return 'toolbox';
     }
   });
 

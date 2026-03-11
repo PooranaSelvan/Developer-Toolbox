@@ -423,7 +423,6 @@ const cssSnippets = [
    ═══════════════════════════════════════════════════════════ */
 
 const htmlSnippets = [
-  snippetCompletion('<!DOCTYPE html>\n<html lang="en">\n<head>\n\t<meta charset="UTF-8">\n\t<meta name="viewport" content="width=device-width, initial-scale=1.0">\n\t<title>${Document}</title>\n</head>\n<body>\n\t${}\n</body>\n</html>', { label: '!', detail: 'HTML5 boilerplate', type: 'keyword', boost: 15 }),
   snippetCompletion('<div class="${}">\n\t${}\n</div>', { label: 'div.', detail: 'div with class', type: 'keyword', boost: 10 }),
   snippetCompletion('<div id="${}">\n\t${}\n</div>', { label: 'div#', detail: 'div with id', type: 'keyword', boost: 9 }),
   snippetCompletion('<a href="${#}">${link text}</a>', { label: 'a', detail: 'anchor link', type: 'keyword', boost: 8 }),
