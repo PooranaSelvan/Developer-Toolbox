@@ -1,7 +1,8 @@
 import {
   FileText, Send, Settings, Server, KeyRound, Regex, Palette,
-  Blend, Square, Gem, Braces, Binary, Fingerprint,
-  Clock, Ruler, Layout,
+  Blend, Square, Gem, Braces,
+  Layout,
+  Lock, Ruler,
 } from 'lucide-react';
 
 const TOOLS = [
@@ -35,12 +36,12 @@ const TOOLS = [
   },
   {
     id: 'jwt-decoder',
-    name: 'JWT Decoder',
-    description: 'Decode and inspect JSON Web Tokens instantly',
+    name: 'JWT Toolkit',
+    description: 'Decode, verify, build, audit & analyze JSON Web Tokens',
     icon: KeyRound,
     path: '/jwt-decoder',
     category: 'developer',
-    tags: ['jwt', 'token', 'auth', 'security'],
+    tags: ['jwt', 'token', 'auth', 'security', 'decode', 'verify', 'build'],
   },
   {
     id: 'json-formatter',
@@ -60,26 +61,15 @@ const TOOLS = [
     category: 'developer',
     tags: ['regex', 'pattern', 'match', 'test'],
   },
-  // ─── Encoding & Security ───
   {
-    id: 'base64-tool',
-    name: 'Encoder / Decoder',
-    description: 'Base64, URL, HTML, Unicode & Hex encoding tools',
-    icon: Binary,
-    path: '/base64-tool',
-    category: 'encoding',
-    tags: ['base64', 'encode', 'decode', 'url', 'hex'],
+    id: 'password-generator',
+    name: 'Password Generator',
+    description: 'Generate secure passwords, passphrases, PINs & check strength',
+    icon: Lock,
+    path: '/password-generator',
+    category: 'developer',
+    tags: ['password', 'security', 'passphrase', 'pin', 'strength', 'generator'],
   },
-  {
-    id: 'hash-generator',
-    name: 'Hash Generator',
-    description: 'SHA hashing, hash verification & password tools',
-    icon: Fingerprint,
-    path: '/hash-generator',
-    category: 'encoding',
-    tags: ['hash', 'sha', 'password', 'security'],
-  },
-
   // ─── Frontend Tools ───
   {
     id: 'color-palette',
@@ -117,14 +107,15 @@ const TOOLS = [
     category: 'frontend',
     tags: ['glass', 'blur', 'css', 'design'],
   },
+  
   {
     id: 'css-units',
     name: 'CSS Unit Converter',
-    description: 'Convert between px, rem, em, vw, vh & more',
+    description: 'Convert between px, rem, em, vw, vh, pt & more',
     icon: Ruler,
     path: '/css-units',
     category: 'frontend',
-    tags: ['css', 'units', 'rem', 'px', 'converter'],
+    tags: ['css', 'units', 'px', 'rem', 'em', 'vw', 'converter', 'responsive'],
   },
   {
     id: 'frontend-playground',
@@ -134,17 +125,6 @@ const TOOLS = [
     path: '/frontend-playground',
     category: 'frontend',
     tags: ['html', 'css', 'javascript', 'playground', 'preview', 'live', 'editor'],
-  },
-
-  // ─── Utilities ───
-  {
-    id: 'timestamp-converter',
-    name: 'Timestamp Converter',
-    description: 'Convert Unix timestamps, ISO dates & more',
-    icon: Clock,
-    path: '/timestamp-converter',
-    category: 'utilities',
-    tags: ['timestamp', 'unix', 'date', 'time', 'converter'],
   },
 
   // ─── Preferences ───
@@ -161,9 +141,8 @@ const TOOLS = [
 
 export const CATEGORIES = [
   { id: 'developer', label: 'Developer Tools', emoji: '🛠️' },
-  { id: 'encoding', label: 'Encoding & Security', emoji: '🔐' },
   { id: 'frontend', label: 'Frontend Tools', emoji: '🎨' },
-  { id: 'utilities', label: 'Utilities', emoji: '🧰' },
+  
   { id: 'preferences', label: 'Preferences', emoji: '⚙️' },
 ];
 

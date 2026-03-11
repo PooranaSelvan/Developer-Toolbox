@@ -2,7 +2,7 @@
 <html lang="en" data-theme="emerald">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <!-- Favicon & Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -12,7 +12,7 @@
     <title>Developer Toolbox — All-in-One Developer Utilities</title>
     <meta name="title" content="Developer Toolbox — All-in-One Developer Utilities" />
     <meta name="description" content="A comprehensive collection of 18+ developer tools: API Tester, JSON Formatter, JWT Decoder, Regex Generator, Color Palette, CSS Gradient, Markdown Editor, and more. Free, fast, and entirely client-side." />
-    <meta name="keywords" content="developer tools, JSON formatter, API tester, JWT decoder, regex generator, color palette, CSS gradient, box shadow, glassmorphism, base64 encoder, hash generator, markdown editor, meta tag generator, diff checker, lorem ipsum, timestamp converter, CSS unit converter, readme generator" />
+    <meta name="keywords" content="developer tools, JSON formatter, API tester, JWT decoder, regex generator, color palette, CSS gradient, box shadow, glassmorphism, base64 encoder, hash generator, markdown editor, meta tag generator, diff checker, lorem ipsum, timestamp converter, readme generator" />
     <meta name="author" content="Developer Toolbox" />
     <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#6366f1" />
@@ -30,12 +30,29 @@
     <meta name="twitter:description" content="18+ free developer tools: API Tester, JSON Formatter, JWT Decoder, Color Palette, Markdown Editor, and more." />
     <meta name="twitter:image" content="/logo.svg" />
 
-    <!-- Fonts -->
+    <!-- Fonts - Optimized loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" as="image" href="/favicon.svg" />
+    
+    <!-- Performance optimizations -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
   </head>
   <body class="font-sans antialiased">
+    <!-- Noscript fallback -->
+    <noscript>
+      <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; text-align: center; font-family: system-ui, -apple-system, sans-serif;">
+        <div>
+          <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 1rem;">JavaScript Required</h1>
+          <p style="opacity: 0.7;">Developer Toolbox requires JavaScript to function. Please enable JavaScript in your browser settings.</p>
+        </div>
+      </div>
+    </noscript>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

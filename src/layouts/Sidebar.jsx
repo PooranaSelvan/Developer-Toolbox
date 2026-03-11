@@ -1,8 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Wrench, ChevronRight, ChevronDown, X, Sparkles } from 'lucide-react';
-import { getTools, CATEGORIES, getToolsByCategory } from '../utils/toolRegistry';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Wrench, ChevronRight, ChevronDown, X, Sparkles, Search, Home, LayoutDashboard } from 'lucide-react';
+import { getTools, CATEGORIES, getToolsByCategory, searchTools } from '../utils/toolRegistry';
 import { useTheme } from '../contexts/ThemeContext';
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -11,11 +10,13 @@ export default function Sidebar({ isOpen, onClose }) {
   const currentTheme = themes.find((t) => t.id === theme);
   const toolCount = tools.filter((t) => t.id !== 'settings').length;
   const location = useLocation();
+  const navigate = useNavigate();
   const navRef = useRef(null);
+  const [sidebarSearch, setSidebarSearch] = useState('');
+  const sidebarSearchRef = useRef(null);
 
   const sidebarCategories = CATEGORIES.filter((c) => c.id !== 'preferences');
 
-  // Initialize: expand category of current active tool
   const getInitialOpen = () => {
     const currentTool = tools.find((t) => t.path === location.pathname);
     const openSet = new Set();
@@ -30,7 +31,6 @@ export default function Sidebar({ isOpen, onClose }) {
 
   const [openCategories, setOpenCategories] = useState(getInitialOpen);
 
-  // Auto-expand category when route changes
   useEffect(() => {
     const currentTool = tools.find((t) => t.path === location.pathname);
     if (currentTool && currentTool.category !== 'preferences') {
@@ -56,31 +56,175 @@ export default function Sidebar({ isOpen, onClose }) {
   }, []);
 
   const handleNavClick = useCallback(() => {
-    onClose();
+    setSidebarSearch('');
+    // Only close on mobile
+    if (window.innerWidth < 1024) {
+      onClose();
+    }
   }, [onClose]);
+
+  // Close sidebar on escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
+  // Prevent body scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (isOpen && window.innerWidth < 1024) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  // Sidebar quick search results
+  const sidebarResults = sidebarSearch.trim()
+    ? searchTools(sidebarSearch).slice(0, 6)
+    : [];
 
   return (
     <aside
-      className={`fixed left-0 top-0 bottom-0 w-[272px] bg-base-100 border-r border-base-300/60 flex flex-col z-40 transition-transform duration-300 ease-out lg:translate-x-0 shadow-xl ${
+      role="navigation"
+      aria-label="Main navigation"
+      className={`fixed left-0 top-0 bottom-0 w-[272px] bg-base-100/95 backdrop-blur-xl border-r border-base-300/40 flex flex-col z-40 transition-transform duration-300 ease-out lg:translate-x-0 shadow-2xl lg:shadow-lg ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
-    >      {/* ─── Logo ─── */}
-      <div className="h-16 flex items-center gap-3 px-5 border-b border-base-300/50 shrink-0">
-        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-          <Wrench size={20} className="text-primary-content" />
+    >
+      {/* ── Brand ── */}
+      <div className="h-16 flex items-center gap-3 px-5 border-b border-base-300/40 shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25 relative overflow-hidden">
+          <Wrench size={20} className="text-primary-content relative z-10" />
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-sm font-bold leading-tight tracking-tight">Developer</h1>
-          <h1 className="text-sm font-bold leading-tight gradient-text">Toolbox</h1>
+          <h1 className="text-sm font-extrabold leading-tight tracking-tight">Developer</h1>
+          <h1 className="text-sm font-extrabold leading-tight gradient-text">Toolbox</h1>
         </div>
-        <button onClick={onClose} className="btn btn-ghost btn-sm btn-square lg:hidden rounded-xl">
+        <button 
+          onClick={onClose} 
+          className="btn btn-ghost btn-sm btn-square lg:hidden rounded-xl hover:bg-error/10 hover:text-error transition-colors"
+          aria-label="Close sidebar"
+        >
           <X size={18} />
         </button>
       </div>
 
-      {/* ─── Navigation with Accordion ─── */}
-      <nav ref={navRef} className="flex-1 overflow-y-auto py-3 px-3 scrollbar-thin">
-        {sidebarCategories.map((category, catIdx) => {
+      {/* ── Sidebar Quick Search ── */}
+      <div className="px-3 pt-3 pb-1 shrink-0">
+        <div className="relative">
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 opacity-30" />
+          <input
+            ref={sidebarSearchRef}
+            type="text"
+            value={sidebarSearch}
+            onChange={(e) => setSidebarSearch(e.target.value)}
+            placeholder="Quick find..."
+            aria-label="Search tools"
+            className="input input-sm w-full pl-8 pr-3 rounded-xl bg-base-200/50 border-base-300/30 h-8 text-xs placeholder:text-base-content/30 focus:bg-base-100"
+          />
+          {sidebarSearch && (
+            <button 
+              onClick={() => setSidebarSearch('')} 
+              className="absolute right-2 top-1/2 -translate-y-1/2 opacity-30 hover:opacity-60"
+              aria-label="Clear search"
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
+
+        {/* Quick search results overlay */}
+        {sidebarResults.length > 0 && (
+          <div className="mt-1.5 rounded-xl border border-base-300/40 bg-base-100 shadow-lg overflow-hidden">
+            {sidebarResults.map((tool) => {
+              const Icon = tool.icon;
+              return (
+                <button
+                  key={tool.id}
+                  onClick={() => { navigate(tool.path); handleNavClick(); }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-primary/[0.06] transition-colors duration-150"
+                >
+                  <Icon size={14} className="text-primary opacity-60 shrink-0" />
+                  <span className="text-xs font-medium truncate">{tool.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+{/* Navigation */}
+      <nav ref={navRef} className="flex-1 overflow-y-auto py-2 px-3 scrollbar-thin">
+        {/* Home & Dashboard quick links */}
+        <div className="space-y-0.5 mb-2 pb-2">
+          <NavLink
+            to="/"
+            end
+            onClick={handleNavClick}
+            className={({ isActive }) =>
+              `group/link relative flex items-center gap-2.5 px-3 py-[9px] rounded-xl text-[13px] font-medium transition-colors duration-200 ${
+                isActive
+                  ? 'bg-primary/[0.08] text-primary font-semibold shadow-sm'
+                  : 'text-base-content/55 hover:text-base-content/80 hover:bg-base-200/60'
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
+                )}
+                <div className={`flex items-center justify-center w-7 h-7 rounded-lg transition-colors duration-200 shrink-0 ${
+                  isActive ? 'bg-primary/12 text-primary' : 'text-base-content/40 group-hover/link:bg-base-200/80 group-hover/link:text-base-content/60'
+                }`}>
+                  <Home size={15} strokeWidth={isActive ? 2.2 : 1.8} />
+                </div>
+                <span className="flex-1 truncate">Home</span>
+                <ChevronRight size={13} strokeWidth={2} className={`shrink-0 transition-opacity duration-200 ${
+                  isActive ? 'opacity-40' : 'opacity-0 group-hover/link:opacity-30'
+                }`} />
+              </>
+            )}
+          </NavLink>
+          <NavLink
+            to="/dashboard"
+            onClick={handleNavClick}
+            className={({ isActive }) =>
+              `group/link relative flex items-center gap-2.5 px-3 py-[9px] rounded-xl text-[13px] font-medium transition-colors duration-200 ${
+                isActive
+                  ? 'bg-primary/[0.08] text-primary font-semibold shadow-sm'
+                  : 'text-base-content/55 hover:text-base-content/80 hover:bg-base-200/60'
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
+                )}
+                <div className={`flex items-center justify-center w-7 h-7 rounded-lg transition-colors duration-200 shrink-0 ${
+                  isActive ? 'bg-primary/12 text-primary' : 'text-base-content/40 group-hover/link:bg-base-200/80 group-hover/link:text-base-content/60'
+                }`}>
+                  <LayoutDashboard size={15} strokeWidth={isActive ? 2.2 : 1.8} />
+                </div>
+                <span className="flex-1 truncate">Dashboard</span>
+                <ChevronRight size={13} strokeWidth={2} className={`shrink-0 transition-opacity duration-200 ${
+                  isActive ? 'opacity-40' : 'opacity-0 group-hover/link:opacity-30'
+                }`} />
+              </>
+            )}
+          </NavLink>
+          <div className="gradient-line mx-3 mt-2" />
+        </div>        {sidebarCategories.map((category, catIdx) => {
           const categoryTools = getToolsByCategory(category.id);
           if (categoryTools.length === 0) return null;
 
@@ -89,10 +233,10 @@ export default function Sidebar({ isOpen, onClose }) {
 
           return (
             <div key={category.id} className={catIdx > 0 ? 'mt-1' : ''}>
-              {/* ── Accordion Header ── */}
+              {/* Category header */}
               <button
                 onClick={() => toggleCategory(category.id)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-[0.08em] transition-all duration-200 group cursor-pointer select-none ${
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-[0.08em] transition-colors duration-200 group cursor-pointer select-none ${
                   hasActiveTool
                     ? 'text-primary bg-primary/[0.04]'
                     : 'text-base-content/40 hover:text-base-content/60 hover:bg-base-200/50'
@@ -109,113 +253,66 @@ export default function Sidebar({ isOpen, onClose }) {
                 >
                   {categoryTools.length}
                 </span>
-                <motion.div
-                  animate={{ rotate: isExpanded ? 0 : -90 }}
-                  transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-                  className="shrink-0"
-                >
-                  <ChevronDown
-                    size={12}
-                    className={`transition-opacity duration-200 ${
-                      hasActiveTool ? 'opacity-40' : 'opacity-25 group-hover:opacity-40'
-                    }`}
-                  />
-                </motion.div>
+                <ChevronDown
+                  size={12}
+                  className={`shrink-0 transition-transform duration-200 ${
+                    isExpanded ? 'rotate-0' : '-rotate-90'
+                  } ${hasActiveTool ? 'opacity-40' : 'opacity-25 group-hover:opacity-40'}`}
+                />
               </button>
 
-              {/* ── Accordion Content ── */}
-              <AnimatePresence initial={false}>
-                {isExpanded && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{
-                      height: { duration: 0.25, ease: [0.4, 0, 0.2, 1] },
-                      opacity: { duration: 0.2, ease: 'easeOut' },
-                    }}
-                    className="overflow-hidden"
-                  >
-                    <div className="space-y-0.5 pt-1 pb-2 pl-1">
-                      {categoryTools.map((tool, idx) => {
-                        const Icon = tool.icon;
-                        return (
-                          <motion.div
-                            key={tool.id}
-                            initial={{ opacity: 0, x: -6 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{
-                              delay: idx * 0.025,
-                              duration: 0.2,
-                              ease: 'easeOut',
-                            }}
-                          >
-                            <NavLink
-                              to={tool.path}
-                              onClick={handleNavClick}
-                              className={({ isActive }) =>
-                                `group/link relative flex items-center gap-2.5 px-3 py-[9px] rounded-xl text-[13px] font-medium transition-all duration-200 ${
-                                  isActive
-                                    ? 'bg-primary/[0.08] text-primary font-semibold'
-                                    : 'text-base-content/55 hover:text-base-content/80 hover:bg-base-200/60'
-                                }`
-                              }
+              {/* Category tools */}
+              {isExpanded && (
+                <div className="space-y-0.5 pt-1 pb-2 pl-1">
+                  {categoryTools.map((tool) => {
+                    const Icon = tool.icon;
+                    return (
+                      <NavLink
+                        key={tool.id}
+                        to={tool.path}
+                        onClick={handleNavClick}
+                        className={({ isActive }) =>
+                          `group/link relative flex items-center gap-2.5 px-3 py-[9px] rounded-xl text-[13px] font-medium transition-colors duration-200 ${
+                            isActive
+                              ? 'bg-primary/[0.08] text-primary font-semibold shadow-sm'
+                              : 'text-base-content/55 hover:text-base-content/80 hover:bg-base-200/60'
+                          }`
+                        }
+                      >
+                        {({ isActive }) => (
+                          <>
+                            {isActive && (
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
+                            )}
+                            <div
+                              className={`flex items-center justify-center w-7 h-7 rounded-lg transition-colors duration-200 shrink-0 ${
+                                isActive
+                                  ? 'bg-primary/12 text-primary'
+                                  : 'text-base-content/40 group-hover/link:bg-base-200/80 group-hover/link:text-base-content/60'
+                              }`}
                             >
-                              {({ isActive }) => (
-                                <>
-                                  {/* Active indicator bar */}
-                                  {isActive && (
-                                    <motion.div
-                                      layoutId="sidebar-active-pill"
-                                      className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full"
-                                      style={{ boxShadow: '0 0 8px color-mix(in oklch, var(--color-primary) 40%, transparent)' }}
-                                      transition={{
-                                        type: 'spring',
-                                        stiffness: 380,
-                                        damping: 32,
-                                      }}
-                                    />
-                                  )}
-
-                                  {/* Icon */}
-                                  <div
-                                    className={`flex items-center justify-center w-7 h-7 rounded-lg transition-all duration-200 shrink-0 ${
-                                      isActive
-                                        ? 'bg-primary/12 text-primary'
-                                        : 'text-base-content/40 group-hover/link:bg-base-200/80 group-hover/link:text-base-content/60'
-                                    }`}
-                                  >
-                                    <Icon size={15} strokeWidth={isActive ? 2.2 : 1.8} />
-                                  </div>
-
-                                  {/* Label */}
-                                  <span className="flex-1 truncate">{tool.name}</span>
-
-                                  {/* Arrow */}
-                                  <ChevronRight
-                                    size={13}
-                                    strokeWidth={2}
-                                    className={`shrink-0 transition-all duration-200 ${
-                                      isActive
-                                        ? 'opacity-40 translate-x-0'
-                                        : 'opacity-0 -translate-x-2 group-hover/link:opacity-30 group-hover/link:translate-x-0'
-                                    }`}
-                                  />
-                                </>
-                              )}
-                            </NavLink>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                              <Icon size={15} strokeWidth={isActive ? 2.2 : 1.8} />
+                            </div>
+                            <span className="flex-1 truncate">{tool.name}</span>
+                            <ChevronRight
+                              size={13}
+                              strokeWidth={2}
+                              className={`shrink-0 transition-opacity duration-200 ${
+                                isActive ? 'opacity-40' : 'opacity-0 group-hover/link:opacity-30'
+                              }`}
+                            />
+                          </>
+                        )}
+                      </NavLink>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           );
         })}
 
-        {/* ─── Settings — always visible ─── */}
+        {/* Settings */}
         <div className="mt-3 pt-3">
           <div className="gradient-line mx-3 mb-3" />
           {getToolsByCategory('preferences').map((tool) => {
@@ -226,9 +323,9 @@ export default function Sidebar({ isOpen, onClose }) {
                 to={tool.path}
                 onClick={handleNavClick}
                 className={({ isActive }) =>
-                  `group/link relative flex items-center gap-2.5 px-3 py-[9px] rounded-xl text-[13px] font-medium transition-all duration-200 ${
+                  `group/link relative flex items-center gap-2.5 px-3 py-[9px] rounded-xl text-[13px] font-medium transition-colors duration-200 ${
                     isActive
-                      ? 'bg-primary/[0.08] text-primary font-semibold'
+                      ? 'bg-primary/[0.08] text-primary font-semibold shadow-sm'
                       : 'text-base-content/55 hover:text-base-content/80 hover:bg-base-200/60'
                   }`
                 }
@@ -236,19 +333,10 @@ export default function Sidebar({ isOpen, onClose }) {
                 {({ isActive }) => (
                   <>
                     {isActive && (
-                      <motion.div
-                        layoutId="sidebar-active-pill"
-                        className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full"
-                        style={{ boxShadow: '0 0 8px color-mix(in oklch, var(--color-primary) 40%, transparent)' }}
-                        transition={{
-                          type: 'spring',
-                          stiffness: 380,
-                          damping: 32,
-                        }}
-                      />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
                     )}
                     <div
-                      className={`flex items-center justify-center w-7 h-7 rounded-lg transition-all duration-200 shrink-0 ${
+                      className={`flex items-center justify-center w-7 h-7 rounded-lg transition-colors duration-200 shrink-0 ${
                         isActive
                           ? 'bg-primary/12 text-primary'
                           : 'text-base-content/40 group-hover/link:bg-base-200/80 group-hover/link:text-base-content/60'
@@ -260,10 +348,8 @@ export default function Sidebar({ isOpen, onClose }) {
                     <ChevronRight
                       size={13}
                       strokeWidth={2}
-                      className={`shrink-0 transition-all duration-200 ${
-                        isActive
-                          ? 'opacity-40 translate-x-0'
-                          : 'opacity-0 -translate-x-2 group-hover/link:opacity-30 group-hover/link:translate-x-0'
+                      className={`shrink-0 transition-opacity duration-200 ${
+                        isActive ? 'opacity-40' : 'opacity-0 group-hover/link:opacity-30'
                       }`}
                     />
                   </>
@@ -274,16 +360,16 @@ export default function Sidebar({ isOpen, onClose }) {
         </div>
       </nav>
 
-      {/* ─── Footer — Author & Meta ─── */}
-      <div className="px-4 py-3 border-t border-base-300/50 shrink-0 space-y-2.5">
-        {/* Author row */}
+      {/* ── Footer ── */}
+      <div className="px-4 py-3 border-t border-base-300/40 shrink-0 space-y-2.5 bg-base-100/50">
+        {/* Author */}
         <a
           href="https://github.com/PooranaSelvan"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2.5 px-1.5 py-1.5 -mx-1 rounded-xl hover:bg-base-200/60 transition-all duration-200 group/author"
         >
-          <div className="w-7 h-7 rounded-lg overflow-hidden ring-1 ring-base-300/50 shrink-0 group-hover/author:ring-primary/30 transition-all duration-200">
+          <div className="w-7 h-7 rounded-lg overflow-hidden ring-1 ring-base-300/50 shrink-0 group-hover/author:ring-primary/30 transition-all duration-200 shadow-sm">
             <img
               src="https://avatars.githubusercontent.com/u/130943602?v=4"
               alt="Poorana Selvan"
@@ -299,26 +385,26 @@ export default function Sidebar({ isOpen, onClose }) {
             <p className="text-[11px] font-semibold text-base-content/60 group-hover/author:text-primary truncate leading-tight transition-colors duration-200">
               Poorana Selvan
             </p>
-            <p className="text-[10px] text-base-content/30 leading-tight">
+            <p className="text-[10px] text-base-content/25 leading-tight">
               @PooranaSelvan
             </p>
           </div>
-          <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 text-base-content/20 group-hover/author:text-primary/50 transition-colors duration-200 shrink-0" fill="currentColor">
+          <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 text-base-content/15 group-hover/author:text-primary/50 transition-colors duration-200 shrink-0" fill="currentColor">
             <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
           </svg>
         </a>
 
-        {/* Meta row */}
+        {/* Version & tool count */}
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="text-[10px]">{currentTheme?.emoji}</span>
-            <p className="text-[10px] text-base-content/25 font-medium truncate">
+            <p className="text-[10px] text-base-content/20 font-medium truncate">
               {currentTheme?.name || theme}
             </p>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="badge badge-ghost badge-xs text-base-content/25 font-mono">v2.0</div>
-            <div className="badge badge-primary badge-xs gap-1 font-semibold shadow-sm shadow-primary/10">
+            <div className="badge badge-ghost badge-xs text-base-content/20 font-mono text-[9px]">v4.0</div>
+            <div className="badge badge-primary badge-xs gap-1 font-bold shadow-sm shadow-primary/15">
               <Sparkles size={8} />
               {toolCount}
             </div>

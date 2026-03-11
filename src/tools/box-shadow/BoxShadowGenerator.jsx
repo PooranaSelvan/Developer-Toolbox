@@ -281,6 +281,31 @@ export default function BoxShadowGenerator() {
               ))}
             </AnimatePresence>
 
+            {/* Hover Animation Preview */}
+            <div className="section-card p-5">
+              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Eye size={14} className="text-primary" /> Hover Animation Preview</h3>
+              <p className="text-xs opacity-40 mb-4">Hover over the boxes to see the shadow applied as a hover effect</p>
+              <div className="grid grid-cols-3 gap-4" style={{ backgroundColor: bgColor, padding: '2rem', borderRadius: '0.75rem' }}>
+                {['Card', 'Button', 'Badge'].map((label) => (
+                  <div key={label} className="group">
+                    <div
+                      className="transition-all duration-300 flex items-center justify-center cursor-pointer hover:translate-y-[-4px]"
+                      style={{
+                        backgroundColor: boxColor,
+                        borderRadius: `${borderRadius}px`,
+                        height: '80px',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.boxShadow = shadowCSS}
+                      onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)'}
+                    >
+                      <span className="text-xs font-semibold opacity-40">{label}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Code Output */}
             <div className="section-card p-5">
               <h3 className="text-sm font-semibold mb-3">Generated Code</h3>

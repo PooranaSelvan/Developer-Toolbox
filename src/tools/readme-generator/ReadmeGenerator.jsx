@@ -44,9 +44,27 @@ const INITIAL_FORM = {
 
 const STORAGE_KEY = 'readme-generator-drafts';
 
+// Load autosave from localStorage (called once during init)
+const _autosaveCache = (() => {
+  try {
+    const saved = localStorage.getItem('readme-generator-autosave');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      const timeDiff = Date.now() - parsed.savedAt;
+      if (timeDiff < 86400000 && parsed.formData) {
+        return {
+          formData: { ...INITIAL_FORM, ...parsed.formData },
+          template: parsed.template && TEMPLATES[parsed.template] ? parsed.template : 'openSource',
+        };
+      }
+    }
+  } catch { /* ignore */ }
+  return null;
+})();
+
 export default function ReadmeGenerator() {
-  const [formData, setFormData] = useState(INITIAL_FORM);
-  const [template, setTemplate] = useState('openSource');
+  const [formData, setFormData] = useState(() => _autosaveCache ? _autosaveCache.formData : INITIAL_FORM);
+  const [template, setTemplate] = useState(() => _autosaveCache ? _autosaveCache.template : 'openSource');
   const [activeTab, setActiveTab] = useState('edit');
   const [githubLoading, setGithubLoading] = useState(false);
   const [githubError, setGithubError] = useState('');
@@ -92,27 +110,12 @@ export default function ReadmeGenerator() {
           template,
           savedAt: Date.now(),
         }));
-      } catch (e) { /* storage full */ }
+      } catch { /* storage full */ }
     }, 30000);
     return () => clearTimeout(timer);
   }, [formData, template]);
 
-  // Load autosave on mount
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('readme-generator-autosave');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        const timeDiff = Date.now() - parsed.savedAt;
-        if (timeDiff < 86400000 && parsed.formData) {
-          setFormData({ ...INITIAL_FORM, ...parsed.formData });
-          if (parsed.template && TEMPLATES[parsed.template]) {
-            setTemplate(parsed.template);
-          }
-        }
-      }
-    } catch (e) { /* ignore */ }
-  }, []);
+  
 
   const handleFieldChange = useCallback((field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -132,7 +135,7 @@ export default function ReadmeGenerator() {
 
     setGithubLoading(true);
 
-    const result = await deepAnalyzeRepo(parsed.owner, parsed.repo, (step, _msg) => {
+    const result = await deepAnalyzeRepo(parsed.owner, parsed.repo, (step) => {
       setGithubProgress(step);
     });
 
@@ -228,8 +231,8 @@ export default function ReadmeGenerator() {
 </head>
 <body class="markdown-body">
 ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"><\/script>
-<script>document.body.innerHTML = '<div class="markdown-body">' + marked.parse(document.body.innerText) + '</div>';<\/script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></` + `script>
+<script>document.body.innerHTML = '<div class="markdown-body">' + marked.parse(document.body.innerText) + '</div>';</` + `script>
 </body>
 </html>`;
     downloadFile(html, 'README.html', 'text/html');

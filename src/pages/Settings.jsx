@@ -86,10 +86,10 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.4 }}
       >
-        <div className="rounded-xl border border-base-300 bg-base-100 p-6">
+        <div className="rounded-xl glass-card glass-highlight p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 backdrop-blur-sm flex items-center justify-center shrink-0 border border-primary/10">
                 <Palette size={18} className="text-primary" />
               </div>
               <div>
@@ -106,7 +106,7 @@ export default function Settings() {
           </div>
 
           {/* Filter tabs */}
-          <div className="flex gap-1.5 bg-base-200/60 w-fit p-1.5 rounded-xl mb-6 border border-base-200 overflow-x-auto">
+          <div className="flex gap-1.5 w-fit p-1.5 rounded-xl mb-6 overflow-x-auto glass-base !bg-base-200/40">
             {['all', 'light', 'dark'].map((f) => (
               <button
                 key={f}
@@ -206,9 +206,9 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.4 }}
       >
-        <div className="rounded-xl border border-base-300 bg-base-100 p-6">
+<div className="rounded-xl glass-card glass-highlight p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-9 h-9 rounded-lg bg-warning/10 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-warning/10 backdrop-blur-sm flex items-center justify-center border border-warning/10">
               <Database size={18} className="text-warning" />
             </div>
             <div>
@@ -217,10 +217,9 @@ export default function Settings() {
             </div>
           </div>
 
-          {/* Stats */}
+          {}
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="rounded-xl bg-base-200/60 border border-base-300 p-4">
-              <div className="flex items-center justify-between mb-2">
+            <div className="rounded-xl glass-base !bg-base-200/30 p-4">              <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-medium opacity-50">Storage Used</span>
                 <Database size={16} className="text-primary opacity-40" />
               </div>
@@ -229,7 +228,7 @@ export default function Settings() {
               </p>
               <p className="text-[11px] opacity-40 mt-1">API history, collections, theme prefs</p>
             </div>
-            <div className="rounded-xl bg-base-200/60 border border-base-300 p-4">
+            <div className="rounded-xl glass-base !bg-base-200/30 p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-medium opacity-50">Storage Items</span>
                 <Info size={16} className="text-secondary opacity-40" />
@@ -244,7 +243,7 @@ export default function Settings() {
           <div className="flex flex-wrap gap-3">
             <button
               onClick={handleClearData}
-              className="btn btn-error btn-sm gap-2 rounded-xl"
+              className="btn btn-error btn-sm gap-2.5 rounded-xl"
             >
               <Trash2 size={14} />
               Clear All Data
@@ -270,7 +269,7 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3, duration: 0.4 }}
       >
-        <div className="rounded-xl border border-base-300 bg-base-100 overflow-hidden">
+        <div className="rounded-xl glass-card overflow-hidden">
           {/* Author Header Banner */}
           <div className="relative h-28 sm:h-32 overflow-hidden">
             <div
@@ -365,7 +364,7 @@ export default function Settings() {
                 href={AUTHOR.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-sm gap-2 rounded-xl bg-[#24292e] hover:bg-[#1b1f23] text-white border-0 shadow-sm hover:shadow-md hover:shadow-black/10 transition-all duration-200 hover:-translate-y-0.5"
+                className="btn btn-sm gap-2.5 rounded-xl bg-[#24292e] hover:bg-[#1b1f23] text-white border-0 shadow-sm hover:shadow-lg hover:shadow-black/15 transition-all duration-200 hover:-translate-y-0.5"
               >
                 <GithubIcon size={15} />
                 GitHub
@@ -375,7 +374,7 @@ export default function Settings() {
                 href={AUTHOR.portfolio}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-sm gap-2 rounded-xl btn-primary shadow-sm hover:shadow-md hover:shadow-primary/20 transition-all duration-200 hover:-translate-y-0.5"
+                className="btn btn-sm gap-2.5 rounded-xl btn-primary shadow-sm hover:shadow-lg hover:shadow-primary/25 transition-all duration-200 hover:-translate-y-0.5"
               >
                 <Globe size={15} />
                 Portfolio
@@ -399,7 +398,7 @@ export default function Settings() {
                 href={`${AUTHOR.github}/Developer-Toolbox`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-sm btn-outline btn-primary rounded-xl gap-2 shrink-0 hover:shadow-md hover:shadow-primary/15 transition-all duration-200"
+                className="btn btn-sm btn-outline btn-primary rounded-xl gap-2.5 shrink-0 hover:shadow-lg hover:shadow-primary/20 transition-all duration-200"
               >
                 <Star size={14} />
                 Star on GitHub
@@ -415,9 +414,9 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.4 }}
       >
-        <div className="rounded-xl border border-base-300 bg-base-100 p-6">
+        <div className="rounded-xl glass-card glass-highlight p-6">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-lg bg-info/10 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-info/10 backdrop-blur-sm flex items-center justify-center border border-info/10">
               <Info size={18} className="text-info" />
             </div>
             <div>

@@ -277,6 +277,29 @@ export default function CssGradientGenerator() {
                 </div>
               </div>
             </div>
+
+            {/* ── Text Gradient Preview ── */}
+            <div className="section-card p-5">
+              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Eye size={14} className="text-primary" /> Text Gradient Preview</h3>
+              <div className="space-y-3">
+                <p className="text-4xl font-extrabold" style={{ background: gradientCSS, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                  Gradient Text
+                </p>
+                <p className="text-2xl font-bold" style={{ background: gradientCSS, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                  Beautiful Typography
+                </p>
+                <p className="text-lg font-semibold" style={{ background: gradientCSS, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                  The quick brown fox jumps over the lazy dog
+                </p>
+              </div>
+              <div className="mt-3 pt-3 border-t border-base-200">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-40 mb-1 block">Text Gradient CSS</label>
+                <div className="relative">
+                  <pre className="p-3 rounded-lg bg-neutral text-neutral-content font-mono text-xs overflow-x-auto">{`background: ${gradientCSS};\n-webkit-background-clip: text;\n-webkit-text-fill-color: transparent;\nbackground-clip: text;`}</pre>
+                  <button onClick={() => copyToClipboard(`background: ${gradientCSS};\n-webkit-background-clip: text;\n-webkit-text-fill-color: transparent;\nbackground-clip: text;`)} className="absolute top-2 right-2 btn btn-xs btn-ghost text-neutral-content/60"><Copy size={11} /></button>
+                </div>
+              </div>
+            </div>
           </motion.div>
         )}
 

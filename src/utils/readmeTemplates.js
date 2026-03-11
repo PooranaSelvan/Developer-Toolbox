@@ -71,7 +71,7 @@ function generateTechBadges(data) {
 function renderFeatures(data) {
   if (!data.features) return '';
   const lines = data.features.split('\n').filter(Boolean);
-  return lines.map((f) => `- ${f.replace(/^[-*✅🔹•]\s*/, '')}`).join('\n') + '\n';
+  return lines.map((f) => `- ${f.replace(/^[-*✅🔹•]\s*/u, '')}`).join('\n') + '\n';
 }
 
 function renderFeaturesWithIcons(data) {
@@ -80,7 +80,7 @@ function renderFeaturesWithIcons(data) {
   const lines = data.features.split('\n').filter(Boolean);
   return lines.map((f, i) => {
     const icon = icons[i % icons.length];
-    return `${icon} **${f.replace(/^[-*✅🔹•]\s*/, '').trim()}**`;
+    return `${icon} **${f.replace(/^[-*✅🔹•]\s*/u, '').trim()}**`;
   }).join('  \n') + '\n';
 }
 
@@ -90,8 +90,8 @@ function renderFeaturesTable(data) {
   const lines = data.features.split('\n').filter(Boolean);
   const rows = [];
   for (let i = 0; i < lines.length; i += 2) {
-    const left = lines[i] ? `${icons[i % icons.length]} **${lines[i].replace(/^[-*✅🔹•]\s*/, '').trim()}**` : '';
-    const right = lines[i + 1] ? `${icons[(i + 1) % icons.length]} **${lines[i + 1].replace(/^[-*✅🔹•]\s*/, '').trim()}**` : '';
+    const left = lines[i] ? `${icons[i % icons.length]} **${lines[i].replace(/^[-*✅🔹•]\s*/u, '').trim()}**` : '';
+    const right = lines[i + 1] ? `${icons[(i + 1) % icons.length]} **${lines[i + 1].replace(/^[-*✅🔹•]\s*/u, '').trim()}**` : '';
     rows.push(`| ${left} | ${right} |`);
   }
   return `| | |\n|---|---|\n${rows.join('\n')}\n`;
@@ -723,7 +723,7 @@ export function enterpriseTemplate(data) {
     if (featureLines.length > 0) {
       md += `> **Key Highlights:**\n`;
       featureLines.slice(0, 3).forEach((f) => {
-        md += `> - ${f.replace(/^[-*✅🔹•]\s*/, '').trim()}\n`;
+        md += `> - ${f.replace(/^[-*✅🔹•]\s*/u, '').trim()}\n`;
       });
       md += '\n';
     }

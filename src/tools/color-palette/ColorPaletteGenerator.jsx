@@ -377,6 +377,49 @@ export default function ColorPaletteGenerator() {
               </div>
             </div>
 
+            {/* Contrast Matrix */}
+            <div className="section-card p-5">
+              <h3 className="text-sm font-semibold mb-4 flex items-center gap-2"><Eye size={14} className="text-primary" /> Contrast Matrix</h3>
+              <p className="text-xs opacity-40 mb-3">WCAG 2.1 contrast ratios between all palette colors</p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-center">
+                  <thead>
+                    <tr>
+                      <th className="p-1"></th>
+                      {colors.map((c, i) => (
+                        <th key={i} className="p-1"><div className="w-6 h-6 rounded mx-auto" style={{ backgroundColor: c.hex }} /></th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {colors.map((rowColor, ri) => (
+                      <tr key={ri}>
+                        <td className="p-1"><div className="w-6 h-6 rounded" style={{ backgroundColor: rowColor.hex }} /></td>
+                        {colors.map((colColor, ci) => {
+                          if (ri === ci) return <td key={ci} className="p-1"><span className="text-[9px] opacity-20">—</span></td>;
+                          const ratio = parseFloat(getContrastRatio(rowColor.hex, colColor.hex));
+                          const passAA = ratio >= 4.5;
+                          const passAAA = ratio >= 7;
+                          return (
+                            <td key={ci} className="p-1">
+                              <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${passAAA ? 'bg-success/15 text-success' : passAA ? 'bg-warning/15 text-warning' : 'bg-error/15 text-error'}`}>
+                                {ratio.toFixed(1)}
+                              </span>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="flex items-center gap-4 mt-3 justify-center">
+                <span className="flex items-center gap-1.5 text-[10px]"><span className="w-3 h-3 rounded bg-success/15 border border-success/30"></span> AAA (≥7.0)</span>
+                <span className="flex items-center gap-1.5 text-[10px]"><span className="w-3 h-3 rounded bg-warning/15 border border-warning/30"></span> AA (≥4.5)</span>
+                <span className="flex items-center gap-1.5 text-[10px]"><span className="w-3 h-3 rounded bg-error/15 border border-error/30"></span> Fail (&lt;4.5)</span>
+              </div>
+            </div>
+
             {/* Shades for each color */}
             <div className="section-card p-5">
               <h3 className="text-sm font-semibold mb-4 flex items-center gap-2"><Layers size={14} className="text-primary" /> Color Shades</h3>

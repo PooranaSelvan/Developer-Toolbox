@@ -226,11 +226,41 @@ export default function JsonFormatter() {
     return { original, minified: mini, saved: original - mini, percent: ((1 - mini / original) * 100).toFixed(1) };
   }, [input, minified]);
 
+  const [compareInput, setCompareInput] = useState('');
+  const compareParsed = useMemo(() => {
+    if (!compareInput.trim()) return null;
+    try { return { data: JSON.parse(compareInput), error: null }; }
+    catch (e) { return { data: null, error: e.message }; }
+  }, [compareInput]);
+
+  const jsonDiff = useMemo(() => {
+    if (!parsed?.data || !compareParsed?.data) return null;
+    const diffs = [];
+    function compare(a, b, path = '') {
+      const aKeys = typeof a === 'object' && a !== null ? Object.keys(a) : [];
+      const bKeys = typeof b === 'object' && b !== null ? Object.keys(b) : [];
+      const allKeys = [...new Set([...aKeys, ...bKeys])];
+      for (const key of allKeys) {
+        const fullPath = path ? `${path}.${key}` : key;
+        const aVal = a?.[key];
+        const bVal = b?.[key];
+        if (!(key in (a || {}))) { diffs.push({ path: fullPath, type: 'added', value: bVal }); }
+        else if (!(key in (b || {}))) { diffs.push({ path: fullPath, type: 'removed', value: aVal }); }
+        else if (typeof aVal !== typeof bVal) { diffs.push({ path: fullPath, type: 'changed', from: aVal, to: bVal }); }
+        else if (typeof aVal === 'object' && aVal !== null && bVal !== null && !Array.isArray(aVal)) { compare(aVal, bVal, fullPath); }
+        else if (JSON.stringify(aVal) !== JSON.stringify(bVal)) { diffs.push({ path: fullPath, type: 'changed', from: aVal, to: bVal }); }
+      }
+    }
+    compare(parsed.data, compareParsed.data);
+    return diffs;
+  }, [parsed, compareParsed]);
+
   const TABS = [
     { id: 'format', label: 'Formatted', icon: Code },
     { id: 'tree', label: 'Tree View', icon: TreePine },
     { id: 'flatten', label: 'Flattened', icon: List },
     { id: 'typescript', label: 'TypeScript', icon: Type },
+    { id: 'diff', label: 'JSON Diff', icon: Diff },
     { id: 'stats', label: 'Analysis', icon: Hash },
   ];
 
@@ -246,9 +276,9 @@ export default function JsonFormatter() {
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <button onClick={handlePaste} className="btn btn-sm btn-ghost gap-1.5"><Upload size={14} /> Paste</button>
+          <button onClick={handlePaste} className="btn btn-sm btn-ghost gap-2"><Upload size={14} /> Paste</button>
           <input type="file" ref={fileInputRef} accept=".json,.txt" className="hidden" onChange={handleFileUpload} />
-          <button onClick={() => fileInputRef.current?.click()} className="btn btn-sm btn-ghost gap-1.5"><FileJson size={14} /> Load File</button>
+          <button onClick={() => fileInputRef.current?.click()} className="btn btn-sm btn-ghost gap-2"><FileJson size={14} /> Load File</button>
           <div className="dropdown dropdown-end">
             <div tabIndex={0} role="button" className="btn btn-sm btn-outline gap-2"><Sparkles size={14} /> Samples</div>
             <ul tabIndex={0} className="dropdown-content z-[10] menu p-2 shadow-lg bg-base-100 rounded-xl w-52 border border-base-300">
@@ -257,7 +287,7 @@ export default function JsonFormatter() {
               ))}
             </ul>
           </div>
-          {input && <button onClick={() => setInput('')} className="btn btn-sm btn-ghost btn-error gap-1.5"><Trash2 size={14} /> Clear</button>}
+          {input && <button onClick={() => setInput('')} className="btn btn-sm btn-ghost text-error gap-2"><Trash2 size={14} /> Clear</button>}
         </div>
       </motion.div>
 
@@ -282,12 +312,12 @@ export default function JsonFormatter() {
       {/* Quick Actions */}
       {parsed?.data && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="flex flex-wrap gap-2">
-          <button onClick={handleFormat} className="btn btn-sm btn-primary gap-1.5"><Maximize2 size={14} /> Format</button>
-          <button onClick={handleMinify} className="btn btn-sm btn-outline gap-1.5"><Minimize2 size={14} /> Minify</button>
-          <button onClick={handleSort} className="btn btn-sm btn-outline gap-1.5"><SortAsc size={14} /> Sort Keys</button>
-          <button onClick={() => copyToClipboard(formatted)} className="btn btn-sm btn-outline gap-1.5">{copied ? <Check size={14} className="text-success" /> : <Copy size={14} />} Copy</button>
-          <button onClick={handleExport} className="btn btn-sm btn-outline gap-1.5"><Download size={14} /> Export</button>
-          <div className="flex items-center gap-1.5 ml-auto">
+          <button onClick={handleFormat} className="btn btn-sm btn-primary gap-2"><Maximize2 size={14} /> Format</button>
+          <button onClick={handleMinify} className="btn btn-sm btn-outline gap-2"><Minimize2 size={14} /> Minify</button>
+          <button onClick={handleSort} className="btn btn-sm btn-outline gap-2"><SortAsc size={14} /> Sort Keys</button>
+          <button onClick={() => copyToClipboard(formatted)} className="btn btn-sm btn-outline gap-2">{copied ? <Check size={14} className="text-success" /> : <Copy size={14} />} Copy</button>
+          <button onClick={handleExport} className="btn btn-sm btn-outline gap-2"><Download size={14} /> Export</button>
+          <div className="flex items-center gap-2 ml-auto">
             <span className="text-[10px] opacity-40">Indent:</span>
             {[2, 4].map(n => (
               <button key={n} onClick={() => setIndentSize(n)} className={`btn btn-xs ${indentSize === n ? 'btn-primary' : 'btn-ghost'}`}>{n}</button>
@@ -380,6 +410,51 @@ export default function JsonFormatter() {
               </button>
             </div>
             <pre className="p-4 rounded-lg bg-neutral text-neutral-content font-mono text-xs leading-relaxed overflow-x-auto">{tsInterface}</pre>
+          </motion.div>
+        )}
+
+        {parsed?.data && activeTab === 'diff' && (
+          <motion.div key="diff" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="section-card p-5 space-y-4">
+            <h3 className="text-sm font-semibold flex items-center gap-2"><Diff size={14} className="text-primary" /> JSON Diff Comparison</h3>
+            <div>
+              <label className="field-label">Paste second JSON to compare</label>
+              <textarea value={compareInput} onChange={(e) => setCompareInput(e.target.value)} placeholder='{"paste": "second JSON here"}' rows={4} className="textarea w-full font-mono text-xs leading-relaxed" spellCheck={false} />
+              {compareParsed?.error && <p className="text-xs text-error mt-1">{compareParsed.error}</p>}
+            </div>
+            {jsonDiff && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="badge badge-sm badge-ghost">{jsonDiff.length} difference{jsonDiff.length !== 1 ? 's' : ''}</span>
+                  <span className="badge badge-xs badge-success">{jsonDiff.filter(d => d.type === 'added').length} added</span>
+                  <span className="badge badge-xs badge-error">{jsonDiff.filter(d => d.type === 'removed').length} removed</span>
+                  <span className="badge badge-xs badge-warning">{jsonDiff.filter(d => d.type === 'changed').length} changed</span>
+                </div>
+                {jsonDiff.length === 0 ? (
+                  <div className="text-center py-8"><Check size={24} className="text-success mx-auto mb-2" /><p className="text-xs opacity-50">Both JSON objects are identical</p></div>
+                ) : (
+                  <div className="space-y-1.5 max-h-[400px] overflow-y-auto scrollbar-thin">
+                    {jsonDiff.map((d, i) => (
+                      <div key={i} className={`rounded-lg px-3 py-2.5 flex items-start gap-3 ${d.type === 'added' ? 'bg-success/8 border border-success/20' : d.type === 'removed' ? 'bg-error/8 border border-error/20' : 'bg-warning/8 border border-warning/20'}`}>
+                        <span className={`badge badge-xs shrink-0 mt-0.5 ${d.type === 'added' ? 'badge-success' : d.type === 'removed' ? 'badge-error' : 'badge-warning'}`}>{d.type === 'added' ? '+' : d.type === 'removed' ? '−' : '~'}</span>
+                        <div className="min-w-0 flex-1">
+                          <span className="font-mono text-xs font-bold text-primary">{d.path}</span>
+                          {d.type === 'changed' && (
+                            <div className="flex gap-2 mt-1 text-[10px] font-mono">
+                              <span className="text-error line-through">{JSON.stringify(d.from)}</span>
+                              <span className="opacity-30">→</span>
+                              <span className="text-success">{JSON.stringify(d.to)}</span>
+                            </div>
+                          )}
+                          {d.type === 'added' && <p className="text-[10px] font-mono text-success mt-0.5">{JSON.stringify(d.value)}</p>}
+                          {d.type === 'removed' && <p className="text-[10px] font-mono text-error mt-0.5">{JSON.stringify(d.value)}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            {!compareInput.trim() && <p className="text-xs opacity-40 text-center py-4">Paste a second JSON object above to compare differences</p>}
           </motion.div>
         )}
 

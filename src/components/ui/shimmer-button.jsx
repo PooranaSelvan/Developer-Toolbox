@@ -1,74 +1,40 @@
-import React from "react";
+import { cn } from "@/lib/utils";
 
-import { cn } from "@/lib/utils"
-
-export const ShimmerButton = React.forwardRef((
-  {
-    shimmerColor = "#ffffff",
-    shimmerSize = "0.05em",
-    shimmerDuration = "3s",
-    borderRadius = "100px",
-    background = "rgba(0, 0, 0, 1)",
-    className,
-    children,
-    ...props
-  },
-  ref
-) => {
+export function ShimmerButton({
+  children,
+  className,
+  shimmerColor = "rgba(255, 255, 255, 0.15)",
+  shimmerSize = "0.1em",
+  borderRadius = "100px",
+  shimmerDuration = "2.5s",
+  background = "linear-gradient(135deg, var(--color-primary) 0%, color-mix(in oklch, var(--color-primary) 80%, var(--color-secondary, var(--color-primary))) 100%)",
+  ...props
+}) {
   return (
     <button
-      style={{
-        "--spread": "90deg",
-        "--shimmer-color": shimmerColor,
-        "--radius": borderRadius,
-        "--speed": shimmerDuration,
-        "--cut": shimmerSize,
-        "--bg": background,
-        borderRadius: borderRadius,
-        background: background,
-      }}
       className={cn(
-        "group relative z-0 flex cursor-pointer items-center justify-center overflow-hidden border border-white/10 px-6 py-3 whitespace-nowrap text-white",
-        "transform-gpu transition-transform duration-300 ease-in-out active:translate-y-px",
+        "group relative inline-flex items-center justify-center overflow-hidden whitespace-nowrap px-6 py-3 font-semibold text-primary-content transition-all duration-300 ease-out hover:scale-105 hover:shadow-xl active:scale-95",
         className
       )}
-      ref={ref}
-      {...props}>
-      {/* spark container */}
-      <div className={cn("-z-30 blur-[2px]", "absolute inset-0 overflow-visible")}>
-        {/* spark */}
-        <div className="animate-shimmer-slide absolute inset-0 aspect-square h-full rounded-none">
-          {/* spark before */}
-          <div
-            className="animate-spin-around absolute -inset-full w-auto rotate-0"
-            style={{
-              translate: "0 0",
-              background: `conic-gradient(from calc(270deg - (var(--spread) * 0.5)), transparent 0, var(--shimmer-color) var(--spread), transparent var(--spread))`,
-            }}
-          />
-        </div>
+      style={{
+        borderRadius,
+        background,
+        boxShadow: "0 4px 20px color-mix(in oklch, var(--color-primary) 30%, transparent)",
+      }}
+      {...props}
+    >
+      <div
+        className="absolute inset-0 overflow-hidden"
+        style={{ borderRadius }}
+      >
+        <div
+          className="absolute inset-0 shimmer-sweep"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${shimmerColor}, transparent)`,
+          }}
+        />
       </div>
-      {children}
-      {/* Highlight */}
-      <div
-        className={cn(
-          "absolute inset-0 w-full h-full",
-          "rounded-2xl px-4 py-1.5 text-sm font-medium shadow-[inset_0_-8px_10px_#ffffff1f]",
-          "transform-gpu transition-all duration-300 ease-in-out",
-          "group-hover:shadow-[inset_0_-6px_10px_#ffffff3f]",
-          "group-active:shadow-[inset_0_-10px_10px_#ffffff3f]"
-        )} />
-      {/* backdrop */}
-      <div
-        className="absolute -z-20"
-        style={{
-          inset: `var(--cut)`,
-          borderRadius: `var(--radius)`,
-          background: `var(--bg)`,
-        }}
-      />
+      <span className="relative z-10 flex items-center gap-2">{children}</span>
     </button>
   );
-})
-
-ShimmerButton.displayName = "ShimmerButton"
+}
