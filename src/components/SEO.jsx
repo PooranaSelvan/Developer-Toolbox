@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 export default function SEO({ 
   title = 'WebToolkit',
   description = 'Your all-in-one developer toolkit with 20+ free utilities',
-  keywords = 'developer tools, json formatter, api tester, code generator',
+  keywords = 'developer tools, web utilities, online tools, developer utilities',
   image = '/favicon.svg',
   url
 }) {

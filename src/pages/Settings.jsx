@@ -25,10 +25,7 @@ const AUTHOR = {
   location: 'India',
   github: 'https://github.com/PooranaSelvan',
   portfolio: 'https://poorana-portfolio.vercel.app/',
-  skills: ['React', 'Java', 'Node.js', 'Tailwind CSS', 'MongoDB', 'MySQL'],
-  repos: [
-    { name: 'WebToolkit', desc: 'All-in-one developer toolkit', stars: '⭐', lang: 'React' },
-  ],
+  
 };
 
 export default function Settings() {
@@ -362,21 +359,6 @@ export default function Settings() {
               {AUTHOR.bio}
             </p>
 
-            {/* Tech Skills */}
-            <div className="mb-5">
-              <p className="text-[10px] font-bold uppercase tracking-widest opacity-35 mb-2.5">Tech Stack</p>
-              <div className="flex flex-wrap gap-1.5">
-                {AUTHOR.skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="badge badge-ghost badge-sm font-medium hover:bg-primary/10 hover:text-primary transition-colors duration-200 cursor-default"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-
             {/* Social Links */}
             <div className="flex flex-wrap gap-2">
               <a
@@ -447,9 +429,6 @@ export default function Settings() {
           <div className="overflow-x-auto">
             <table className="table table-sm">
               <tbody>
-                <tr><td className="font-semibold opacity-70">Version</td><td>2.0.0</td></tr>
-                <tr><td className="font-semibold opacity-70">Framework</td><td>React 19 + Vite 5</td></tr>
-                <tr><td className="font-semibold opacity-70">UI Library</td><td>DaisyUI 5 + TailwindCSS 3</td></tr>
                 <tr><td className="font-semibold opacity-70">Total Tools</td><td>{getTools().filter(t => t.id !== 'settings').length} developer tools</td></tr>
                 <tr><td className="font-semibold opacity-70">Available Themes</td><td>{themes.length} themes</td></tr>
                 <tr><td className="font-semibold opacity-70">Privacy</td><td>100% client-side — no data sent to any server</td></tr>

@@ -85,7 +85,7 @@ export default function Dashboard() {
     <>
       <SEO 
         title="Dashboard - WebToolkit"
-        description={`Browse ${tools.length} developer tools including JSON formatters, API testers, code generators, and more. All tools are free and run client-side for maximum privacy.`}
+        description={`Browse ${tools.length} free, fast, and privacy-first developer utilities — all running client-side.`}
         keywords="developer dashboard, tool collection, utilities, web development tools"
       />
       <div className="max-w-6xl mx-auto" role="main">
@@ -378,7 +378,7 @@ export default function Dashboard() {
           </a>
 
           <p className="text-[11px] opacity-20 flex items-center gap-1.5 flex-wrap justify-center">
-            Crafted with <Heart size={10} className="text-error" /> using React, Tailwind CSS & DaisyUI
+            Crafted with <Heart size={10} className="text-error" /> by Poorana Selvan
           </p>
         </div>
         </div>

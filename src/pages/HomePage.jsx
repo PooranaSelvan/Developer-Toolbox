@@ -163,8 +163,8 @@ export default function HomePage() {
     <>
       <SEO 
         title="Home - WebToolkit"
-        description={`${tools.length} free, fast, and privacy-first developer utilities. JSON formatter, API tester, regex generator, and more - all running client-side.`}
-        keywords="developer tools, json formatter, api tester, regex generator, color palette, css gradient, password generator, jwt decoder, glassmorphism"
+        description={`${tools.length} free, fast, and privacy-first developer utilities — all running client-side.`}
+        keywords="developer tools, web utilities, online tools, developer utilities"
       />
       <div className="max-w-6xl mx-auto" role="main">
         {/* ═══════════ HERO SECTION ═══════════ */}
@@ -325,13 +325,13 @@ export default function HomePage() {
           <FeatureCard
             icon={Layers}
             title={`${tools.length}+ Pro Tools`}
-            description="From API testing to CSS generators — a comprehensive toolkit covering every developer need in one place."
+            description="A comprehensive toolkit covering every developer need in one place, with new tools added regularly."
             color="bg-gradient-to-br from-blue-500 to-indigo-500"
           />
           <FeatureCard
             icon={Palette}
             title="Beautiful UI"
-            description="30+ handcrafted themes with glassmorphic design. Dark mode, light mode, and everything in between."
+            description="30+ handcrafted themes with modern design. Dark mode, light mode, and everything in between."
             color="bg-gradient-to-br from-purple-500 to-pink-500"
           />
         </motion.div>
@@ -605,7 +605,7 @@ export default function HomePage() {
             </div>
           </a>
           <p className="text-[11px] opacity-20 flex items-center gap-1.5 flex-wrap justify-center">
-            Crafted with <Heart size={10} className="text-error" /> using React, Tailwind CSS & DaisyUI
+            Crafted with <Heart size={10} className="text-error" /> by Poorana Selvan
           </p>
         </div>
       </footer>
