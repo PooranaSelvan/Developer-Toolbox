@@ -38,12 +38,20 @@ export default function Settings() {
     : themes.filter((t) => t.category.toLowerCase() === filter);
 
   const handleClearData = () => {
-    if (window.confirm('Are you sure? This will clear all saved API collections, history, and settings.')) {
-      const currentTheme = theme;
-      localStorage.clear();
-      localStorage.setItem('devtoolbox-theme', currentTheme);
-      setCleared(true);
-      setTimeout(() => setCleared(false), 3000);
+    try {
+      if (window.confirm('Are you sure? This will clear all saved API collections, history, and settings.')) {
+        const currentTheme = theme;
+        try {
+          localStorage.clear();
+          localStorage.setItem('devtoolbox-theme', currentTheme);
+        } catch (storageErr) {
+          console.error('[Settings] Failed to clear localStorage:', storageErr);
+        }
+        setCleared(true);
+        setTimeout(() => setCleared(false), 3000);
+      }
+    } catch (err) {
+      console.error('[Settings] Error during data clear:', err);
     }
   };
 
@@ -52,9 +60,14 @@ export default function Settings() {
     try {
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        total += localStorage.getItem(key).length;
+        if (key) {
+          const value = localStorage.getItem(key);
+          total += (key.length + (value ? value.length : 0)) * 2; // UTF-16 = 2 bytes per char
+        }
       }
-    } catch {}
+    } catch (e) {
+      console.warn('[Settings] Error calculating storage size:', e);
+    }
     return (total / 1024).toFixed(1);
   })();
 

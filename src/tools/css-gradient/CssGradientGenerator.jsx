@@ -278,7 +278,6 @@ export default function CssGradientGenerator() {
               </div>
             </div>
 
->
             <div className="section-card p-5">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Eye size={14} className="text-primary" /> Text Gradient Preview</h3>
               <div className="space-y-3 overflow-hidden">

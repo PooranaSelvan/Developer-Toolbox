@@ -2332,15 +2332,15 @@ export default function FlexPlayground() {
                   </div>
                 </div>
 
->
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 relative">
+<div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 relative">
                   {[
                     { icon: '⚡', label: 'Total XP', value: totalScore, color: 'text-warning' },
                     { icon: '🔥', label: 'Best Streak', value: `${maxStreak}x`, color: 'text-orange-500' },
                     { icon: '⏱️', label: 'Fastest Solve', value: fastestSolve > 0 ? `${fastestSolve}s` : '—', color: 'text-primary' },
                     { icon: '🧠', label: 'No-Hint Solves', value: noHintSolves, color: 'text-secondary' },
                   ].map((stat) => (
-                    <div key={stat.label} className="p-2.5 sm:p-3 rounded-xl bg-base-200/30 border border-base-300/20 text-center">                      <div className="text-lg mb-0.5">{stat.icon}</div>
+                    <div key={stat.label} className="p-2.5 sm:p-3 rounded-xl bg-base-200/30 border border-base-300/20 text-center">
+                      <div className="text-lg mb-0.5">{stat.icon}</div>
                       <div className={`text-sm font-bold font-mono ${stat.color}`}>{stat.value}</div>
                       <div className="text-[9px] opacity-40 uppercase font-bold mt-0.5">{stat.label}</div>
                     </div>

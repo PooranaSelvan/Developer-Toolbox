@@ -45,50 +45,77 @@ export default function ApiTester() {
     setLoading(true);
     setResponse(null);
 
-    const headers = {};
-    request.headers.forEach(({ key, value, enabled }) => {
-      if (key.trim() && enabled !== false) headers[key.trim()] = value;
-    });
+    try {
+      const headers = {};
+      (request.headers || []).forEach(({ key, value, enabled }) => {
+        try {
+          if (key && key.trim() && enabled !== false) headers[key.trim()] = value;
+        } catch { /* skip invalid header */ }
+      });
 
-    if (request.auth.type === 'bearer' && request.auth.token) {
-      headers['Authorization'] = `Bearer ${request.auth.token}`;
-    } else if (request.auth.type === 'basic' && request.auth.username) {
-      headers['Authorization'] = `Basic ${btoa(`${request.auth.username}:${request.auth.password}`)}`;
-    } else if (request.auth.type === 'apikey' && request.auth.token) {
-      headers['X-API-Key'] = request.auth.token;
+      if (request.auth?.type === 'bearer' && request.auth.token) {
+        headers['Authorization'] = `Bearer ${request.auth.token}`;
+      } else if (request.auth?.type === 'basic' && request.auth.username) {
+        try {
+          headers['Authorization'] = `Basic ${btoa(`${request.auth.username}:${request.auth.password || ''}`)}`;
+        } catch (e) {
+          console.warn('[ApiTester] Failed to encode Basic auth credentials:', e);
+        }
+      } else if (request.auth?.type === 'apikey' && request.auth.token) {
+        headers['X-API-Key'] = request.auth.token;
+      }
+
+      const params = {};
+      (request.params || []).forEach(({ key, value, enabled }) => {
+        try {
+          if (key && key.trim() && enabled !== false) params[key.trim()] = value;
+        } catch { /* skip invalid param */ }
+      });
+
+      const result = await executeRequest({
+        method: request.method,
+        url: request.url,
+        headers,
+        params,
+        body: request.body,
+      });
+
+      setResponse(result);
+
+      try {
+        const historyEntry = {
+          id: generateId(),
+          method: request.method,
+          url: request.url,
+          headers,
+          params,
+          body: request.body,
+          bodyType: request.bodyType,
+          auth: request.auth,
+          status: result.status,
+          duration: result.duration,
+          timestamp: new Date().toISOString(),
+        };
+
+        setHistory((prev) => [historyEntry, ...prev].slice(0, 100));
+      } catch (historyErr) {
+        console.warn('[ApiTester] Failed to save to history:', historyErr);
+      }
+    } catch (error) {
+      console.error('[ApiTester] Request execution failed:', error);
+      setResponse({
+        success: false,
+        status: 0,
+        statusText: 'Client Error',
+        headers: {},
+        data: error?.message || 'An unexpected error occurred while sending the request.',
+        duration: 0,
+        size: 0,
+        error: error?.message || 'Unknown error',
+      });
+    } finally {
+      setLoading(false);
     }
-
-    const params = {};
-    request.params.forEach(({ key, value, enabled }) => {
-      if (key.trim() && enabled !== false) params[key.trim()] = value;
-    });
-
-    const result = await executeRequest({
-      method: request.method,
-      url: request.url,
-      headers,
-      params,
-      body: request.body,
-    });
-
-    setResponse(result);
-    setLoading(false);
-
-    const historyEntry = {
-      id: generateId(),
-      method: request.method,
-      url: request.url,
-      headers,
-      params,
-      body: request.body,
-      bodyType: request.bodyType,
-      auth: request.auth,
-      status: result.status,
-      duration: result.duration,
-      timestamp: new Date().toISOString(),
-    };
-
-    setHistory((prev) => [historyEntry, ...prev].slice(0, 100));
   };
 
   const handleLoadHistory = (entry) => {

@@ -25,18 +25,31 @@ export default function LazyImage({
   const imgRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '100px' }
-    );
+    let observer;
+    try {
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          try {
+            if (entry.isIntersecting) {
+              setInView(true);
+              observer.disconnect();
+            }
+          } catch {
+            // If intersection callback fails, show image immediately
+            setInView(true);
+          }
+        },
+        { rootMargin: '100px' }
+      );
 
-    if (imgRef.current) observer.observe(imgRef.current);
-    return () => observer.disconnect();
+      if (imgRef.current) observer.observe(imgRef.current);
+    } catch {
+      // IntersectionObserver not available — show immediately
+      setInView(true);
+    }
+    return () => {
+      try { observer?.disconnect(); } catch { /* cleanup silently */ }
+    };
   }, []);
 
   const handleLoad = () => setLoaded(true);

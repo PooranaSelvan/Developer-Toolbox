@@ -953,31 +953,52 @@ function executeCreate(tokens, tables) {
 
 // ─── Main execute function ──────────────────────────────────
 export function executeSQL(sql, tables) {
+  // Input validation
+  if (sql == null || typeof sql !== 'string') {
+    throw new Error('Query must be a non-empty string');
+  }
+
   const trimmed = sql.trim();
   if (!trimmed) throw new Error('Empty query');
 
-  const tokens = tokenize(trimmed);
-  if (tokens.length === 0) throw new Error('Empty query');
+  if (!tables || typeof tables !== 'object') {
+    throw new Error('Invalid database tables object');
+  }
+
+  let tokens;
+  try {
+    tokens = tokenize(trimmed);
+  } catch (err) {
+    throw new Error(`Syntax error: Unable to parse query — ${err?.message || 'unknown tokenization error'}`);
+  }
+
+  if (!tokens || tokens.length === 0) throw new Error('Empty query — no valid tokens found');
 
   const firstKeyword = tokens[0].value?.toUpperCase();
 
-  switch (firstKeyword) {
-    case 'SELECT': {
-      const parser = new Parser(tokens);
-      const query = parseSelect(parser);
-      const result = executeSelect(query, tables);
-      return { type: 'result', ...result };
+  try {
+    switch (firstKeyword) {
+      case 'SELECT': {
+        const parser = new Parser(tokens);
+        const query = parseSelect(parser);
+        const result = executeSelect(query, tables);
+        return { type: 'result', ...result };
+      }
+      case 'INSERT':
+        return { type: 'message', ...executeInsert(tokens, tables) };
+      case 'UPDATE':
+        return { type: 'message', ...executeUpdate(tokens, tables) };
+      case 'DELETE':
+        return { type: 'message', ...executeDelete(tokens, tables) };
+      case 'CREATE':
+        return { type: 'message', ...executeCreate(tokens, tables) };
+      default:
+        throw new Error(`Unsupported statement: "${firstKeyword}". Supported: SELECT, INSERT, UPDATE, DELETE, CREATE TABLE`);
     }
-    case 'INSERT':
-      return { type: 'message', ...executeInsert(tokens, tables) };
-    case 'UPDATE':
-      return { type: 'message', ...executeUpdate(tokens, tables) };
-    case 'DELETE':
-      return { type: 'message', ...executeDelete(tokens, tables) };
-    case 'CREATE':
-      return { type: 'message', ...executeCreate(tokens, tables) };
-    default:
-      throw new Error(`Unsupported statement: "${firstKeyword}". Supported: SELECT, INSERT, UPDATE, DELETE, CREATE TABLE`);
+  } catch (err) {
+    // Re-throw with clearer context if it's a raw error
+    if (err?.message) throw err;
+    throw new Error(`Query execution failed: ${String(err)}`);
   }
 }
 

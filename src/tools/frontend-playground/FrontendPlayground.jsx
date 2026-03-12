@@ -640,6 +640,46 @@ export default function FrontendPlayground() {
                     <span><kbd>clg</kbd> console.log</span>
                   </div>
                 </div>
+              ) : !html && !css && js ? (
+                /* JS-only mode: hidden iframe for execution + visible inline console for output */
+                <div style={{ width: viewportWidth, maxWidth: '100%', height: '100%', display: 'flex', flexDirection: 'column' }} className="transition-all duration-300 mx-auto">
+                  <iframe
+                    ref={iframeRef}
+                    key={previewKey}
+                    srcDoc={previewHTML}
+                    className="w-full border-0"
+                    style={{ height: 0, minHeight: 0, flex: 'none' }}
+                    sandbox="allow-scripts allow-modals allow-forms allow-same-origin"
+                    title="Preview"
+                  />
+                  <div className="playground-js-console-inline">
+                    <div className="playground-js-console-inline-header">
+                      <Terminal size={11} className="opacity-50" />
+                      <span>Console Output</span>
+                      {consoleOutput.length > 0 && <span className="playground-console-count">{consoleOutput.length}</span>}
+                      {consoleOutput.length > 0 && (
+                        <button onClick={() => setConsoleOutput([])} className="playground-console-btn ml-auto"><Eraser size={10} /> Clear</button>
+                      )}
+                    </div>
+                    <div className="playground-js-console-inline-body scrollbar-thin">
+                      {consoleOutput.length === 0 ? (
+                        <div className="playground-console-empty">Waiting for output… use console.log() in your JS</div>
+                      ) : (
+                        consoleOutput.map((entry, i) => {
+                          const cfg = { error: { cls: 'playground-console-error', icon: <AlertTriangle size={10} /> }, warn: { cls: 'playground-console-warn', icon: <AlertTriangle size={10} /> }, info: { cls: 'playground-console-info', icon: <Info size={10} /> }, log: { cls: 'playground-console-log', icon: <ChevronDown size={10} /> } };
+                          const c = cfg[entry.level] || cfg.log;
+                          return (
+                            <div key={i} className={`playground-console-entry ${c.cls}`}>
+                              <span className="playground-console-icon">{c.icon}</span>
+                              <span className="playground-console-time">{entry.time}</span>
+                              <pre className="playground-console-msg">{entry.args.join(' ')}</pre>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <div style={{ width: viewportWidth, maxWidth: '100%', height: '100%' }} className="transition-all duration-300 mx-auto">
                   <iframe

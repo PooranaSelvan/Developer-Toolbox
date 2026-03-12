@@ -198,17 +198,36 @@ export const CATEGORIES = [
 ];
 
 export const getTools = () => TOOLS;
-export const getToolById = (id) => TOOLS.find((tool) => tool.id === id);
-export const getToolsByCategory = (category) => TOOLS.filter((tool) => tool.category === category);
+export const getToolById = (id) => {
+  try {
+    return TOOLS.find((tool) => tool.id === id) || null;
+  } catch {
+    return null;
+  }
+};
+export const getToolsByCategory = (category) => {
+  try {
+    if (!category) return [];
+    return TOOLS.filter((tool) => tool.category === category);
+  } catch {
+    return [];
+  }
+};
 export const searchTools = (query) => {
-  const q = query.toLowerCase();
-  return TOOLS.filter(
-    (t) =>
-      t.id !== 'settings' &&
-      (t.name.toLowerCase().includes(q) ||
-       t.description.toLowerCase().includes(q) ||
-       t.tags.some((tag) => tag.includes(q)))
-  );
+  try {
+    if (!query || typeof query !== 'string') return [];
+    const q = query.toLowerCase().trim();
+    if (!q) return [];
+    return TOOLS.filter(
+      (t) =>
+        t.id !== 'settings' &&
+        (t.name.toLowerCase().includes(q) ||
+         t.description.toLowerCase().includes(q) ||
+         (Array.isArray(t.tags) && t.tags.some((tag) => tag.includes(q))))
+    );
+  } catch {
+    return [];
+  }
 };
 
 export default TOOLS;

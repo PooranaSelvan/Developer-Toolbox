@@ -36,8 +36,12 @@ export default function Toast({
   useEffect(() => {
     if (duration > 0) {
       const timer = setTimeout(() => {
-        setIsVisible(false);
-        setTimeout(() => onClose?.(), 300);
+        try {
+          setIsVisible(false);
+          setTimeout(() => {
+            try { onClose?.(); } catch { /* swallow close callback errors */ }
+          }, 300);
+        } catch { /* swallow timeout errors */ }
       }, duration);
 
       return () => clearTimeout(timer);

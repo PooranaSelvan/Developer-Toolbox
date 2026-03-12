@@ -14,15 +14,44 @@ import axios from 'axios';
 export async function executeRequest({ method, url, headers = {}, params = {}, body = null }) {
   const startTime = performance.now();
 
+  // Input validation
+  if (!url || typeof url !== 'string' || !url.trim()) {
+    return {
+      success: false,
+      status: 0,
+      statusText: 'Invalid Request',
+      headers: {},
+      data: 'A valid URL is required.',
+      duration: 0,
+      size: 0,
+      error: 'URL is required',
+    };
+  }
+
+  if (!method || typeof method !== 'string') {
+    return {
+      success: false,
+      status: 0,
+      statusText: 'Invalid Request',
+      headers: {},
+      data: 'A valid HTTP method is required.',
+      duration: 0,
+      size: 0,
+      error: 'HTTP method is required',
+    };
+  }
+
   try {
-    // Build clean headers (filter empty keys/values)
+    // Build clean headers (filter empty keys/values) — safely handle non-object input
+    const safeHeaders = (headers && typeof headers === 'object') ? headers : {};
     const cleanHeaders = Object.fromEntries(
-      Object.entries(headers).filter(([k, v]) => k && String(k).trim() && v != null && String(v).trim())
+      Object.entries(safeHeaders).filter(([k, v]) => k && String(k).trim() && v != null && String(v).trim())
     );
 
-    // Build clean params
+    // Build clean params — safely handle non-object input
+    const safeParams = (params && typeof params === 'object') ? params : {};
     const cleanParams = Object.fromEntries(
-      Object.entries(params).filter(([k, v]) => k && String(k).trim() && v != null && String(v).trim())
+      Object.entries(safeParams).filter(([k, v]) => k && String(k).trim() && v != null && String(v).trim())
     );
 
     // Parse body if string
@@ -37,10 +66,11 @@ export async function executeRequest({ method, url, headers = {}, params = {}, b
 
     const config = {
       method: method.toLowerCase(),
-      url,
+      url: url.trim(),
       headers: cleanHeaders,
       params: cleanParams,
       validateStatus: () => true, // Don't throw on non-2xx
+      timeout: 30000, // 30s timeout to prevent hanging requests
     };
 
     // Only attach body for methods that support it
@@ -55,28 +85,50 @@ export async function executeRequest({ method, url, headers = {}, params = {}, b
     const endTime = performance.now();
     const duration = Math.round(endTime - startTime);
 
+    // Safely compute response size
+    let size = 0;
+    try {
+      size = JSON.stringify(response.data).length;
+    } catch {
+      size = 0;
+    }
+
     return {
       success: true,
       status: response.status,
-      statusText: response.statusText,
-      headers: response.headers,
+      statusText: response.statusText || '',
+      headers: response.headers || {},
       data: response.data,
       duration,
-      size: JSON.stringify(response.data).length,
+      size,
     };
   } catch (error) {
     const endTime = performance.now();
     const duration = Math.round(endTime - startTime);
 
+    // Differentiate error types for better UX
+    let statusText = 'Network Error';
+    let errorMessage = error?.message || 'Unknown error occurred';
+
+    if (error?.code === 'ECONNABORTED' || error?.message?.includes('timeout')) {
+      statusText = 'Request Timeout';
+      errorMessage = 'The request timed out. The server may be slow or unreachable.';
+    } else if (error?.code === 'ERR_NETWORK') {
+      statusText = 'Network Error';
+      errorMessage = 'Unable to reach the server. Check your internet connection or the URL.';
+    } else if (error?.code === 'ERR_BAD_REQUEST') {
+      statusText = 'Bad Request';
+    }
+
     return {
       success: false,
-      status: error.response?.status || 0,
-      statusText: error.response?.statusText || 'Network Error',
-      headers: error.response?.headers || {},
-      data: error.response?.data || error.message,
+      status: error?.response?.status || 0,
+      statusText: error?.response?.statusText || statusText,
+      headers: error?.response?.headers || {},
+      data: error?.response?.data || errorMessage,
       duration,
       size: 0,
-      error: error.message,
+      error: errorMessage,
     };
   }
 }

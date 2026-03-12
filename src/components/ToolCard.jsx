@@ -8,7 +8,10 @@ const RECENT_TOOLS_KEY = 'devtoolbox-recent-tools';
 
 function getRecentTools() {
   try {
-    return JSON.parse(localStorage.getItem(RECENT_TOOLS_KEY) || '[]');
+    const stored = localStorage.getItem(RECENT_TOOLS_KEY);
+    if (!stored) return [];
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }

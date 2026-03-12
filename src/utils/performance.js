@@ -29,58 +29,89 @@ export function throttle(func, limit = 300) {
 
 // Lazy load images
 export function lazyLoadImage(img) {
-  if ('IntersectionObserver' in window) {
-    const imageObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const image = entry.target;
-          image.src = image.dataset.src;
-          image.classList.add('loaded');
-          imageObserver.unobserve(image);
-        }
+  try {
+    if (!img) return;
+    if ('IntersectionObserver' in window) {
+      const imageObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          try {
+            if (entry.isIntersecting) {
+              const image = entry.target;
+              if (image.dataset.src) {
+                image.src = image.dataset.src;
+                image.classList.add('loaded');
+              }
+              imageObserver.unobserve(image);
+            }
+          } catch (err) {
+            console.warn('[LazyLoad] Error processing intersection entry:', err);
+          }
+        });
       });
-    });
-    imageObserver.observe(img);
-  } else {
-    // Fallback for older browsers
-    img.src = img.dataset.src;
+      imageObserver.observe(img);
+    } else {
+      // Fallback for older browsers
+      if (img.dataset.src) {
+        img.src = img.dataset.src;
+      }
+    }
+  } catch (err) {
+    console.warn('[LazyLoad] Failed to initialize lazy loading:', err);
+    // Fallback: load immediately
+    if (img?.dataset?.src) {
+      img.src = img.dataset.src;
+    }
   }
 }
 
-// Request idle callback polyfill
+// Request idle callback polyfill — safe for SSR/non-browser environments
 export const requestIdleCallback =
-  window.requestIdleCallback ||
+  (typeof window !== 'undefined' && window.requestIdleCallback) ||
   function (cb) {
     const start = Date.now();
     return setTimeout(() => {
-      cb({
-        didTimeout: false,
-        timeRemaining: () => Math.max(0, 50 - (Date.now() - start)),
-      });
+      try {
+        cb({
+          didTimeout: false,
+          timeRemaining: () => Math.max(0, 50 - (Date.now() - start)),
+        });
+      } catch (err) {
+        console.warn('[requestIdleCallback] Callback error:', err);
+      }
     }, 1);
   };
 
 export const cancelIdleCallback =
-  window.cancelIdleCallback ||
+  (typeof window !== 'undefined' && window.cancelIdleCallback) ||
   function (id) {
     clearTimeout(id);
   };
 
 // Measure component render time (dev only)
 export function measureRenderTime(componentName, callback) {
-  if (process.env.NODE_ENV === 'development') {
-    const start = performance.now();
-    const result = callback();
-    const end = performance.now();
-    console.log(`[Performance] ${componentName} rendered in ${(end - start).toFixed(2)}ms`);
-    return result;
+  try {
+    if (process.env.NODE_ENV === 'development') {
+      const start = performance.now();
+      const result = callback();
+      const end = performance.now();
+      console.log(`[Performance] ${componentName} rendered in ${(end - start).toFixed(2)}ms`);
+      return result;
+    }
+    return callback();
+  } catch (err) {
+    console.error(`[Performance] Error measuring ${componentName}:`, err);
+    // Still attempt to run the callback
+    try { return callback(); } catch { return undefined; }
   }
-  return callback();
 }
 
 // Check if user prefers reduced motion
 export function prefersReducedMotion() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  try {
+    return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  } catch {
+    return false;
+  }
 }
 
 // Local storage with quota handling

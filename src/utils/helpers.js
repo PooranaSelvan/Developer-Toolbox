@@ -1,50 +1,86 @@
 export function formatBytes(bytes) {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+  try {
+    if (bytes == null || isNaN(bytes) || bytes < 0) return '0 B';
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+  } catch {
+    return '0 B';
+  }
 }
 
 export function formatDuration(ms) {
-  if (ms < 1000) return `${ms}ms`;
-  return `${(ms / 1000).toFixed(2)}s`;
+  try {
+    if (ms == null || isNaN(ms)) return '0ms';
+    if (ms < 1000) return `${Math.round(ms)}ms`;
+    return `${(ms / 1000).toFixed(2)}s`;
+  } catch {
+    return '0ms';
+  }
 }
 
 export function getStatusColor(status) {
-  if (status >= 200 && status < 300) return 'text-success';
-  if (status >= 300 && status < 400) return 'text-warning';
-  if (status >= 400 && status < 500) return 'text-warning';
-  if (status >= 500) return 'text-error';
-  return 'opacity-40';
+  try {
+    const code = Number(status);
+    if (isNaN(code)) return 'opacity-40';
+    if (code >= 200 && code < 300) return 'text-success';
+    if (code >= 300 && code < 400) return 'text-warning';
+    if (code >= 400 && code < 500) return 'text-warning';
+    if (code >= 500) return 'text-error';
+    return 'opacity-40';
+  } catch {
+    return 'opacity-40';
+  }
 }
 
 export function getStatusBadge(status) {
-  if (status >= 200 && status < 300) return 'badge-success';
-  if (status >= 300 && status < 400) return 'badge-warning';
-  if (status >= 400 && status < 500) return 'badge-warning';
-  if (status >= 500) return 'badge-error';
-  return 'badge-ghost';
+  try {
+    const code = Number(status);
+    if (isNaN(code)) return 'badge-ghost';
+    if (code >= 200 && code < 300) return 'badge-success';
+    if (code >= 300 && code < 400) return 'badge-warning';
+    if (code >= 400 && code < 500) return 'badge-warning';
+    if (code >= 500) return 'badge-error';
+    return 'badge-ghost';
+  } catch {
+    return 'badge-ghost';
+  }
 }
 
 export function prettyJSON(data) {
   try {
+    if (data == null) return 'null';
     if (typeof data === 'string') {
       return JSON.stringify(JSON.parse(data), null, 2);
     }
     return JSON.stringify(data, null, 2);
   } catch {
-    return typeof data === 'string' ? data : String(data);
+    try {
+      return typeof data === 'string' ? data : String(data);
+    } catch {
+      return '[Unserializable data]';
+    }
   }
 }
 
 export function generateId() {
-  return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+  try {
+    return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+  } catch {
+    return `id-${Math.random().toString(36).substring(2, 11)}`;
+  }
 }
 
 export function truncate(str, maxLen = 50) {
-  if (!str) return '';
-  return str.length > maxLen ? str.substring(0, maxLen) + '...' : str;
+  try {
+    if (!str) return '';
+    const s = String(str);
+    return s.length > maxLen ? s.substring(0, maxLen) + '...' : s;
+  } catch {
+    return '';
+  }
 }
 
 // DaisyUI badge classes for HTTP methods

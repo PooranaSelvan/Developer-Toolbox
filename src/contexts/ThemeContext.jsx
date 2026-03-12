@@ -58,7 +58,18 @@ export function ThemeProvider({ children }) {
   }, [theme]);
 
   const setTheme = useCallback((newTheme) => {
-    setThemeState(newTheme);
+    try {
+      // Validate theme before applying
+      if (newTheme && (VALID_THEME_IDS.has(newTheme) || typeof newTheme === 'string')) {
+        setThemeState(newTheme);
+      } else {
+        console.warn(`[ThemeContext] Invalid theme: "${newTheme}", falling back to default.`);
+        setThemeState('toolbox');
+      }
+    } catch (err) {
+      console.error('[ThemeContext] Error setting theme:', err);
+      setThemeState('toolbox');
+    }
   }, []);
 
   return (

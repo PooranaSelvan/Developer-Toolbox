@@ -102,14 +102,14 @@ export default function Sidebar({ isOpen, onClose }) {
     >
       {/* ── Brand ── */}
       <div className="h-16 flex items-center gap-3 px-5 border-b border-base-300/40 shrink-0">
-        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25 relative overflow-hidden group/logo transition-transform duration-300 hover:scale-105 cursor-pointer">
+        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25 relative overflow-hidden group/logo transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-primary/30 cursor-pointer brand-logo-ring">
           <Wrench size={20} className="text-primary-content relative z-10 transition-transform duration-300 group-hover/logo:rotate-[-12deg]" />
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
           <div className="absolute inset-0 bg-white/0 group-hover/logo:bg-white/5 transition-colors duration-300" />
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-sm font-extrabold leading-tight tracking-tight">Web</h1>
-          <h1 className="text-sm font-extrabold leading-tight gradient-text">Toolkit</h1>
+          <h1 className="text-[13px] font-extrabold leading-tight tracking-tight">Web</h1>
+          <h1 className="text-[13px] font-extrabold leading-tight gradient-text">Toolkit</h1>
         </div>
         <button 
           onClick={onClose} 

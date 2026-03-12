@@ -24,7 +24,7 @@ export default function Header({ onMenuToggle }) {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="h-14 sm:h-16 bg-base-100/80 backdrop-blur-2xl border-b border-base-300/30 flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-20 shadow-[0_1px_3px_-1px_rgba(0,0,0,0.04)] relative"
+      className="h-14 sm:h-16 bg-base-100/80 backdrop-blur-2xl border-b border-base-300/25 flex items-center justify-between px-4 sm:px-6 lg:px-8 sticky top-0 z-20 shadow-[0_1px_4px_-1px_rgba(0,0,0,0.05),0_2px_8px_-2px_rgba(0,0,0,0.02)] relative"
     >
       {/* Animated gradient accent line at bottom */}
       <div className="header-accent-line" />

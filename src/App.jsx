@@ -5,31 +5,55 @@ import HomePage from './pages/HomePage';
 import Dashboard from './pages/Dashboard';
 import ErrorBoundary from './components/ErrorBoundary';
 import { SkeletonToolPage, SkeletonSettings } from './components/Skeleton';
+/**
+ * Safe lazy loader: wraps dynamic imports with error handling to prevent
+ * chunk-loading failures (network issues, stale deployments) from crashing the app.
+ */
+function safeLazy(importFn, moduleName = 'Module') {
+  return lazy(() =>
+    importFn().catch((error) => {
+      console.error(`[LazyLoad] Failed to load ${moduleName}:`, error);
+      // Return a fallback component on chunk-load failure
+      return {
+        default: () => (
+          <div className="flex items-center justify-center min-h-[40vh]">
+            <div className="text-center p-8 max-w-md">
+              <p className="text-lg font-bold mb-2">Failed to load {moduleName}</p>
+              <p className="text-sm opacity-50 mb-4">This may be due to a network issue. Please try refreshing.</p>
+              <button onClick={() => window.location.reload()} className="btn btn-primary btn-sm">
+                Reload Page
+              </button>
+            </div>
+          </div>
+        ),
+      };
+    })
+  );
+}
 
-const NotFound = lazy(() => import('./pages/NotFound'));
-const Settings = lazy(() => import('./pages/Settings'));
+const NotFound = safeLazy(() => import('./pages/NotFound'), 'NotFound');
+const Settings = safeLazy(() => import('./pages/Settings'), 'Settings');
 
-const ReadmeGenerator = lazy(() => import('./tools/readme-generator/ReadmeGenerator'));
-const ApiTester = lazy(() => import('./tools/api-tester/ApiTester'));
-const MockApiGenerator = lazy(() => import('./tools/mock-api/MockApiGenerator'));
-const JwtDecoder = lazy(() => import('./tools/jwt-decoder/JwtDecoder'));
-const JsonFormatter = lazy(() => import('./tools/json-formatter/JsonFormatter'));
-const RegexGenerator = lazy(() => import('./tools/regex-generator/RegexGenerator'));
-const PasswordGenerator = lazy(() => import('./tools/password-generator/PasswordGenerator'));
+const ReadmeGenerator = safeLazy(() => import('./tools/readme-generator/ReadmeGenerator'), 'README Generator');
+const ApiTester = safeLazy(() => import('./tools/api-tester/ApiTester'), 'API Tester');
+const MockApiGenerator = safeLazy(() => import('./tools/mock-api/MockApiGenerator'), 'Mock API Generator');
+const JwtDecoder = safeLazy(() => import('./tools/jwt-decoder/JwtDecoder'), 'JWT Decoder');
+const JsonFormatter = safeLazy(() => import('./tools/json-formatter/JsonFormatter'), 'JSON Formatter');
+const RegexGenerator = safeLazy(() => import('./tools/regex-generator/RegexGenerator'), 'Regex Generator');
+const PasswordGenerator = safeLazy(() => import('./tools/password-generator/PasswordGenerator'), 'Password Generator');
 
-const SortingVisualizer = lazy(() => import('./tools/sorting-visualizer/SortingVisualizer'));
-const RecursionVisualizer = lazy(() => import('./tools/recursion-visualizer/RecursionVisualizer'));
-const EventLoopVisualizer = lazy(() => import('./tools/event-loop-visualizer/EventLoopVisualizer'));
-const FlexPlayground = lazy(() => import('./tools/flex-playground/FlexPlayground'));
-const SqlPlayground = lazy(() => import('./tools/sql-playground/SqlPlayground'));
+const SortingVisualizer = safeLazy(() => import('./tools/sorting-visualizer/SortingVisualizer'), 'Sorting Visualizer');
+const RecursionVisualizer = safeLazy(() => import('./tools/recursion-visualizer/RecursionVisualizer'), 'Recursion Visualizer');
+const EventLoopVisualizer = safeLazy(() => import('./tools/event-loop-visualizer/EventLoopVisualizer'), 'Event Loop Visualizer');
+const FlexPlayground = safeLazy(() => import('./tools/flex-playground/FlexPlayground'), 'Flex Playground');
+const SqlPlayground = safeLazy(() => import('./tools/sql-playground/SqlPlayground'), 'SQL Playground');
 
-const ColorPaletteGenerator = lazy(() => import('./tools/color-palette/ColorPaletteGenerator'));
-const CssGradientGenerator = lazy(() => import('./tools/css-gradient/CssGradientGenerator'));
-const BoxShadowGenerator = lazy(() => import('./tools/box-shadow/BoxShadowGenerator'));
-const GlassmorphismGenerator = lazy(() => import('./tools/glassmorphism/GlassmorphismGenerator'));
-const FrontendPlayground = lazy(() => import('./tools/frontend-playground/FrontendPlayground'));
-const GridGenerator = lazy(() => import('./tools/grid-generator/GridGenerator'));
-
+const ColorPaletteGenerator = safeLazy(() => import('./tools/color-palette/ColorPaletteGenerator'), 'Color Palette');
+const CssGradientGenerator = safeLazy(() => import('./tools/css-gradient/CssGradientGenerator'), 'CSS Gradient');
+const BoxShadowGenerator = safeLazy(() => import('./tools/box-shadow/BoxShadowGenerator'), 'Box Shadow');
+const GlassmorphismGenerator = safeLazy(() => import('./tools/glassmorphism/GlassmorphismGenerator'), 'Glassmorphism');
+const FrontendPlayground = safeLazy(() => import('./tools/frontend-playground/FrontendPlayground'), 'Frontend Playground');
+const GridGenerator = safeLazy(() => import('./tools/grid-generator/GridGenerator'), 'Grid Generator');
 /* Skeleton wrapper for tool pages — shows contextual skeleton instead of spinner */
 function ToolSkeleton({ children }) {
   return <Suspense fallback={<SkeletonToolPage />}>{children}</Suspense>;

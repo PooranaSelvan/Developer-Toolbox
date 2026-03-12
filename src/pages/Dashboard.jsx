@@ -25,8 +25,13 @@ const RECENT_TOOLS_KEY = 'devtoolbox-recent-tools';
 
 function getRecentTools() {
   try {
-    return JSON.parse(localStorage.getItem(RECENT_TOOLS_KEY) || '[]');
-  } catch { return []; }
+    const stored = localStorage.getItem(RECENT_TOOLS_KEY);
+    if (!stored) return [];
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
 
 export default function Dashboard() {
@@ -112,16 +117,17 @@ export default function Dashboard() {
         </div>
 
         <div className="relative w-20 h-20 mx-auto mb-6">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-xl shadow-primary/25 relative overflow-hidden">
-            <Wrench size={36} className="text-primary-content relative z-10" />
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+          <div className="absolute inset-[-8px] rounded-[24px] bg-primary/8 animate-glow-pulse blur-lg" />
+          <div className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center shadow-2xl shadow-primary/25 relative overflow-hidden group/logo cursor-pointer transition-transform duration-300 hover:scale-105">
+            <Wrench size={36} className="text-primary-content relative z-10 transition-transform duration-300 group-hover/logo:rotate-[-8deg]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover/logo:opacity-100 transition-opacity duration-300" />
           </div>
           <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-lg bg-secondary flex items-center justify-center shadow-md ring-2 ring-base-200">
             <Sparkles size={14} className="text-secondary-content" />
           </div>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-3 tracking-tight leading-tight">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 tracking-tight leading-tight">
           Developer <span className="gradient-text-animated">Toolbox</span>
         </h1>
         <p className="max-w-lg mx-auto text-sm sm:text-base opacity-50 leading-relaxed">
@@ -171,7 +177,7 @@ export default function Dashboard() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.4 }}
-        className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10"
+        className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-10"
       >
         {[
           { icon: Zap, label: 'Lightning Fast', desc: 'Instant results, zero latency', color: 'text-warning', bg: 'bg-warning/10', border: 'hover:border-warning/30' },
@@ -183,9 +189,9 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 + idx * 0.08, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className={`rounded-2xl border border-base-300/40 bg-base-100/80 p-4 flex items-center gap-3.5 transition-all duration-200 group ${border} hover:-translate-y-0.5`}
+            className={`rounded-2xl border border-base-300/40 bg-base-100/80 p-4 sm:p-5 flex items-center gap-3.5 transition-all duration-300 group ${border} hover:-translate-y-1 hover:shadow-md cursor-default`}
           >
-            <div className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200`}>
+            <div className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-[-3deg] transition-all duration-300`}>
               <Icon size={20} className={color} />
             </div>
             <div>
@@ -283,8 +289,11 @@ export default function Dashboard() {
                     } catch {}
                   }}
                 >
-                  <div className="h-full rounded-2xl border border-base-300/40 bg-base-100 p-5 transition-all duration-300 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/[0.08] hover:-translate-y-1.5 card-shine gradient-border-hover">
-                    <div className="flex items-start gap-3.5">
+                  <div className="h-full rounded-2xl border border-base-300/40 bg-base-100 p-5 transition-all duration-300 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/[0.08] hover:-translate-y-2 card-shine gradient-border-hover relative overflow-hidden">
+                    {/* Subtle corner gradient on hover */}
+                    <div className="absolute top-0 right-0 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" 
+                         style={{ background: 'radial-gradient(circle at 100% 0%, color-mix(in oklch, var(--color-primary) 6%, transparent), transparent 70%)' }} />
+                    <div className="flex items-start gap-3.5 relative">
                       <div className="w-12 h-12 rounded-xl bg-primary/[0.06] flex items-center justify-center shrink-0 text-primary transition-all duration-300 group-hover:bg-primary/[0.12] group-hover:scale-110 group-hover:shadow-md group-hover:shadow-primary/10 group-hover:rotate-[-3deg]">
                         <Icon size={22} strokeWidth={1.8} />
                       </div>
@@ -296,7 +305,7 @@ export default function Dashboard() {
                           <ArrowRight
                             size={14}
                             strokeWidth={2.5}
-                            className="shrink-0 opacity-0 transition-all duration-200 group-hover:opacity-50 group-hover:translate-x-0.5 text-primary"
+                            className="shrink-0 opacity-0 transition-all duration-200 group-hover:opacity-50 group-hover:translate-x-1 text-primary"
                           />
                         </div>
                         <p className="text-xs text-base-content/50 leading-relaxed line-clamp-2">

@@ -13,7 +13,12 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+    // Log safely — avoid re-throwing inside the boundary
+    try {
+      console.error('Error caught by boundary:', error, errorInfo);
+    } catch {
+      // Logging itself failed — swallow silently
+    }
     this.setState({
       error,
       errorInfo,
