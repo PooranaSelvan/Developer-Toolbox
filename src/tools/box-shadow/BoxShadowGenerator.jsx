@@ -236,19 +236,19 @@ export default function BoxShadowGenerator() {
             {/* Box Settings */}
             <div className="section-card p-5 space-y-4">
               <h3 className="text-sm font-semibold flex items-center gap-2"><Eye size={14} className="text-primary" /> Preview Settings</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className="field-label">Background</label>
                   <div className="flex items-center gap-2">
-                    <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)} className="w-8 h-8 rounded cursor-pointer border border-base-300" />
-                    <input type="text" value={bgColor} onChange={(e) => /^#[0-9a-fA-F]{0,6}$/.test(e.target.value) && setBgColor(e.target.value)} className="input input-sm font-mono text-xs flex-1" />
+                    <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)} className="w-8 h-8 rounded cursor-pointer border border-base-300 shrink-0" />
+                    <input type="text" value={bgColor} onChange={(e) => /^#[0-9a-fA-F]{0,6}$/.test(e.target.value) && setBgColor(e.target.value)} className="input input-sm font-mono text-xs flex-1 min-w-0" />
                   </div>
                 </div>
                 <div>
                   <label className="field-label">Box Color</label>
                   <div className="flex items-center gap-2">
-                    <input type="color" value={boxColor} onChange={(e) => setBoxColor(e.target.value)} className="w-8 h-8 rounded cursor-pointer border border-base-300" />
-                    <input type="text" value={boxColor} onChange={(e) => /^#[0-9a-fA-F]{0,6}$/.test(e.target.value) && setBoxColor(e.target.value)} className="input input-sm font-mono text-xs flex-1" />
+                    <input type="color" value={boxColor} onChange={(e) => setBoxColor(e.target.value)} className="w-8 h-8 rounded cursor-pointer border border-base-300 shrink-0" />
+                    <input type="text" value={boxColor} onChange={(e) => /^#[0-9a-fA-F]{0,6}$/.test(e.target.value) && setBoxColor(e.target.value)} className="input input-sm font-mono text-xs flex-1 min-w-0" />
                   </div>
                 </div>
                 <div>
@@ -285,7 +285,7 @@ export default function BoxShadowGenerator() {
             <div className="section-card p-5">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Eye size={14} className="text-primary" /> Hover Animation Preview</h3>
               <p className="text-xs opacity-40 mb-4">Hover over the boxes to see the shadow applied as a hover effect</p>
-              <div className="grid grid-cols-3 gap-4" style={{ backgroundColor: bgColor, padding: '2rem', borderRadius: '0.75rem' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4" style={{ backgroundColor: bgColor, padding: '1.5rem', borderRadius: '0.75rem' }}>
                 {['Card', 'Button', 'Badge'].map((label) => (
                   <div key={label} className="group">
                     <div
@@ -332,7 +332,7 @@ export default function BoxShadowGenerator() {
         {/* ── Presets Tab ── */}
         {activeTab === 'presets' && (
           <motion.div key="presets" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {SHADOW_PRESETS.map(preset => (
                 <button key={preset.name} onClick={() => loadPreset(preset)} className="section-card p-4 text-left group hover:border-primary/30 transition-all hover:-translate-y-1">
                   <div className="flex items-center justify-center h-20 mb-3">

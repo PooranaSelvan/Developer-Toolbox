@@ -2,8 +2,9 @@ import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   GraduationCap, Play, Pause, RotateCcw, Shuffle,
-  BarChart3, ChevronRight, ChevronLeft, Zap, ArrowUpDown,
-  BookOpen, SkipForward, Volume2, VolumeX, Info, Gauge,
+  BarChart3, ChevronRight, Zap, ArrowUpDown,
+  BookOpen, SkipForward, SkipBack, Volume2, VolumeX, Info, Gauge,
+  Footprints, FastForward,
 } from 'lucide-react';
 import SEO from '../../components/SEO';
 
@@ -293,6 +294,7 @@ export default function SortingVisualizer() {
   const [sound, setSound]         = useState(false);
   const [tab, setTab]             = useState('visualize');
   const [showPseudo, setShowPseudo] = useState(false);
+  const [mode, setMode]           = useState('auto'); // 'auto' or 'step'
 
   const timerRef = useRef(null);
   const stepsRef = useRef([]);
@@ -367,10 +369,11 @@ export default function SortingVisualizer() {
 
   const backward = useCallback(() => {
     if (idxRef.current <= 1) return;
-    idxRef.current -= 2;
-    const s = stepsRef.current[idxRef.current];
-    setStep(s); setArray(s.array); setStepNo(idxRef.current + 1);
-    idxRef.current++; setSorted(false);
+    idxRef.current--;
+    const targetIdx = idxRef.current - 1;
+    const s = stepsRef.current[targetIdx];
+    setStep(s); setArray(s.array); setStepNo(targetIdx + 1);
+    setSorted(false);
   }, []);
 
   // ── Effects ────────────────────────────────────────────────────────
@@ -518,43 +521,103 @@ export default function SortingVisualizer() {
             </div>
           </div>
 
-          {/* Playback */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-4 border-t border-base-300/30">
-            <div className="flex items-center gap-2 flex-wrap">
-              <button onClick={backward} className="btn btn-sm btn-ghost btn-square" disabled={playing || stepNo <= 1}>
-                <ChevronLeft size={16} />
-              </button>
-              {sorted ? (
-                <button className="btn btn-sm gap-1.5 min-w-[110px] pointer-events-none"
-                  style={{ backgroundColor: '#22c55e', color: '#fff', borderColor: '#22c55e' }}>
-                  ✓ Sorted!
+          {/* Mode Toggle + Playback */}
+          <div className="flex flex-col gap-3 pt-4 border-t border-base-300/30">
+            {/* Mode Toggle */}
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-semibold uppercase tracking-wider opacity-40">Mode</span>
+              <div className="inline-flex rounded-lg border border-base-300/40 p-0.5 bg-base-200/40">
+                <button
+                  onClick={() => { if (!playing) setMode('auto'); }}
+                  disabled={playing}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all duration-200 ${
+                    mode === 'auto'
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'text-base-content/60 hover:text-base-content/80'
+                  }`}
+                >
+                  <FastForward size={11} /> Auto Play
                 </button>
-              ) : playing ? (
-                <button onClick={togglePlay} className="btn btn-sm gap-1.5 min-w-[110px]"
-                  style={{ backgroundColor: '#f59e0b', color: '#fff', borderColor: '#f59e0b' }}>
-                  <Pause size={14} /> Pause
+                <button
+                  onClick={() => { if (!playing) setMode('step'); }}
+                  disabled={playing}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all duration-200 ${
+                    mode === 'step'
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'text-base-content/60 hover:text-base-content/80'
+                  }`}
+                >
+                  <Footprints size={11} /> Step-by-Step
                 </button>
-              ) : (
-                <button onClick={togglePlay} className="btn btn-sm btn-primary gap-1.5 min-w-[110px]">
-                  <Play size={14} /> {stepNo > 0 ? 'Resume' : 'Start'}
-                </button>
-              )}
-              <button onClick={forward} className="btn btn-sm btn-ghost btn-square" disabled={playing || sorted}>
-                <SkipForward size={16} />
-              </button>
-              <div className="w-px h-6 bg-base-300/30 mx-1 hidden sm:block" />
-              <button onClick={newArray} className="btn btn-sm btn-ghost gap-1.5" disabled={playing}>
-                <RotateCcw size={14} /> Reset
-              </button>
+              </div>
+              <span className="text-[9px] opacity-30 ml-1 hidden sm:inline">
+                {mode === 'auto' ? 'Plays through all steps automatically' : 'Use arrows to navigate each step manually'}
+              </span>
             </div>
-            <div className="flex items-center gap-3 text-[11px]">
-              {total > 0 && <span className="font-mono opacity-40">Step {stepNo}/{total}</span>}
-              {step && (
-                <span className="badge badge-sm text-white"
-                  style={{ backgroundColor: phaseBadgeBg(step.phase) }}>
-                  {step.phase}
-                </span>
-              )}
+
+            {/* Controls */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                {mode === 'auto' ? (
+                  /* ── Auto Play Controls ── */
+                  <>
+                    {sorted ? (
+                      <button className="btn btn-sm gap-1.5 min-w-[120px] pointer-events-none"
+                        style={{ backgroundColor: '#22c55e', color: '#fff', borderColor: '#22c55e' }}>
+                        ✓ Sorted!
+                      </button>
+                    ) : playing ? (
+                      <button onClick={togglePlay} className="btn btn-sm gap-1.5 min-w-[120px]"
+                        style={{ backgroundColor: '#f59e0b', color: '#fff', borderColor: '#f59e0b' }}>
+                        <Pause size={14} /> Pause
+                      </button>
+                    ) : (
+                      <button onClick={togglePlay} className="btn btn-sm btn-primary gap-1.5 min-w-[120px]">
+                        <Play size={14} /> {stepNo > 0 ? 'Resume' : 'Start'}
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  /* ── Step-by-Step Controls ── */
+                  <>
+                    <div className="inline-flex items-center rounded-lg border border-base-300/40 bg-base-200/30 p-0.5 gap-0.5">
+                      <button
+                        onClick={backward}
+                        className="btn btn-sm btn-ghost btn-square !rounded-md"
+                        disabled={stepNo <= 1}
+                        title="Step Backward"
+                      >
+                        <SkipBack size={14} />
+                      </button>
+                      <div className="w-px h-5 bg-base-300/40" />
+                      <button
+                        onClick={forward}
+                        className="btn btn-sm btn-ghost btn-square !rounded-md"
+                        disabled={sorted}
+                        title="Step Forward"
+                      >
+                        <SkipForward size={14} />
+                      </button>
+                    </div>
+                    <span className="text-[10px] opacity-40 font-medium">
+                      {sorted ? '✓ Sorted' : stepNo === 0 ? 'Press → to begin' : 'Navigate with arrows'}
+                    </span>
+                  </>
+                )}
+                <div className="w-px h-6 bg-base-300/30 mx-1 hidden sm:block" />
+                <button onClick={newArray} className="btn btn-sm btn-ghost gap-1.5" disabled={playing}>
+                  <RotateCcw size={14} /> Reset
+                </button>
+              </div>
+              <div className="flex items-center gap-3 text-[11px]">
+                {total > 0 && <span className="font-mono opacity-40">Step {stepNo}/{total}</span>}
+                {step && (
+                  <span className="badge badge-sm text-white"
+                    style={{ backgroundColor: phaseBadgeBg(step.phase) }}>
+                    {step.phase}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 

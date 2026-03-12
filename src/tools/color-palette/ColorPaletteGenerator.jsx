@@ -153,7 +153,7 @@ function ColorSwatch({ color, index, onColorChange, onToggleLock, onRemove, canR
   const textCol = getTextColor(color.hex);
 
   return (
-    <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="flex-1 min-w-[120px]">
+    <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="flex-1 min-w-[100px] sm:min-w-[120px]">
       <div
         className="relative rounded-xl overflow-hidden group transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
         style={{ backgroundColor: color.hex }}
@@ -542,11 +542,11 @@ export default function ColorPaletteGenerator() {
         {activeTab === 'export' && (
           <motion.div key="export" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
             <div className="section-card p-5">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <h3 className="text-sm font-semibold">Export Format</h3>
-                <div className="tabs tabs-box tabs-xs">
+                <div className="tabs tabs-box tabs-xs overflow-x-auto">
                   {EXPORT_FORMATS.map(fmt => (
-                    <button key={fmt} className={`tab ${exportFormat === fmt ? 'tab-active' : ''}`} onClick={() => setExportFormat(fmt)}>{fmt}</button>
+                    <button key={fmt} className={`tab whitespace-nowrap ${exportFormat === fmt ? 'tab-active' : ''}`} onClick={() => setExportFormat(fmt)}>{fmt}</button>
                   ))}
                 </div>
               </div>

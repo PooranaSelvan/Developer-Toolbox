@@ -224,7 +224,7 @@ export default function Dashboard() {
       )}
 
       {/* ── Category Filter Pills ── */}
-      <div className="flex flex-wrap items-center gap-2 mb-6">
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-6 -mx-1 px-1 overflow-x-auto pb-2 sm:pb-0 sm:overflow-visible scrollbar-thin">
         <button
           onClick={() => setSelectedCategory('all')}
           className={`btn btn-sm rounded-xl gap-2 transition-all duration-200 ${
@@ -243,13 +243,13 @@ export default function Dashboard() {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`btn btn-sm rounded-xl gap-2 transition-all duration-200 ${
+              className={`btn btn-sm rounded-xl gap-1.5 sm:gap-2 transition-all duration-200 shrink-0 ${
                 selectedCategory === cat.id ? 'btn-primary shadow-md shadow-primary/20' : 'btn-ghost border border-base-300/50 hover:border-primary/30'
               }`}
             >
               <span className="text-xs">{cat.emoji}</span>
               <span className="hidden sm:inline">{cat.label}</span>
-              <span className="sm:hidden">{cat.label.split(' ')[0]}</span>
+              <span className="sm:hidden text-[11px]">{cat.label.split(' ')[0]}</span>
               <span className={`badge badge-xs ${selectedCategory === cat.id ? 'bg-primary-content/20 text-primary-content border-0' : 'badge-ghost'}`}>
                 {count}
               </span>

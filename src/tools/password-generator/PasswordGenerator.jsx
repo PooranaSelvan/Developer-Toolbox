@@ -587,21 +587,21 @@ export default function PasswordGenerator() {
                   </div>
 
                   {/* Analysis */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="section-card p-3 text-center">
-                      <p className="text-lg font-bold text-primary">{checkerInput.length}</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                    <div className="section-card p-2.5 sm:p-3 text-center">
+                      <p className="text-base sm:text-lg font-bold text-primary">{checkerInput.length}</p>
                       <p className="text-[10px] opacity-50">Length</p>
                     </div>
-                    <div className="section-card p-3 text-center">
-                      <p className="text-lg font-bold text-secondary">{new Set(checkerInput).size}</p>
+                    <div className="section-card p-2.5 sm:p-3 text-center">
+                      <p className="text-base sm:text-lg font-bold text-secondary">{new Set(checkerInput).size}</p>
                       <p className="text-[10px] opacity-50">Unique Chars</p>
                     </div>
-                    <div className="section-card p-3 text-center">
-                      <p className="text-lg font-bold">{estimateCrackTime(checkerStrength.entropy)}</p>
+                    <div className="section-card p-2.5 sm:p-3 text-center">
+                      <p className="text-sm sm:text-lg font-bold truncate">{estimateCrackTime(checkerStrength.entropy)}</p>
                       <p className="text-[10px] opacity-50">Crack Time</p>
                     </div>
-                    <div className="section-card p-3 text-center">
-                      <p className="text-lg font-bold">{checkerStrength.entropy.toFixed(0)}</p>
+                    <div className="section-card p-2.5 sm:p-3 text-center">
+                      <p className="text-base sm:text-lg font-bold">{checkerStrength.entropy.toFixed(0)}</p>
                       <p className="text-[10px] opacity-50">Entropy Bits</p>
                     </div>
                   </div>

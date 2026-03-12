@@ -3,7 +3,8 @@ import {
   Blend, Square, Gem, Braces,
   Layout, Grid3X3,
   Lock,
-  GraduationCap,
+  GraduationCap, GitBranch, RefreshCw,
+  Columns3, Database,
 } from 'lucide-react';
 
 const TOOLS = [
@@ -138,6 +139,43 @@ const TOOLS = [
     path: '/sorting-visualizer',
     category: 'learning',
     tags: ['sorting', 'algorithms', 'visualization', 'selection', 'merge', 'bubble', 'insertion', 'dsa', 'learning'],
+  },
+  {
+    id: 'recursion-visualizer',
+    name: 'Recursion Visualizer',
+    description: 'Visualize recursive calls with animated call trees & stack frames',
+    icon: GitBranch,
+    path: '/recursion-visualizer',
+    category: 'learning',
+    tags: ['recursion', 'call stack', 'fibonacci', 'factorial', 'tree', 'dsa', 'learning', 'visualization'],
+  },
+  {
+    id: 'event-loop-visualizer',
+    name: 'JS Event Loop Visualizer',
+    description: 'See how JavaScript executes async code with Call Stack, Queues & Event Loop',
+    icon: RefreshCw,
+    path: '/event-loop-visualizer',
+    category: 'learning',
+    tags: ['javascript', 'event loop', 'call stack', 'microtask', 'promise', 'setTimeout', 'async', 'learning'],
+  },
+
+  {
+    id: 'flex-playground',
+    name: 'Flexbox Playground',
+    description: 'Learn CSS Flexbox visually — tweak properties & see live results',
+    icon: Columns3,
+    path: '/flex-playground',
+    category: 'learning',
+    tags: ['flexbox', 'css', 'layout', 'flex-direction', 'justify-content', 'align-items', 'learning'],
+  },
+  {
+    id: 'sql-playground',
+    name: 'SQL Playground',
+    description: 'Practice SQL queries in-browser with sample datasets — no setup needed',
+    icon: Database,
+    path: '/sql-playground',
+    category: 'learning',
+    tags: ['sql', 'database', 'query', 'select', 'join', 'group by', 'learning', 'practice'],
   },
 
   // ─── Preferences ───

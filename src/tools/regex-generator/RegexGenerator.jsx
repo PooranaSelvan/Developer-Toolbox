@@ -721,7 +721,7 @@ const handleImport = useCallback(() => {
                 </h3>
                 <button onClick={() => setShowCheatsheet(false)} className="btn btn-ghost btn-xs"><X size={14} /></button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
                 {CHEATSHEET.map(cat => (
                   <div key={cat.cat}>
                     <p className="text-xs font-bold text-primary mb-2">{cat.cat}</p>
@@ -887,25 +887,25 @@ const handleImport = useCallback(() => {
             {/* Match Stats */}
             {result.valid && testString.trim() && (
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="section-card p-3 text-center">
-                  <p className={`text-2xl font-bold ${result.matches.length > 0 ? 'text-primary' : 'text-base-content/30'}`}>
+                className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                <div className="section-card p-2.5 sm:p-3 text-center">
+                  <p className={`text-xl sm:text-2xl font-bold ${result.matches.length > 0 ? 'text-primary' : 'text-base-content/30'}`}>
                     {result.matches.length}
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-wider opacity-50 mt-0.5">Matches</p>
                 </div>
-                <div className="section-card p-3 text-center">
-                  <p className="text-2xl font-bold text-secondary">{new Set(result.matches.map(m => m[0])).size}</p>
+                <div className="section-card p-2.5 sm:p-3 text-center">
+                  <p className="text-xl sm:text-2xl font-bold text-secondary">{new Set(result.matches.map(m => m[0])).size}</p>
                   <p className="text-[10px] font-bold uppercase tracking-wider opacity-50 mt-0.5">Unique</p>
                 </div>
-                <div className="section-card p-3 text-center">
-                  <p className="text-2xl font-bold text-accent">
+                <div className="section-card p-2.5 sm:p-3 text-center">
+                  <p className="text-xl sm:text-2xl font-bold text-accent">
                     {result.matches.reduce((a, m) => a + m[0].length, 0)}
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-wider opacity-50 mt-0.5">Chars Matched</p>
                 </div>
-                <div className="section-card p-3 text-center">
-                  <p className="text-2xl font-bold text-info">{result.groups.length}</p>
+                <div className="section-card p-2.5 sm:p-3 text-center">
+                  <p className="text-xl sm:text-2xl font-bold text-info">{result.groups.length}</p>
                   <p className="text-[10px] font-bold uppercase tracking-wider opacity-50 mt-0.5">With Groups</p>
                 </div>
               </motion.div>
@@ -1203,10 +1203,10 @@ const handleImport = useCallback(() => {
                 <h3 className="text-sm font-semibold flex items-center gap-2">
                   <Code2 size={14} className="text-primary" /> Code Snippet
                 </h3>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1 -mx-1 px-1 overflow-x-auto sm:overflow-visible">
                   {CODE_LANGS.map(lang => (
                     <button key={lang.id}
-                      className={`btn btn-xs ${codeLanguage === lang.id ? 'btn-primary' : 'btn-ghost border border-base-300'}`}
+                      className={`btn btn-xs shrink-0 ${codeLanguage === lang.id ? 'btn-primary' : 'btn-ghost border border-base-300'}`}
                       onClick={() => setCodeLanguage(lang.id)}>
                       {lang.label}
                     </button>

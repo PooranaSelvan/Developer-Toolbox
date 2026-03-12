@@ -482,17 +482,17 @@ export default function HomePage() {
               { counter: privacyCounter, label: 'Client-Side', suffix: '%', icon: Shield },
               { value: 0, label: 'Data Collected', suffix: '', icon: CheckCircle2 },
             ].map(({ counter, value, label, suffix, icon: Icon }, idx) => (
-              <div key={label} className="p-8 sm:p-10 text-center relative group">
+              <div key={label} className="p-5 sm:p-8 lg:p-10 text-center relative group">
                 {idx > 0 && (
                   <div className="absolute left-0 top-1/4 bottom-1/4 w-px bg-base-300/20 hidden lg:block" />
                 )}
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300">
-                  <Icon size={18} className="text-primary" />
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300">
+                  <Icon size={16} className="text-primary sm:w-[18px] sm:h-[18px]" />
                 </div>
-                <div ref={counter?.ref} className="text-3xl sm:text-4xl font-extrabold mb-1">
+                <div ref={counter?.ref} className="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-1">
                   <span className="gradient-text">{counter ? counter.count : value}{suffix}</span>
                 </div>
-                <p className="text-xs font-semibold opacity-45">{label}</p>
+                <p className="text-[10px] sm:text-xs font-semibold opacity-45">{label}</p>
               </div>
             ))}
           </div>

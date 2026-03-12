@@ -381,7 +381,7 @@ export default function GridGenerator() {
         className="flex flex-col lg:flex-row gap-5"
       >
         {/* ── Left Sidebar — Controls ── */}
-        <div className="w-full lg:w-64 shrink-0 space-y-4">
+        <div className="w-full lg:w-56 xl:w-64 shrink-0 space-y-4">
           {/* Grid Settings */}
           <div className="section-card p-4 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider opacity-40 flex items-center gap-2">

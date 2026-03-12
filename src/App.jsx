@@ -18,6 +18,10 @@ const RegexGenerator = lazy(() => import('./tools/regex-generator/RegexGenerator
 const PasswordGenerator = lazy(() => import('./tools/password-generator/PasswordGenerator'));
 
 const SortingVisualizer = lazy(() => import('./tools/sorting-visualizer/SortingVisualizer'));
+const RecursionVisualizer = lazy(() => import('./tools/recursion-visualizer/RecursionVisualizer'));
+const EventLoopVisualizer = lazy(() => import('./tools/event-loop-visualizer/EventLoopVisualizer'));
+const FlexPlayground = lazy(() => import('./tools/flex-playground/FlexPlayground'));
+const SqlPlayground = lazy(() => import('./tools/sql-playground/SqlPlayground'));
 
 const ColorPaletteGenerator = lazy(() => import('./tools/color-palette/ColorPaletteGenerator'));
 const CssGradientGenerator = lazy(() => import('./tools/css-gradient/CssGradientGenerator'));
@@ -57,6 +61,10 @@ export default function App() {
 
             {/* Learning Tools — skeleton loading */}
             <Route path="/sorting-visualizer" element={<ToolSkeleton><SortingVisualizer /></ToolSkeleton>} />
+            <Route path="/recursion-visualizer" element={<ToolSkeleton><RecursionVisualizer /></ToolSkeleton>} />
+            <Route path="/event-loop-visualizer" element={<ToolSkeleton><EventLoopVisualizer /></ToolSkeleton>} />
+            <Route path="/flex-playground" element={<ToolSkeleton><FlexPlayground /></ToolSkeleton>} />
+            <Route path="/sql-playground" element={<ToolSkeleton><SqlPlayground /></ToolSkeleton>} />
 
             {/* Frontend Tools — skeleton loading */}
             <Route path="/color-palette" element={<ToolSkeleton><ColorPaletteGenerator /></ToolSkeleton>} />

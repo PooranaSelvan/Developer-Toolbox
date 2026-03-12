@@ -224,9 +224,9 @@ export default function CssGradientGenerator() {
                     <label className="field-label mb-0">Angle</label>
                     <span className="text-xs font-mono opacity-50">{angle}°</span>
                   </div>
-                  <div className="flex items-center gap-3 mt-1">
-                    <input type="range" min="0" max="360" value={angle} onChange={(e) => setAngle(parseInt(e.target.value))} className="range range-xs range-primary flex-1" />
-                    <div className="flex gap-1">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mt-1">
+                    <input type="range" min="0" max="360" value={angle} onChange={(e) => setAngle(parseInt(e.target.value))} className="range range-xs range-primary w-full sm:flex-1" />
+                    <div className="flex flex-wrap gap-1">
                       {[0, 45, 90, 135, 180, 225, 270, 315].map(a => (
                         <button key={a} onClick={() => setAngle(a)} className={`btn btn-xs ${angle === a ? 'btn-primary' : 'btn-ghost'}`}>{a}°</button>
                       ))}
@@ -269,7 +269,7 @@ export default function CssGradientGenerator() {
             {/* ── Preview Sizes ── */}
             <div className="section-card p-5">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Eye size={14} className="text-primary" /> Preview Sizes</h3>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="rounded-xl h-20 shadow-sm" style={{ background: gradientCSS }} />
                 <div className="rounded-full h-20 w-20 mx-auto shadow-sm" style={{ background: gradientCSS }} />
                 <div className="rounded-lg h-20 shadow-sm flex items-center justify-center" style={{ background: gradientCSS }}>
@@ -278,21 +278,20 @@ export default function CssGradientGenerator() {
               </div>
             </div>
 
-            {/* ── Text Gradient Preview ── */}
+>
             <div className="section-card p-5">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Eye size={14} className="text-primary" /> Text Gradient Preview</h3>
-              <div className="space-y-3">
-                <p className="text-4xl font-extrabold" style={{ background: gradientCSS, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              <div className="space-y-3 overflow-hidden">
+                <p className="text-2xl sm:text-4xl font-extrabold break-words" style={{ background: gradientCSS, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                   Gradient Text
                 </p>
-                <p className="text-2xl font-bold" style={{ background: gradientCSS, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                <p className="text-xl sm:text-2xl font-bold break-words" style={{ background: gradientCSS, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                   Beautiful Typography
                 </p>
-                <p className="text-lg font-semibold" style={{ background: gradientCSS, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                <p className="text-base sm:text-lg font-semibold break-words" style={{ background: gradientCSS, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                   The quick brown fox jumps over the lazy dog
                 </p>
-              </div>
-              <div className="mt-3 pt-3 border-t border-base-200">
+              </div>              <div className="mt-3 pt-3 border-t border-base-200">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-40 mb-1 block">Text Gradient CSS</label>
                 <div className="relative">
                   <pre className="p-3 rounded-lg bg-neutral text-neutral-content font-mono text-xs overflow-x-auto">{`background: ${gradientCSS};\n-webkit-background-clip: text;\n-webkit-text-fill-color: transparent;\nbackground-clip: text;`}</pre>
