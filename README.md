@@ -43,12 +43,13 @@
 | 🌐 **Works Offline** | Once loaded, all tools function without an internet connection |
 | 🚀 **Code-Split** | Lazy-loaded tool components for optimal bundle size and fast initial load |
 | 💾 **Persistent Settings** | Theme preferences and tool data saved in browser localStorage |
+| 🛡️ **Robust Error Handling** | Comprehensive exception handling across all files with graceful fallbacks, safe localStorage wrappers, and ErrorBoundary recovery |
 
 ---
 
 ## 🧰 Tools Overview
 
-Developer Toolbox ships with **15 professional-grade tools** organized into three categories:
+Developer Toolbox ships with **19 professional-grade tools** organized into four categories:
 
 ### 🛠️ Developer Tools (7)
 
@@ -73,17 +74,21 @@ Developer Toolbox ships with **15 professional-grade tools** organized into thre
 | 12 | **Grid Generator** | Build CSS Grid layouts visually | Click & drag grid builder, named areas, responsive columns/rows, clean CSS export |
 | 13 | **Frontend Playground** | Live HTML/CSS/JS code editor & preview | CodeMirror editor with autocomplete, instant live preview, multi-pane layout |
 
-### 📚 Learning Tools (1)
+### 📚 Learning Tools (5)
 
 | # | Tool | Description | Key Features |
 |---|------|-------------|--------------|
 | 14 | **Sorting Visualizer** | Learn sorting algorithms visually | Bubble, Selection, Insertion, Merge, Quick Sort with step-by-step animation, speed control, sound feedback, complexity comparison |
+| 15 | **Recursion Visualizer** | Visualize recursive calls with animated call trees | Fibonacci, Factorial, Power, Sum of Array — animated call tree, live call stack, step-by-step or auto play, sound effects |
+| 16 | **JS Event Loop Visualizer** | See how JavaScript executes async code | Call Stack, Web APIs, Task/Microtask Queues, Event Loop animation, 4 examples (setTimeout, Promises, Nested Microtasks, Async/Await), comparison tables |
+| 17 | **Flexbox Playground** | Learn CSS Flexbox visually | Gamified challenges with 10 levels across 4 worlds, XP & ranking system, achievements, daily challenges, power-ups, live CSS code export |
+| 18 | **SQL Playground** | Practice SQL queries in-browser | In-browser SQLite (sql.js), 12 challenges across 4 worlds, gamified with XP/ranks/achievements, schema viewer, query history, sample queries reference |
 
 ### ⚙️ Preferences (1)
 
 | # | Tool | Description |
 |---|------|-------------|
-| 15 | **Settings** | Theme gallery with 31 themes, data management, storage overview, about info |
+| 19 | **Settings** | Theme gallery with 31 themes, data management, storage overview, about info |
 
 ---
 
@@ -158,13 +163,13 @@ This section documents how end-users interact with the application from first vi
 │  ├─ Feature cards (Speed, Privacy, Tools, Themes)              │
 │  ├─ Featured tools showcase (6 popular tools)                  │
 │  ├─ Category browser (Developer / Frontend / Learning)         │
-│  └─ Full tool grid with all 15 tools                           │
+│  └─ Full tool grid with all 19 tools                           │
 │       │                                                         │
 │       ▼                                                         │
 │  User clicks a tool card                                        │
 │  ├─ Tool ID saved to localStorage 'devtoolbox-recent-tools'    │
 │  ├─ React Router navigates to /tool-path                       │
-│  ├─ React.lazy() triggers chunk download                       │
+│  ├─ React.lazy() triggers chunk download (safeLazy wrapper)    │
 │  ├─ <Suspense> shows SkeletonToolPage while loading            │
 │  └─ Tool component mounts and renders                          │
 └─────────────────────────────────────────────────────────────────┘
@@ -201,10 +206,9 @@ This section documents how end-users interact with the application from first vi
 │  │ ──────── │  │                                     │  │
 │  │ Settings │  │                                     │  │
 │  │ ──────── │  │                                     │  │
-│  │ Author   │  │                                     │  │
-│  │ v4.0 [15]│  │                                     │  │
-│  └──────────┘  └────────────────────────────────────┘  │
-└────────────────────────────────────────────────────────┘
+│  │ Author   │  │                                     │
+│  │ v2.0 [19]│  │                                     │
+│  └──────────┘  └────────────────────────────────────┘  │└────────────────────────────────────────────────────────┘
 ```
 
 **Sidebar behavior:**
@@ -337,10 +341,12 @@ User wants to change theme
 | Scenario | What Happens |
 |----------|-------------|
 | **Tool crashes** | ErrorBoundary catches → "Oops! Something broke" card → Try Again / Reload / Go Home buttons |
+| **Lazy-load failure** | `safeLazy()` wrapper catches import errors → shows "Failed to load" with a Reload button |
 | **Invalid URL** | Redirects to `/404` → custom "Page Not Found" with animation → Back to Dashboard button |
 | **Network error (API Tester)** | Graceful error response displayed in response panel with status 0 and error message |
 | **localStorage full** | `safeLocalStorage` auto-evicts oldest key, retries up to 3 times |
 | **Clipboard denied** | `useCopyToClipboard` falls back to legacy `document.execCommand('copy')` via hidden textarea |
+| **SQL engine error** | sql.js errors caught with descriptive messages in result panel; DB auto-resets on init failure |
 
 ---
 
@@ -388,25 +394,29 @@ src/App.jsx
     │       └─ <Suspense fallback={SkeletonToolPage}>
     │           └─ <Routes>
     │               └─ <Route element={<AppLayout />}>   ← Shell (sidebar + header)
-    │                   ├─ /                → HomePage (eager-loaded)
-    │                   ├─ /dashboard       → Dashboard (eager-loaded)
-    │                   ├─ /readme-generator → lazy(ReadmeGenerator)
-    │                   ├─ /api-tester      → lazy(ApiTester)
-    │                   ├─ /mock-api        → lazy(MockApiGenerator)
-    │                   ├─ /jwt-decoder     → lazy(JwtDecoder)
-    │                   ├─ /json-formatter  → lazy(JsonFormatter)
-    │                   ├─ /regex-generator → lazy(RegexGenerator)
-    │                   ├─ /password-gen... → lazy(PasswordGenerator)
-    │                   ├─ /sorting-visual..→ lazy(SortingVisualizer)
-    │                   ├─ /color-palette   → lazy(ColorPaletteGenerator)
-    │                   ├─ /css-gradient    → lazy(CssGradientGenerator)
-    │                   ├─ /box-shadow      → lazy(BoxShadowGenerator)
-    │                   ├─ /glassmorphism   → lazy(GlassmorphismGenerator)
-    │                   ├─ /frontend-play.. → lazy(FrontendPlayground)
-    │                   ├─ /grid-generator  → lazy(GridGenerator)
-    │                   ├─ /settings        → lazy(Settings)
-    │                   ├─ /404             → lazy(NotFound)
-    │                   └─ *                → Redirect to /404
+    │                   ├─ /                   → HomePage (eager-loaded)
+    │                   ├─ /dashboard          → Dashboard (eager-loaded)
+    │                   ├─ /readme-generator   → safeLazy(ReadmeGenerator)
+    │                   ├─ /api-tester         → safeLazy(ApiTester)
+    │                   ├─ /mock-api           → safeLazy(MockApiGenerator)
+    │                   ├─ /jwt-decoder        → safeLazy(JwtDecoder)
+    │                   ├─ /json-formatter     → safeLazy(JsonFormatter)
+    │                   ├─ /regex-generator    → safeLazy(RegexGenerator)
+    │                   ├─ /password-generator → safeLazy(PasswordGenerator)
+    │                   ├─ /sorting-visualizer → safeLazy(SortingVisualizer)
+    │                   ├─ /recursion-visual.. → safeLazy(RecursionVisualizer)
+    │                   ├─ /event-loop-visual. → safeLazy(EventLoopVisualizer)
+    │                   ├─ /flex-playground    → safeLazy(FlexPlayground)
+    │                   ├─ /sql-playground     → safeLazy(SqlPlayground)
+    │                   ├─ /color-palette      → safeLazy(ColorPaletteGenerator)
+    │                   ├─ /css-gradient       → safeLazy(CssGradientGenerator)
+    │                   ├─ /box-shadow         → safeLazy(BoxShadowGenerator)
+    │                   ├─ /glassmorphism      → safeLazy(GlassmorphismGenerator)
+    │                   ├─ /frontend-playground→ safeLazy(FrontendPlayground)
+    │                   ├─ /grid-generator     → safeLazy(GridGenerator)
+    │                   ├─ /settings           → safeLazy(Settings)
+    │                   ├─ /404                → safeLazy(NotFound)
+    │                   └─ *                   → Redirect to /404
 ```
 
 ### Adding a New Tool (Step-by-Step)
@@ -499,8 +509,8 @@ Step 4: Add the lazy route
 ```
 
 ```jsx
-// Add lazy import at top:
-const YourTool = lazy(() => import('./tools/your-tool-name/YourTool'));
+// Add safeLazy import at top (provides fallback UI on load failure):
+const YourTool = safeLazy(() => import('./tools/your-tool-name/YourTool'), 'Your Tool');
 
 // Add route inside <Route element={<AppLayout />}>:
 <Route path="/your-tool" element={<ToolSkeleton><YourTool /></ToolSkeleton>} />
@@ -548,7 +558,10 @@ Step 5: Verify
 │  Tool Components (src/tools/{tool-name}/)                  │
 │  ├─ Self-contained: each tool is a standalone component    │
 │  ├─ Single-file tools: BoxShadow, Glassmorphism, etc.     │
-│  └─ Multi-file tools: ApiTester (6 files), README Gen (7) │
+│  ├─ Multi-file tools: ApiTester (6 files), README Gen (7) │
+│  ├─ Gamified tools: FlexPlayground, SqlPlayground          │
+│  │   └─ XP, ranks, achievements, challenges, daily quests │
+│  └─ Learning tools: SortingVis, RecursionVis, EventLoopVis│
 └───────────────────────────────────────────────────────────┘
 ```
 
@@ -641,10 +654,21 @@ Step 5: Verify
 │     ├─ Step 4: Generate README form data auto-populated     │
 │     └─ Returns: { formData, meta } for ReadmeGenerator      │
 │                                                              │
+│  sqlEngine.js — In-Browser SQLite (SQL Playground)           │
+│  ├─ Uses sql.js (SQLite compiled to WebAssembly)            │
+│  ├─ initDB() → downloads WASM binary, initializes database  │
+│  ├─ runSQL(db, sql) → executes query, returns { columns,    │
+│  │   rows } or error                                        │
+│  ├─ loadSampleData(db) → populates tables with sample data  │
+│  ├─ getTables(db) → introspects schema for schema viewer    │
+│  └─ All operations wrapped in try-catch with descriptive     │
+│      error messages                                          │
+│                                                              │
 │  External network requests are ONLY made by:                 │
 │  1. API Tester → user-specified URLs                         │
 │  2. GitHub Import → api.github.com (README Generator)        │
-│  3. Google Fonts → Inter + JetBrains Mono (CSS)             │
+│  3. sql.js WASM → CDN download of SQLite WebAssembly binary │
+│  4. Google Fonts → Inter + JetBrains Mono (CSS)             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -735,13 +759,18 @@ Step 5: Verify
 │  ├─ Shared components (ErrorBoundary, SEO, Skeleton, etc.) │
 │  └─ Tool registry + utility modules                         │
 │                                                              │
-│  Lazy chunks (loaded on demand):                             │
+│  Lazy chunks (loaded on demand via safeLazy):                │
 │  ├─ Each tool = separate JS chunk                           │
 │  │   e.g., SortingVisualizer-Blwc_r-b.js (27.85 kB)       │
+│  ├─ Heavy tools with additional deps:                       │
+│  │   ├─ SqlPlayground → loads sql.js WASM (~1MB)           │
+│  │   ├─ FrontendPlayground → loads CodeMirror              │
+│  │   ├─ ApiTester → loads Axios                            │
+│  │   └─ ReadmeGenerator → loads React Markdown             │
 │  ├─ Settings page (includes theme gallery)                  │
 │  ├─ NotFound page                                           │
-│  └─ Heavy libraries (CodeMirror, Axios, React Markdown)    │
-│      loaded only when their respective tools are opened     │
+│  └─ safeLazy() wrapper catches import failures and shows    │
+│      a "Failed to load" fallback UI with reload button      │
 │                                                              │
 │  Vite Build Optimizations:                                   │
 │  ├─ Tree-shaking via Rollup                                 │
@@ -842,7 +871,9 @@ ReadmeGenerator.jsx → populates ReadmeForm
 ReadmePreview.jsx → renders live Markdown preview
 ```
 
-### Sorting Visualizer Data Flow
+### Learning Tools Data Flow
+
+#### Sorting Visualizer
 
 ```
 User selects algorithm + array size + speed
@@ -870,6 +901,107 @@ SortingVisualizer.jsx
         └─ All bars marked as "sorted" → green color
 ```
 
+#### Recursion Visualizer
+
+```
+User selects function (Fibonacci / Factorial / Power / Sum) + input
+    │
+    ▼
+RecursionVisualizer.jsx
+    │
+    ├─ buildCallTree(funcKey, input)
+    │   ├─ Recursively builds complete call tree as node graph
+    │   ├─ Records every step: { type: call|base|return, nodeId, detail }
+    │   └─ assignPositions(root) → lays out nodes for SVG rendering
+    │
+    ├─ Auto Play or Step-by-Step mode
+    │   ├─ Each step highlights the active node in the SVG call tree
+    │   ├─ Call stack panel shows live stack frames (push/pop)
+    │   ├─ Code execution panel highlights current line
+    │   └─ Sound effects per step type (optional)
+    │
+    ├─ Tabs: Visualize | Learn | Compare
+    │   ├─ Visualize → SVG tree + call stack + timeline
+    │   ├─ Learn → algorithm explanation + code + tips
+    │   └─ Compare → complexity table across all functions
+    │
+    └─ Timeline clickable → jump to any step
+```
+
+#### JS Event Loop Visualizer
+
+```
+User selects example (setTimeout Basic / Promises / Nested / Async-Await)
+    │
+    ▼
+EventLoopVisualizer.jsx
+    │
+    ├─ Pre-defined step arrays model exact JS engine behavior
+    │   Each step: { phase, action, item, detail, callStack,
+    │                webApis, taskQueue, microTaskQueue, consoleOutput }
+    │
+    ├─ Auto Play or Step-by-Step navigation
+    │   ├─ Call Stack panel (LIFO) — push/pop animations
+    │   ├─ Web APIs panel — timer registrations
+    │   ├─ Task Queue panel (FIFO) — macrotask callbacks
+    │   ├─ Microtask Queue panel (FIFO, higher priority)
+    │   ├─ Event Loop indicator — shows active processing
+    │   ├─ Console Output — logs appear in real-time
+    │   └─ Source Code — highlights current executing line
+    │
+    ├─ Tabs: Visualize | Learn | Compare
+    │   ├─ Learn → how the event loop works + key concepts
+    │   └─ Compare → Microtasks vs Macrotasks table + interview Q&A
+    │
+    └─ Sound effects per phase (optional)
+```
+
+#### Flexbox Playground (Gamified)
+
+```
+User opens Flex Playground → 4 tabs: Sandbox | Challenge | Worlds | Achievements
+    │
+    ├─ Sandbox Mode
+    │   ├─ Visual flexbox container with live CSS property controls
+    │   ├─ Add/remove/edit flex items with per-item properties
+    │   ├─ Live CSS + HTML code export with copy-to-clipboard
+    │   └─ Property descriptions and value selectors
+    │
+    └─ Challenge Mode (Gamified)
+        ├─ 10 challenges across 4 themed worlds (Grasslands → Volcano)
+        ├─ Each challenge: match target layout using flex properties
+        ├─ Scoring: base points × star multiplier + streak/combo/time bonuses
+        ├─ Lives system (5 lives, auto-regen every 5 min)
+        ├─ Power-ups: Free Hint, Time Freeze, Skip Level
+        ├─ XP → Rank progression (Novice → Flex Master)
+        ├─ 12 achievements (e.g., "Speed Demon", "No Hints Hero")
+        ├─ Daily challenge with bonus XP
+        └─ All progress persisted in localStorage
+```
+
+#### SQL Playground (Gamified)
+
+```
+User opens SQL Playground → 5 tabs: Sandbox | Challenge | Worlds | Reference | Achievements
+    │
+    ├─ Sandbox Mode
+    │   ├─ In-browser SQLite database (sql.js / WebAssembly)
+    │   ├─ SQL query editor with Ctrl+Enter execution
+    │   ├─ Results table with column headers and row data
+    │   ├─ Schema viewer (expandable table definitions)
+    │   ├─ Query history log with duration tracking
+    │   ├─ Sample queries organized by category
+    │   └─ Load sample datasets / Reset database
+    │
+    └─ Challenge Mode (Gamified)
+        ├─ 12 SQL challenges across 4 worlds (Tutorial → Mastery)
+        ├─ Each challenge: write correct SQL against provided tables
+        ├─ Server-side validation via validateResult() per challenge
+        ├─ Same gamification as Flex: lives, XP, ranks, achievements, daily
+        ├─ SQL-specific achievements (e.g., "Join Master", "Speed Demon")
+        └─ All progress persisted in localStorage
+```
+
 ---
 
 ## 🏗️ Tech Stack
@@ -885,6 +1017,7 @@ SortingVisualizer.jsx
 | [Lucide React](https://lucide.dev/) | Latest | Beautiful, consistent icon library |
 | [CodeMirror](https://codemirror.net/) | 6 | Advanced code editor (Frontend Playground) |
 | [Axios](https://axios-http.com/) | 1.x | HTTP client for API Tester and GitHub integration |
+| [sql.js](https://sql.js.org/) | 1.x | In-browser SQLite via WebAssembly (SQL Playground) |
 | [React Markdown](https://github.com/remarkjs/react-markdown) | 10 | Markdown rendering with GFM and raw HTML support |
 | [React Syntax Highlighter](https://github.com/react-syntax-highlighter/react-syntax-highlighter) | 16 | Code syntax highlighting |
 
@@ -959,6 +1092,10 @@ Developer-Toolbox/
 │   │   │   └── ColorPaletteGenerator.jsx
 │   │   ├── css-gradient/
 │   │   │   └── CssGradientGenerator.jsx
+│   │   ├── event-loop-visualizer/
+│   │   │   └── EventLoopVisualizer.jsx # JS Event Loop step-by-step visualizer
+│   │   ├── flex-playground/
+│   │   │   └── FlexPlayground.jsx      # Gamified CSS Flexbox playground
 │   │   ├── frontend-playground/
 │   │   │   ├── FrontendPlayground.jsx  # Main playground component
 │   │   │   ├── CodeMirrorEditor.jsx    # CodeMirror wrapper component
@@ -984,10 +1121,15 @@ Developer-Toolbox/
 │   │   │   ├── BadgeBuilder.jsx        # Shield.io badge generator
 │   │   │   ├── GitHubImport.jsx        # Import from GitHub repository
 │   │   │   └── CustomSections.jsx      # Add custom README sections
+│   │   ├── recursion-visualizer/
+│   │   │   └── RecursionVisualizer.jsx # Animated recursive call tree visualizer
 │   │   ├── regex-generator/
 │   │   │   └── RegexGenerator.jsx
-│   │   └── sorting-visualizer/
-│   │       └── SortingVisualizer.jsx
+│   │   ├── sorting-visualizer/
+│   │   │   └── SortingVisualizer.jsx
+│   │   └── sql-playground/
+│   │       ├── SqlPlayground.jsx       # Gamified SQL playground with challenges
+│   │       └── sqlEngine.js            # sql.js wrapper & query execution engine
 │   │
 │   ├── utils/                        # Utility modules
 │   │   ├── toolRegistry.js           # Central tool registry with metadata
@@ -1067,6 +1209,7 @@ Developer Toolbox is designed with a **zero-trust, client-side-only** architectu
 The only external network requests are:
 - **API Tester** — Sends requests to user-specified URLs (by design)
 - **GitHub Import** — Fetches public repository data from GitHub's API (README Generator)
+- **SQL Playground** — Downloads the sql.js WebAssembly binary from CDN on first use
 - **Google Fonts** — Loads Inter and JetBrains Mono typefaces
 
 ---

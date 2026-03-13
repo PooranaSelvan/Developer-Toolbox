@@ -434,7 +434,7 @@ export default function EventLoopVisualizer() {
                   disabled={playing}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all duration-200 ${
                     mode === 'auto'
-                      ? 'bg-primary text-white shadow-sm'
+                      ? 'bg-primary text-primary-content shadow-sm'
                       : 'text-base-content/60 hover:text-base-content/80'
                   }`}
                 >
@@ -445,7 +445,7 @@ export default function EventLoopVisualizer() {
                   disabled={playing}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all duration-200 ${
                     mode === 'step'
-                      ? 'bg-primary text-white shadow-sm'
+                      ? 'bg-primary text-primary-content shadow-sm'
                       : 'text-base-content/60 hover:text-base-content/80'
                   }`}
                 >

@@ -162,11 +162,11 @@ function ColorSwatch({ color, index, onColorChange, onToggleLock, onRemove, canR
         <div className="h-32 sm:h-40 flex items-end p-3 relative">
           {/* Actions */}
           <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button onClick={() => onToggleLock(index)} className="btn btn-xs btn-circle" style={{ color: textCol, backgroundColor: `${textCol}20` }}>
+            <button onClick={() => onToggleLock(index)} className="w-7 h-7 rounded-full flex items-center justify-center transition-transform hover:scale-110 cursor-pointer" style={{ color: textCol, backgroundColor: `${textCol}20` }}>
               {color.locked ? <Lock size={11} /> : <Unlock size={11} />}
             </button>
             {canRemove && (
-              <button onClick={() => onRemove(index)} className="btn btn-xs btn-circle" style={{ color: textCol, backgroundColor: `${textCol}20` }}>
+              <button onClick={() => onRemove(index)} className="w-7 h-7 rounded-full flex items-center justify-center transition-transform hover:scale-110 cursor-pointer" style={{ color: textCol, backgroundColor: `${textCol}20` }}>
                 <X size={11} />
               </button>
             )}
@@ -184,7 +184,7 @@ function ColorSwatch({ color, index, onColorChange, onToggleLock, onRemove, canR
         <div className="p-3 space-y-1.5" style={{ color: textCol }}>
           <div className="flex items-center justify-between">
             <span className="text-sm font-bold font-mono uppercase">{color.hex}</span>
-            <button onClick={() => copyToClipboard(color.hex)} className="btn btn-xs btn-circle" style={{ color: textCol, backgroundColor: `${textCol}15` }}>
+            <button onClick={() => copyToClipboard(color.hex)} className="w-7 h-7 rounded-full flex items-center justify-center transition-transform hover:scale-110 cursor-pointer" style={{ color: textCol, backgroundColor: `${textCol}15` }}>
               {copied ? <Check size={11} /> : <Copy size={11} />}
             </button>
           </div>
@@ -314,7 +314,7 @@ export default function ColorPaletteGenerator() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <button onClick={shufflePalette} className="btn btn-sm btn-primary gap-1.5"><Shuffle size={14} /> Generate</button>
-          {colors.length < 10 && <button onClick={addColor} className="btn btn-sm btn-ghost gap-1.5"><Plus size={14} /> Add Color</button>}
+          {colors.length < 10 && <button onClick={addColor} className="btn btn-sm btn-outline gap-1.5"><Plus size={14} /> Add Color</button>}
           <span className="text-[10px] opacity-30 hidden sm:inline">Press Space to shuffle</span>
         </div>
       </motion.div>
@@ -472,7 +472,7 @@ export default function ColorPaletteGenerator() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {HARMONY_TYPES.map(ht => (
-                  <button key={ht.id} onClick={() => setHarmonyType(ht.id)} className={`btn btn-sm gap-1.5 ${harmonyType === ht.id ? 'btn-primary' : 'btn-ghost border border-base-300'}`}>
+                  <button key={ht.id} onClick={() => setHarmonyType(ht.id)} className={`btn btn-sm gap-1.5 ${harmonyType === ht.id ? 'btn-primary' : 'btn-outline'}`}>
                     {ht.name}
                   </button>
                 ))}
@@ -492,7 +492,7 @@ export default function ColorPaletteGenerator() {
                 </motion.div>
               ))}
             </div>
-            <button onClick={() => loadPalette(harmonyColors)} className="btn btn-sm btn-primary gap-1.5"><Palette size={14} /> Use as Palette</button>
+            <button onClick={() => loadPalette(harmonyColors)} className="btn btn-sm btn-primary gap-1.5 w-fit"><Palette size={14} /> Use as Palette</button>
 
             {/* Shade ramp */}
             <div className="section-card p-5">
@@ -544,15 +544,15 @@ export default function ColorPaletteGenerator() {
             <div className="section-card p-5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <h3 className="text-sm font-semibold">Export Format</h3>
-                <div className="tabs tabs-box tabs-xs overflow-x-auto">
+                <div className="tabs tabs-box tabs-sm overflow-x-auto">
                   {EXPORT_FORMATS.map(fmt => (
-                    <button key={fmt} className={`tab whitespace-nowrap ${exportFormat === fmt ? 'tab-active' : ''}`} onClick={() => setExportFormat(fmt)}>{fmt}</button>
+                    <button key={fmt} className={`tab whitespace-nowrap px-4 py-2 ${exportFormat === fmt ? 'tab-active' : ''}`} onClick={() => setExportFormat(fmt)}>{fmt}</button>
                   ))}
                 </div>
               </div>
               <div className="relative">
                 <pre className="p-4 rounded-lg bg-neutral text-neutral-content font-mono text-xs leading-relaxed overflow-x-auto">{exportCode}</pre>
-                <button onClick={() => copyToClipboard(exportCode)} className="absolute top-2 right-2 btn btn-xs btn-ghost text-neutral-content/60 hover:text-neutral-content">
+                <button onClick={() => copyToClipboard(exportCode)} className="absolute top-2 right-2 w-7 h-7 rounded-md flex items-center justify-center text-neutral-content/60 hover:text-neutral-content hover:bg-neutral-content/10 transition-colors cursor-pointer">
                   {copied ? <Check size={12} /> : <Copy size={12} />}
                 </button>
               </div>
@@ -573,7 +573,7 @@ export default function ColorPaletteGenerator() {
               <>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-semibold">{savedPalettes.length} Saved Palette{savedPalettes.length !== 1 ? 's' : ''}</span>
-                  <button onClick={() => setSavedPalettes([])} className="btn btn-xs btn-ghost btn-error gap-1"><Trash2 size={12} /> Clear All</button>
+                  <button onClick={() => setSavedPalettes([])} className="btn btn-xs btn-outline btn-error gap-1"><Trash2 size={12} /> Clear All</button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {savedPalettes.map(sp => (
@@ -586,7 +586,7 @@ export default function ColorPaletteGenerator() {
                           <p className="text-sm font-semibold group-hover:text-primary transition-colors">{sp.name}</p>
                           <span className="text-[10px] opacity-30">{sp.createdAt}</span>
                         </div>
-                        <button onClick={(e) => { e.stopPropagation(); setSavedPalettes(prev => prev.filter(p => p.id !== sp.id)); }} className="btn btn-ghost btn-xs opacity-0 group-hover:opacity-60"><X size={12} /></button>
+                        <button onClick={(e) => { e.stopPropagation(); setSavedPalettes(prev => prev.filter(p => p.id !== sp.id)); }} className="btn btn-outline btn-xs opacity-0 group-hover:opacity-60"><X size={12} /></button>
                       </div>
                     </div>
                   ))}

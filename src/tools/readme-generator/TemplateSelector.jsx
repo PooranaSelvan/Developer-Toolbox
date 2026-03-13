@@ -12,7 +12,7 @@ export default function TemplateSelector({ selected, onSelect }) {
       <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
         <Layout size={14} className="text-primary" />
       </div>
-      <span className="text-xs font-medium opacity-50 shrink-0 hidden sm:block">Template:</span>
+      <span className="text-xs font-medium text-base-content/60 shrink-0 hidden sm:block">Template:</span>
 
       {/* Desktop: pill buttons — glassmorphic selector */}
       <div className="hidden md:flex flex-wrap gap-1.5 bg-base-200/40 p-1.5 rounded-xl backdrop-blur-sm border border-base-200/60">
@@ -61,7 +61,7 @@ export default function TemplateSelector({ selected, onSelect }) {
               >
                 <div className="px-3 py-2 border-b border-base-200/60 flex items-center gap-2">
                   <Sparkles size={11} className="text-primary" />
-                  <span className="text-[11px] font-bold text-base-content/50">Choose Template Style</span>
+                  <span className="text-[11px] font-bold text-base-content/70">Choose Template Style</span>
                 </div>
                 {Object.entries(TEMPLATES).map(([key, tmpl], i) => (
                   <motion.button
@@ -75,7 +75,7 @@ export default function TemplateSelector({ selected, onSelect }) {
                     <span className="text-lg w-7 text-center">{tmpl.emoji}</span>
                     <div className="flex-1 min-w-0">
                       <div className="text-xs font-bold">{tmpl.name}</div>
-                      <div className="text-[10px] opacity-50 truncate">{tmpl.description}</div>
+                      <div className="text-[10px] text-base-content/60 truncate">{tmpl.description}</div>
                     </div>
                     {selected === key && (
                       <motion.div

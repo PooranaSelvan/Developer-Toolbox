@@ -5,7 +5,7 @@ import {
   Table2, ChevronDown, ChevronRight, AlertCircle,
   Clock, Zap, Trash2, Info, Star, ArrowRight,
   Lightbulb, Timer, CheckCircle2, Lock, Award,
-  Shield, Pause, X, HelpCircle, Gamepad2,
+  Shield, Pause, X, Gamepad2,
 } from 'lucide-react';
 import useCopyToClipboard from '../../hooks/useCopyToClipboard';
 import SEO from '../../components/SEO';
@@ -298,13 +298,7 @@ function getSqlDailyChallenge() {
   return { ...SQL_CHALLENGES[idx], isDaily: true, dailyDate: today.toDateString(), bonusXP: 50 };
 }
 
-// ─── SQL Onboarding Steps ──────────────────────────────────
-const SQL_ONBOARDING_STEPS = [
-  { title: '🗄️ Welcome to SQL Quest!', message: 'Learn SQL by writing real queries against sample datasets. Everything runs in your browser — no setup needed!' },
-  { title: '🏆 Challenge Mode', message: 'Solve SQL puzzles level by level. Earn XP, unlock badges, and climb the ranks from Intern to SQL Wizard!' },
-  { title: '⚡ Power-Ups & Tools', message: 'Use power-ups when stuck. View hints, freeze the timer, or peek at the answer. Earn more by completing challenges!' },
-  { title: '📊 Schema Explorer', message: 'Check the schema sidebar to understand table structures. Knowing your columns is half the battle!' },
-];
+
 
 function getSqlRank(xp) {
   for (let i = SQL_RANKS.length - 1; i >= 0; i--) {
@@ -386,7 +380,7 @@ function SqlPowerUpBar({ powerUps, onUse, disabled }) {
             <span className="text-sm">{pu.icon}</span>
             <span className="hidden sm:inline">{pu.label}</span>
             {count > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-white text-[8px] font-bold flex items-center justify-center">{count}</span>
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-primary-content text-[8px] font-bold flex items-center justify-center">{count}</span>
             )}
           </motion.button>
         );
@@ -462,48 +456,7 @@ function SqlComboIndicator({ combo, show }) {
   );
 }
 
-// ─── SQL Onboarding Modal ──────────────────────────────────
-function SqlOnboardingModal({ step, totalSteps, onNext, onSkip, onClose }) {
-  const currentStep = SQL_ONBOARDING_STEPS[step];
-  if (!currentStep) return null;
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-      onClick={onSkip}
-    >
-      <motion.div
-        initial={{ scale: 0.8, y: 30 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.8, y: 30 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="section-card p-6 max-w-sm mx-4 border-2 border-primary/30"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="text-center mb-4">
-          <motion.div initial={{ rotate: -15, scale: 0 }} animate={{ rotate: 0, scale: 1 }} transition={{ type: 'spring', delay: 0.1 }} className="text-4xl mb-3">
-            {step === 0 ? '🗄️' : step === 1 ? '🏆' : step === 2 ? '⚡' : '📊'}
-          </motion.div>
-          <h3 className="text-lg font-bold">{currentStep.title}</h3>
-          <p className="text-xs opacity-50 mt-2 leading-relaxed">{currentStep.message}</p>
-        </div>
-        <div className="flex justify-center gap-1.5 mb-4">
-          {Array.from({ length: totalSteps }, (_, i) => (
-            <div key={i} className={`w-2 h-2 rounded-full transition-all duration-300 ${i === step ? 'bg-primary w-6' : i < step ? 'bg-primary/40' : 'bg-base-300/40'}`} />
-          ))}
-        </div>
-        <div className="flex items-center justify-between">
-          <button onClick={onSkip} className="btn btn-xs btn-ghost opacity-40">Skip Tour</button>
-          <button onClick={step < totalSteps - 1 ? onNext : onClose} className="btn btn-sm btn-primary gap-1">
-            {step < totalSteps - 1 ? <>Next <ArrowRight size={12} /></> : <>Let's Go! <Zap size={12} /></>}
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
+
 
 // ─── SQL Achievement Gallery ───────────────────────────────
 function SqlAchievementGallery({ unlockedIds }) {
@@ -527,7 +480,7 @@ function SqlAchievementGallery({ unlockedIds }) {
             <h5 className="text-[10px] font-bold leading-tight">{ach.title}</h5>
             <p className="text-[9px] opacity-40 mt-1 leading-relaxed">{ach.description}</p>
             {unlocked && (
-              <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-warning text-white text-[8px] flex items-center justify-center font-bold shadow-sm">✓</div>
+              <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-warning text-warning-content text-[8px] flex items-center justify-center font-bold shadow-sm">✓</div>
             )}
           </motion.div>
         );
@@ -879,12 +832,6 @@ export default function SqlPlayground() {
   const [sqlCombo, setSqlCombo] = useState(0);
   const [showSqlCombo, setShowSqlCombo] = useState(false);
   const sqlComboTimeoutRef = useRef(null);
-
-  // Onboarding state
-  const [showSqlOnboarding, setShowSqlOnboarding] = useState(() => {
-    try { return !localStorage.getItem('sql-onboarding-done'); } catch { return true; }
-  });
-  const [sqlOnboardingStep, setSqlOnboardingStep] = useState(0);
 
   const textareaRef = useRef(null);
   const { copied, copyToClipboard } = useCopyToClipboard();
@@ -1302,18 +1249,6 @@ export default function SqlPlayground() {
     }
   }, [currentChallenge, sqlPowerUps, nextChallenge]);
 
-  // ── Onboarding handlers ──
-  const handleSqlOnboardingNext = useCallback(() => {
-    if (sqlOnboardingStep < SQL_ONBOARDING_STEPS.length - 1) {
-      setSqlOnboardingStep((s) => s + 1);
-    }
-  }, [sqlOnboardingStep]);
-
-  const handleSqlOnboardingClose = useCallback(() => {
-    setShowSqlOnboarding(false);
-    localStorage.setItem('sql-onboarding-done', 'true');
-  }, []);
-
   const formatTime = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
   const tableNames = useMemo(() => Object.keys(tables), [tables]);
@@ -1366,13 +1301,6 @@ export default function SqlPlayground() {
                 <span className="text-xs font-bold font-mono">{sqlUnlockedAchievements.length}/{SQL_ACHIEVEMENTS.length}</span>
               </div>
             )}
-            <button
-              onClick={() => { setShowSqlOnboarding(true); setSqlOnboardingStep(0); }}
-              className="btn btn-sm btn-ghost gap-1 opacity-40 hover:opacity-100"
-              title="Show Tutorial"
-            >
-              <HelpCircle size={14} />
-            </button>
             <button onClick={resetDB} className="btn btn-sm btn-ghost btn-error gap-1.5">
               <RotateCcw size={14} /> Reset DB
             </button>
@@ -1399,19 +1327,6 @@ export default function SqlPlayground() {
             ))}
           </div>
         </motion.div>
-
-        {/* ── Onboarding Modal ── */}
-        <AnimatePresence>
-          {showSqlOnboarding && (
-            <SqlOnboardingModal
-              step={sqlOnboardingStep}
-              totalSteps={SQL_ONBOARDING_STEPS.length}
-              onNext={handleSqlOnboardingNext}
-              onSkip={handleSqlOnboardingClose}
-              onClose={handleSqlOnboardingClose}
-            />
-          )}
-        </AnimatePresence>
 
         {/* ── Combo Indicator ── */}
         <AnimatePresence>

@@ -94,7 +94,7 @@ function generateCode(language, request) {
   }
 }
 
-export default function CodeGenerator({ request }) {
+export default function CodeGenerator({ request, resolveEnvVars }) {
   const [language, setLanguage] = useState('curl');
   const { copied, copyToClipboard } = useCopyToClipboard();
   const code = generateCode(language, request);

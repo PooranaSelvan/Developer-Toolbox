@@ -51,8 +51,8 @@ export default function CustomSections({ sections = [], onChange }) {
         </div>
 
         {sections.length === 0 ? (
-          <div className="text-center py-6 text-xs opacity-40">
-            <LayoutList size={24} className="mx-auto mb-2 opacity-30" />
+          <div className="text-center py-6 text-xs text-base-content/50">
+            <LayoutList size={24} className="mx-auto mb-2 text-base-content/30" />
             Add custom sections that appear at the bottom of your README
           </div>
         ) : (
@@ -71,14 +71,14 @@ export default function CustomSections({ sections = [], onChange }) {
                     <button
                       onClick={() => moveSection(index, -1)}
                       disabled={index === 0}
-                      className="btn btn-ghost btn-xs h-4 w-4 p-0 min-h-0 opacity-30 hover:opacity-100 disabled:opacity-10"
+                      className="btn btn-ghost btn-xs h-4 w-4 p-0 min-h-0 text-base-content/50 hover:text-base-content disabled:text-base-content/20"
                     >
                       <ChevronUp size={10} />
                     </button>
                     <button
                       onClick={() => moveSection(index, 1)}
                       disabled={index === sections.length - 1}
-                      className="btn btn-ghost btn-xs h-4 w-4 p-0 min-h-0 opacity-30 hover:opacity-100 disabled:opacity-10"
+                      className="btn btn-ghost btn-xs h-4 w-4 p-0 min-h-0 text-base-content/50 hover:text-base-content disabled:text-base-content/20"
                     >
                       <ChevronDown size={10} />
                     </button>
@@ -94,7 +94,7 @@ export default function CustomSections({ sections = [], onChange }) {
 
                   <button
                     onClick={() => removeSection(index)}
-                    className="btn btn-ghost btn-xs text-error opacity-40 hover:opacity-100"
+                    className="btn btn-ghost btn-xs text-error/60 hover:text-error"
                   >
                     <Trash2 size={12} />
                   </button>
@@ -114,7 +114,7 @@ export default function CustomSections({ sections = [], onChange }) {
         )}
 
         {sections.length > 0 && (
-          <p className="text-[11px] opacity-40 mt-3">
+          <p className="text-[11px] text-base-content/60 mt-3">
             {sections.filter((s) => s.title && s.content).length} section{sections.filter((s) => s.title && s.content).length !== 1 ? 's' : ''} will be appended to your README
           </p>
         )}

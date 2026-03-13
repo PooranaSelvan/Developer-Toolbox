@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, Eye, EyeOff, Lock, Key, User } from 'lucide-react';
+import { Plus, Trash2, Eye, EyeOff, Lock, Key, User, FlaskConical } from 'lucide-react';
 import { generateId } from '../../utils/helpers';
+import ResponseTests from './ResponseTests';
 
 const TABS = [
   { key: 'headers', label: 'Headers' },
   { key: 'params', label: 'Params' },
   { key: 'body', label: 'Body' },
   { key: 'auth', label: 'Auth' },
+  { key: 'tests', label: 'Tests' },
 ];
 
 const COMMON_HEADERS = [
@@ -22,7 +24,7 @@ const BODY_TYPES = [
   { key: 'form', label: 'Form URL Encoded' },
 ];
 
-export default function RequestConfig({ request, onUpdate }) {
+export default function RequestConfig({ request, onUpdate, tests = [], onSetTests, response }) {
   const [activeTab, setActiveTab] = useState('headers');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -248,7 +250,9 @@ export default function RequestConfig({ request, onUpdate }) {
               ? (request.body.trim() ? 1 : 0)
               : tab.key === 'auth'
                 ? (request.auth.type !== 'none' ? 1 : 0)
-                : activeCount(tab.key);
+                : tab.key === 'tests'
+                  ? tests.length
+                  : activeCount(tab.key);
 
             return (
               <button
@@ -256,9 +260,10 @@ export default function RequestConfig({ request, onUpdate }) {
                 onClick={() => setActiveTab(tab.key)}
                 className={`tab gap-2 ${activeTab === tab.key ? 'tab-active font-semibold' : ''}`}
               >
+                {tab.key === 'tests' && <FlaskConical size={13} />}
                 {tab.label}
                 {count > 0 && (
-                  <span className="badge badge-primary badge-xs">{count}</span>
+                  <span className={`badge badge-xs ${tab.key === 'tests' ? 'badge-secondary' : 'badge-primary'}`}>{count}</span>
                 )}
               </button>
             );
@@ -270,6 +275,9 @@ export default function RequestConfig({ request, onUpdate }) {
           {activeTab === 'headers' && renderKeyValueEditor('headers')}
           {activeTab === 'params' && renderKeyValueEditor('params')}
           {activeTab === 'auth' && renderAuth()}
+          {activeTab === 'tests' && (
+            <ResponseTests tests={tests} onSetTests={onSetTests} response={response} />
+          )}
           {activeTab === 'body' && showBody && (
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">

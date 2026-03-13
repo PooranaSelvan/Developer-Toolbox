@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Hash, AlertCircle, Copy, Check, Download, Search, Zap } from 'lucide-react';
+import { Clock, Hash, AlertCircle, Copy, Check, Download, Search, Zap, CheckCircle2, XCircle, FlaskConical } from 'lucide-react';
 import { formatDuration, formatBytes, getStatusBadge, prettyJSON } from '../../utils/helpers';
 import useCopyToClipboard from '../../hooks/useCopyToClipboard';
 import useDownloadFile from '../../hooks/useDownloadFile';
 
 
-export default function ResponsePanel({ response, loading }) {
+export default function ResponsePanel({ response, loading, tests = [] }) {
   const [activeTab, setActiveTab] = useState('body');
   const [searchQuery, setSearchQuery] = useState('');
   const [wrapLines, setWrapLines] = useState(true);
@@ -61,7 +61,50 @@ export default function ResponsePanel({ response, loading }) {
 
   const headerCount = Object.keys(response.headers || {}).length;
 
-const isSuccess = response.status >= 200 && response.status < 300;
+// Test results
+  const testResults = useMemo(() => {
+    if (!response || tests.length === 0) return null;
+    // Simple inline test runner (mirrors ResponseTests logic)
+    const resolveJsonPath = (obj, path) => {
+      try {
+        const parts = path.replace(/\[(\d+)\]/g, '.$1').split('.');
+        let current = obj;
+        for (const part of parts) {
+          if (current == null) return undefined;
+          current = current[part];
+        }
+        return current;
+      } catch { return undefined; }
+    };
+
+    const body = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
+    const jsonData = typeof response.data === 'object' ? response.data : (() => { try { return JSON.parse(response.data); } catch { return null; } })();
+
+    let passed = 0;
+    let failed = 0;
+
+    tests.forEach(({ type, value }) => {
+      try {
+        let pass = false;
+        switch (type) {
+          case 'status_equals': pass = response.status === Number(value); break;
+          case 'status_range': { const [min, max] = value.split('-').map(Number); pass = response.status >= min && response.status <= max; break; }
+          case 'body_contains': pass = body.includes(value); break;
+          case 'body_not_contains': pass = !body.includes(value); break;
+          case 'json_path_exists': pass = jsonData && resolveJsonPath(jsonData, value) !== undefined; break;
+          case 'response_time': pass = response.duration < Number(value); break;
+          case 'body_is_json': pass = typeof response.data === 'object' || (() => { try { JSON.parse(response.data); return true; } catch { return false; } })(); break;
+          case 'header_exists': pass = Object.keys(response.headers || {}).some((k) => k.toLowerCase() === value.toLowerCase()); break;
+          default: break;
+        }
+        if (pass) passed++; else failed++;
+      } catch { failed++; }
+    });
+
+    return { passed, failed, total: tests.length };
+  }, [response, tests]);
+
+  const isSuccess = response.status >= 200 && response.status < 300;
 
   return (
     <div className={`rounded-xl border bg-base-100 ${isSuccess ? 'border-success/20' : 'border-base-300'}`}>
@@ -86,6 +129,17 @@ const isSuccess = response.status >= 200 && response.status < 300;
             <div className="flex items-center gap-1.5 text-sm text-error">
               <AlertCircle size={14} />
               <span className="font-medium">Error</span>
+            </div>
+          )}
+
+          {testResults && (
+            <div className={`flex items-center gap-1.5 text-xs font-semibold ${testResults.failed === 0 ? 'text-success' : 'text-error'}`}>
+              <FlaskConical size={13} />
+              {testResults.failed === 0 ? (
+                <span className="flex items-center gap-1"><CheckCircle2 size={12} /> {testResults.passed}/{testResults.total} passed</span>
+              ) : (
+                <span className="flex items-center gap-1"><XCircle size={12} /> {testResults.failed} failed</span>
+              )}
             </div>
           )}
 

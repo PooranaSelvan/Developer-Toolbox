@@ -59,7 +59,7 @@ function MarkdownToolbar({ textareaId, value, onChange }) {
             whileTap={{ scale: 0.9 }}
             onClick={tool.action}
             title={tool.title}
-            className="btn btn-ghost btn-xs h-7 w-7 p-0 min-h-0 opacity-40 hover:opacity-100 hover:bg-primary/10 hover:text-primary rounded-lg transition-colors"
+            className="btn btn-ghost btn-xs h-7 w-7 p-0 min-h-0 text-base-content/60 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
           >
             <Icon size={13} />
           </motion.button>
@@ -84,12 +84,12 @@ function FieldInput({ label, value, onChange, placeholder, helpText, mono = fals
       transition={{ duration: 0.3 }}
     >
       {label && (
-        <label className={`flex items-center gap-2 text-xs font-bold tracking-wide transition-all duration-300 ${isFocused ? 'text-primary translate-x-0.5' : 'text-base-content/60'}`}>
+        <label className={`flex items-center gap-2 text-xs font-bold tracking-wide transition-all duration-300 ${isFocused ? 'text-primary translate-x-0.5' : 'text-base-content/70'}`}>
           {Icon && (
             <motion.span
               animate={isFocused ? { scale: 1.15, rotate: [0, -5, 5, 0] } : { scale: 1, rotate: 0 }}
               transition={{ duration: 0.3 }}
-              className={`flex items-center justify-center w-6 h-6 rounded-lg transition-all duration-300 ${isFocused ? 'bg-primary/20 text-primary shadow-sm shadow-primary/20' : 'bg-base-200/80 text-base-content/40'}`}
+              className={`flex items-center justify-center w-6 h-6 rounded-lg transition-all duration-300 ${isFocused ? 'bg-primary/20 text-primary shadow-sm shadow-primary/20' : 'bg-base-200 text-base-content/60'}`}
             >
               <Icon size={12} />
             </motion.span>
@@ -115,7 +115,7 @@ function FieldInput({ label, value, onChange, placeholder, helpText, mono = fals
           className={`input input-sm w-full transition-all duration-300 rounded-xl backdrop-blur-sm ${
             mono ? 'font-mono text-xs' : ''
           } ${
-            hasValue ? 'border-success/25 bg-success/[0.03]' : 'bg-base-100/80'
+            hasValue ? 'border-success/30 bg-success/[0.04]' : 'bg-base-100/80'
           } ${
             isFocused ? '!border-primary/50 !shadow-[0_0_0_4px] !shadow-primary/10 !bg-base-100 ring-1 ring-primary/5' : ''
           }`}
@@ -132,9 +132,9 @@ function FieldInput({ label, value, onChange, placeholder, helpText, mono = fals
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-[11px] text-base-content/40 flex items-center gap-1.5 pl-0.5"
+          className="text-[11px] text-base-content/60 flex items-center gap-1.5 pl-0.5"
         >
-          <Info size={9} className="shrink-0 text-primary/50" />
+          <Info size={9} className="shrink-0 text-primary/70" />
           {helpText}
         </motion.p>
       )}
@@ -160,12 +160,12 @@ function FieldTextarea({ id, label, value, onChange, placeholder, rows = 3, mono
     >
       <div className="flex items-center justify-between gap-2">
         {label && (
-          <label className={`flex items-center gap-2 text-xs font-bold tracking-wide transition-all duration-300 ${isFocused ? 'text-primary translate-x-0.5' : 'text-base-content/60'}`}>
+          <label className={`flex items-center gap-2 text-xs font-bold tracking-wide transition-all duration-300 ${isFocused ? 'text-primary translate-x-0.5' : 'text-base-content/70'}`}>
             {Icon && (
               <motion.span
                 animate={isFocused ? { scale: 1.15, rotate: [0, -5, 5, 0] } : { scale: 1, rotate: 0 }}
                 transition={{ duration: 0.3 }}
-                className={`flex items-center justify-center w-6 h-6 rounded-lg transition-all duration-300 ${isFocused ? 'bg-primary/20 text-primary shadow-sm shadow-primary/20' : 'bg-base-200/80 text-base-content/40'}`}
+                className={`flex items-center justify-center w-6 h-6 rounded-lg transition-all duration-300 ${isFocused ? 'bg-primary/20 text-primary shadow-sm shadow-primary/20' : 'bg-base-200 text-base-content/60'}`}
               >
                 <Icon size={12} />
               </motion.span>
@@ -175,7 +175,7 @@ function FieldTextarea({ id, label, value, onChange, placeholder, rows = 3, mono
               <motion.span
                 initial={{ opacity: 0, x: -5 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="badge badge-xs font-mono font-normal text-primary/60 bg-primary/10 border-primary/15 ml-1 gap-0.5"
+                className="badge badge-xs font-mono font-normal text-primary bg-primary/10 border-primary/20 ml-1 gap-0.5"
               >
                 {lineCount} {lineCount === 1 ? 'line' : 'lines'}
               </motion.span>
@@ -185,7 +185,7 @@ function FieldTextarea({ id, label, value, onChange, placeholder, rows = 3, mono
         {showToolbar && (
           <motion.div
             initial={false}
-            animate={{ opacity: isFocused ? 1 : 0.2, y: isFocused ? 0 : 3, scale: isFocused ? 1 : 0.95 }}
+            animate={{ opacity: isFocused ? 1 : 0.5, y: isFocused ? 0 : 3, scale: isFocused ? 1 : 0.95 }}
             transition={{ duration: 0.25 }}
             className="bg-base-200/60 rounded-lg px-1 py-0.5 backdrop-blur-sm"
           >
@@ -209,7 +209,7 @@ function FieldTextarea({ id, label, value, onChange, placeholder, rows = 3, mono
           className={`textarea text-sm w-full transition-all duration-300 rounded-xl backdrop-blur-sm ${
             mono ? 'font-mono text-xs' : ''
           } ${
-            hasValue ? 'border-success/25 bg-success/[0.03]' : 'bg-base-100/80'
+            hasValue ? 'border-success/30 bg-success/[0.04]' : 'bg-base-100/80'
           } ${
             isFocused ? '!border-primary/50 !shadow-[0_0_0_4px] !shadow-primary/10 !bg-base-100 ring-1 ring-primary/5' : ''
           }`}
@@ -226,9 +226,9 @@ function FieldTextarea({ id, label, value, onChange, placeholder, rows = 3, mono
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-[11px] text-base-content/40 flex items-center gap-1.5 pl-0.5"
+          className="text-[11px] text-base-content/60 flex items-center gap-1.5 pl-0.5"
         >
-          <Info size={9} className="shrink-0 text-primary/50" />
+          <Info size={9} className="shrink-0 text-primary/70" />
           {helpText}
         </motion.p>
       )}
@@ -251,11 +251,11 @@ function FieldSelect({ label, value, onChange, options, placeholder, icon: Icon 
       transition={{ duration: 0.3 }}
     >
       {label && (
-        <label className={`flex items-center gap-2 text-xs font-bold tracking-wide transition-all duration-300 ${isFocused ? 'text-primary translate-x-0.5' : 'text-base-content/60'}`}>
+        <label className={`flex items-center gap-2 text-xs font-bold tracking-wide transition-all duration-300 ${isFocused ? 'text-primary translate-x-0.5' : 'text-base-content/70'}`}>
           {Icon && (
             <motion.span
               animate={isFocused ? { scale: 1.15 } : { scale: 1 }}
-              className={`flex items-center justify-center w-6 h-6 rounded-lg transition-all duration-300 ${isFocused ? 'bg-primary/20 text-primary shadow-sm shadow-primary/20' : 'bg-base-200/80 text-base-content/40'}`}
+              className={`flex items-center justify-center w-6 h-6 rounded-lg transition-all duration-300 ${isFocused ? 'bg-primary/20 text-primary shadow-sm shadow-primary/20' : 'bg-base-200 text-base-content/60'}`}
             >
               <Icon size={12} />
             </motion.span>
@@ -276,7 +276,7 @@ function FieldSelect({ label, value, onChange, options, placeholder, icon: Icon 
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         className={`select select-sm w-full transition-all duration-300 rounded-xl backdrop-blur-sm ${
-          hasValue ? 'border-success/25 bg-success/[0.03]' : 'bg-base-100/80'
+          hasValue ? 'border-success/30 bg-success/[0.04]' : 'bg-base-100/80'
         } ${
           isFocused ? '!border-primary/50 !shadow-[0_0_0_4px] !shadow-primary/10 ring-1 ring-primary/5' : ''
         }`}
@@ -359,8 +359,8 @@ function StepNav({ steps, activeStep, onStepChange, filledMap }) {
                 : allFilled
                   ? 'bg-success/10 text-success hover:bg-success/20 border border-success/25 shadow-sm shadow-success/5'
                   : hasSome
-                    ? 'bg-base-100/80 text-base-content/70 hover:bg-base-100 border border-base-300/50 shadow-sm'
-                    : 'bg-base-100/40 text-base-content/40 hover:bg-base-100/70 hover:text-base-content/60'
+                    ? 'bg-base-100/80 text-base-content/80 hover:bg-base-100 border border-base-300/50 shadow-sm'
+                    : 'bg-base-100/50 text-base-content/60 hover:bg-base-100/80 hover:text-base-content/80'
             }`}
           >
             {/* Background glow for active */}
@@ -384,7 +384,7 @@ function StepNav({ steps, activeStep, onStepChange, filledMap }) {
               </motion.div>
             )}
             {!isActive && hasSome && !allFilled && (
-              <span className="text-[10px] font-mono opacity-50 tabular-nums bg-base-200/80 px-1.5 py-0.5 rounded-md">{filledCount}/{step.fields.length}</span>
+              <span className="text-[10px] font-mono text-base-content/60 tabular-nums bg-base-200/80 px-1.5 py-0.5 rounded-md">{filledCount}/{step.fields.length}</span>
             )}
 
             {/* Active shimmer sweep */}
@@ -425,7 +425,7 @@ function StepEssentials({ formData, onChange }) {
               </motion.span>
             )}
           </h3>
-          <p className="text-[11px] text-base-content/40">The core identity of your project</p>
+          <p className="text-[11px] text-base-content/60">The core identity of your project</p>
         </div>
         <div className="flex items-center gap-2">
           {[0, 1, 2, 3].map((i) => (
@@ -496,7 +496,7 @@ function StepSetup({ formData, onChange }) {
         </div>
         <div>
           <h3 className="text-sm font-extrabold tracking-tight">Installation & Usage</h3>
-          <p className="text-[11px] text-base-content/40">Help others get started with your project</p>
+          <p className="text-[11px] text-base-content/60">Help others get started with your project</p>
         </div>
       </div>
 
@@ -557,7 +557,7 @@ function StepDetails({ formData, onChange }) {
         </div>
         <div>
           <h3 className="text-sm font-extrabold tracking-tight">API, Demos & Roadmap</h3>
-          <p className="text-[11px] text-base-content/40">Showcase your project's capabilities</p>
+          <p className="text-[11px] text-base-content/60">Showcase your project's capabilities</p>
         </div>
       </div>
 
@@ -617,7 +617,7 @@ function StepCommunity({ formData, onChange }) {
         </div>
         <div>
           <h3 className="text-sm font-extrabold tracking-tight">Community & Docs</h3>
-          <p className="text-[11px] text-base-content/40">FAQ, contributions & changelog</p>
+          <p className="text-[11px] text-base-content/60">FAQ, contributions & changelog</p>
         </div>
       </div>
 
@@ -680,7 +680,7 @@ function StepAuthor({ formData, onChange }) {
         </div>
         <div>
           <h3 className="text-sm font-extrabold tracking-tight">License & Author</h3>
-          <p className="text-[11px] text-base-content/40">Legal info and your personal details</p>
+          <p className="text-[11px] text-base-content/60">Legal info and your personal details</p>
         </div>
       </div>
 
@@ -784,11 +784,11 @@ export default function ReadmeForm({ formData, onChange }) {
       >
         <div className="flex-1">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[11px] font-semibold text-base-content/50 flex items-center gap-1.5">
-              <Rocket size={11} className="text-primary/60" />
+            <span className="text-[11px] font-semibold text-base-content/70 flex items-center gap-1.5">
+              <Rocket size={11} className="text-primary" />
               README Completeness
             </span>
-            <span className={`text-[11px] font-bold tabular-nums ${completionPercent === 100 ? 'text-success' : completionPercent > 50 ? 'text-primary' : 'text-base-content/40'}`}>
+            <span className={`text-[11px] font-bold tabular-nums ${completionPercent === 100 ? 'text-success' : completionPercent > 50 ? 'text-primary' : 'text-base-content/60'}`}>
               {completionPercent}%
             </span>
           </div>
@@ -807,7 +807,7 @@ export default function ReadmeForm({ formData, onChange }) {
             />
           </div>
         </div>
-        <span className="text-[10px] text-base-content/30 tabular-nums whitespace-nowrap">
+        <span className="text-[10px] text-base-content/60 tabular-nums whitespace-nowrap">
           {filledCount}/{allFields.length} fields
         </span>
       </motion.div>
@@ -849,10 +849,10 @@ export default function ReadmeForm({ formData, onChange }) {
               disabled={activeStep === 0}
               whileHover={{ x: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="btn btn-ghost btn-sm gap-1.5 disabled:opacity-15 rounded-xl hover:bg-base-200/80"
+              className="btn btn-ghost btn-sm gap-1.5 disabled:opacity-30 rounded-xl hover:bg-base-200/80"
             >
               <ChevronLeft size={14} />
-              Back
+              <span className="text-base-content/80">Back</span>
             </motion.button>
 
             {/* Step dots — enhanced pill indicator */}

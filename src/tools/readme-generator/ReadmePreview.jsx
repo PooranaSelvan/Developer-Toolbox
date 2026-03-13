@@ -81,7 +81,7 @@ export default function ReadmePreview({ markdown, stats }) {
                     { icon: Hash, label: `${stats.chars} chars` },
                     { icon: Clock, label: `${stats.readingTime} min` },
                   ].map(({ icon: Icon, label }, i) => (
-                    <div key={i} className="flex items-center gap-1.5 text-[11px] opacity-40">
+                    <div key={i} className="flex items-center gap-1.5 text-[11px] text-base-content/60">
                       <Icon size={10} />
                       <span>{label}</span>
                     </div>
@@ -107,12 +107,12 @@ export default function ReadmePreview({ markdown, stats }) {
         {/* Content */}
         <div className="flex-1 overflow-auto scrollbar-thin">
           {!markdown.trim() ? (
-            <div className="flex flex-col items-center justify-center h-full text-sm opacity-40 gap-3">
+            <div className="flex flex-col items-center justify-center h-full text-sm text-base-content/60 gap-3">
               <div className="w-16 h-16 rounded-2xl bg-base-200 flex items-center justify-center">
-                <FileText size={28} className="opacity-30" />
+                <FileText size={28} className="text-base-content/40" />
               </div>
               <p className="font-medium text-center">Fill in the fields to see your README preview</p>
-              <p className="text-xs opacity-60 flex items-center gap-1.5">
+              <p className="text-xs text-base-content/50 flex items-center gap-1.5">
                 <Sparkles size={10} />
                 Start with Project Name and Description
               </p>
@@ -140,7 +140,7 @@ export default function ReadmePreview({ markdown, stats }) {
               <pre className="text-xs font-mono whitespace-pre-wrap leading-relaxed rounded-xl p-4 bg-base-200/80 border border-base-300 select-all overflow-auto max-h-[70vh]">
                 {markdown}
               </pre>
-              <div className="absolute top-2 right-2 badge badge-xs badge-ghost font-mono">
+              <div className="absolute top-2 right-2 badge badge-xs badge-ghost font-mono text-base-content/60">
                 {stats.chars} chars
               </div>
             </motion.div>

@@ -526,15 +526,15 @@ export default function GridGenerator() {
                   <div className="border-t border-base-300">
                     {/* Code Tabs + Copy Buttons */}
                     <div className="flex items-center justify-between px-4 py-2 border-b border-base-300/50">
-                      <div className="tabs tabs-box tabs-xs">
+                      <div className="tabs tabs-box tabs-sm">
                         <button
-                          className={`tab ${codeTab === 'html' ? 'tab-active' : ''}`}
+                          className={`tab px-4 py-2 ${codeTab === 'html' ? 'tab-active' : ''}`}
                           onClick={() => setCodeTab('html')}
                         >
                           HTML
                         </button>
                         <button
-                          className={`tab ${codeTab === 'css' ? 'tab-active' : ''}`}
+                          className={`tab px-4 py-2 ${codeTab === 'css' ? 'tab-active' : ''}`}
                           onClick={() => setCodeTab('css')}
                         >
                           CSS

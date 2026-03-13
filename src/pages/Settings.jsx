@@ -121,7 +121,7 @@ export default function Settings() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-300 ${filter === f ? 'text-primary-content shadow-sm' : 'hover:bg-base-100 text-base-content/60'}`}
+                className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-300 ${filter === f ? 'text-primary-content shadow-sm' : 'hover:bg-base-100 text-base-content'}`}
               >
                 {filter === f && (
                   <motion.div
@@ -378,7 +378,7 @@ export default function Settings() {
                 href={AUTHOR.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-sm gap-2.5 rounded-xl bg-[#24292e] hover:bg-[#1b1f23] text-white border-0 shadow-sm hover:shadow-lg hover:shadow-black/15 transition-all duration-200 hover:-translate-y-0.5"
+                className="btn btn-sm gap-2.5 rounded-xl bg-neutral text-neutral-content hover:bg-neutral/80 border-0 shadow-sm hover:shadow-lg hover:shadow-black/15 transition-all duration-200 hover:-translate-y-0.5"
               >
                 <GithubIcon size={15} />
                 GitHub
@@ -412,7 +412,7 @@ export default function Settings() {
                 href={`${AUTHOR.github}/Developer-Toolbox`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-sm btn-outline btn-primary rounded-xl gap-2.5 shrink-0 hover:shadow-lg hover:shadow-primary/20 transition-all duration-200"
+                className="btn btn-sm btn-primary rounded-xl gap-2.5 shrink-0 hover:shadow-lg hover:shadow-primary/20 transition-all duration-200"
               >
                 <Star size={14} />
                 Star on GitHub

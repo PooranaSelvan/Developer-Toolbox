@@ -273,7 +273,7 @@ function CollapsibleSection({ title, icon: Icon, color, badge, badgeClass, actio
     <div className="section-card overflow-hidden">
       <div className="flex items-center justify-between px-5 py-3.5 cursor-pointer hover:bg-base-200/40 transition-colors" onClick={() => setOpen(o => !o)}>
         <div className="flex items-center gap-2.5">
-          <div className={`w-8 h-8 rounded-lg ${color} flex items-center justify-center`}><Icon size={15} className="text-white" /></div>
+          <div className={`w-8 h-8 rounded-lg ${color} flex items-center justify-center`}><Icon size={15} className="text-primary-content" /></div>
           <span className="text-sm font-semibold">{title}</span>
           {badge && <span className={`badge badge-xs ${badgeClass || 'badge-ghost'}`}>{badge}</span>}
         </div>
@@ -641,7 +641,7 @@ function JwtBuilder({ onTokenBuilt }) {
       {/* Algorithm & Secret */}
       <div className="section-card p-5 space-y-4">
         <div className="flex items-center gap-2.5 mb-1">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center"><Building size={15} className="text-white" /></div>
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center"><Building size={15} className="text-primary-content" /></div>
           <span className="text-sm font-semibold">Token Configuration</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -699,7 +699,7 @@ function JwtBuilder({ onTokenBuilt }) {
       <div className="section-card p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center"><ListChecks size={15} className="text-white" /></div>
+            <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center"><ListChecks size={15} className="text-secondary-content" /></div>
             <span className="text-sm font-semibold">Payload Claims</span>
             <span className="badge badge-xs badge-ghost">{builderClaims.length}</span>
           </div>
@@ -824,7 +824,7 @@ function PayloadEditor({ decoded, onTokenRebuilt }) {
     <div className="section-card overflow-hidden">
       <div className="px-5 py-3.5 flex items-center justify-between border-b border-base-200">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-warning flex items-center justify-center"><Edit3 size={15} className="text-white" /></div>
+          <div className="w-8 h-8 rounded-lg bg-warning flex items-center justify-center"><Edit3 size={15} className="text-warning-content" /></div>
           <span className="text-sm font-semibold">Payload Editor</span>
           <span className="badge badge-warning badge-xs">Experimental</span>
         </div>
@@ -878,7 +878,7 @@ function TokenCompare({ primaryDecoded }) {
   return (
     <div className="section-card overflow-hidden">
       <div className="px-5 py-3.5 flex items-center gap-2.5 border-b border-base-200">
-        <div className="w-8 h-8 rounded-lg bg-info flex items-center justify-center"><GitCompare size={15} className="text-white" /></div>
+        <div className="w-8 h-8 rounded-lg bg-info flex items-center justify-center"><GitCompare size={15} className="text-info-content" /></div>
         <span className="text-sm font-semibold">Token Comparison</span>
       </div>
       <div className="p-5 space-y-4">

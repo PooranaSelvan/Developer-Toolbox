@@ -928,7 +928,7 @@ const handleImport = useCallback((e) => {
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="section-card overflow-hidden">
           <div className="px-5 py-3.5 flex items-center justify-between border-b border-base-200 cursor-pointer hover:bg-base-200/40 transition-colors" onClick={() => setShowCodeSnippets(s => s ? null : endpoints[0]?.id)}>
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center"><Terminal size={15} className="text-white" /></div>
+              <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center"><Terminal size={15} className="text-accent-content" /></div>
               <span className="text-sm font-semibold">Code Snippets</span>
               <span className="badge badge-ghost badge-xs">cURL • Fetch • Axios</span>
             </div>
@@ -974,7 +974,7 @@ const handleImport = useCallback((e) => {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} className="section-card overflow-hidden">
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-base-200">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center"><FileJson size={15} className="text-white" /></div>
+                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center"><FileJson size={15} className="text-primary-content" /></div>
                 <span className="text-sm font-semibold">Generated API Response</span>
                 <span className="badge badge-ghost badge-xs">{Object.keys(generatedApi).length} endpoints</span>
               </div>

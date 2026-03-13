@@ -12,6 +12,8 @@ import {
   Keyboard, Search, Replace, Undo2, Redo2,
   ZoomIn, ZoomOut, Sun, Moon, Library,
   Gauge, Save, BookOpen,
+  Image, Share2, Camera,
+  Type, Settings2, LayoutGrid, PanelTop,
 } from 'lucide-react';
 import useCopyToClipboard from '../../hooks/useCopyToClipboard';
 import useLocalStorage from '../../hooks/useLocalStorage';
@@ -24,7 +26,7 @@ import './FrontendPlayground.css';
    CDN LIBRARIES
    ═══════════════════════════════════════════════════════════ */
 const CDN_LIBRARIES = [
-  { name: 'Tailwind CSS', type: 'css', url: 'https://cdn.jsdelivr.net/npm/tailwindcss@3/dist/tailwind.min.css', icon: '🌊' },
+  { name: 'Tailwind CSS', type: 'js', url: 'https://cdn.tailwindcss.com', icon: '🌊' },
   { name: 'Bootstrap 5', type: 'css', url: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css', icon: '🅱️' },
   { name: 'Animate.css', type: 'css', url: 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css', icon: '🎬' },
   { name: 'Font Awesome', type: 'css', url: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css', icon: '🎨' },
@@ -66,6 +68,146 @@ const SNIPPET_LIBRARY = {
     { name: 'Dark Mode', emoji: '🌓', code: "function setTheme(dark) {\n  document.documentElement.classList.toggle('dark', dark);\n  localStorage.setItem('theme', dark ? 'dark' : 'light');\n}\nconst saved = localStorage.getItem('theme');\nsetTheme(saved ? saved === 'dark' : matchMedia('(prefers-color-scheme:dark)').matches);" },
   ],
 };
+
+/* ═══════════════════════════════════════════════════════════
+   LAYOUT TEMPLATES (pre-built starter layouts)
+   ═══════════════════════════════════════════════════════════ */
+const LAYOUT_TEMPLATES = [
+  { name: 'Holy Grail', emoji: '🏛️',
+    html: '<div class="holy-grail">\n  <header class="hg-header">Header</header>\n  <div class="hg-body">\n    <aside class="hg-sidebar-left">Sidebar</aside>\n    <main class="hg-main">Main Content</main>\n    <aside class="hg-sidebar-right">Aside</aside>\n  </div>\n  <footer class="hg-footer">Footer</footer>\n</div>',
+    css: "body{margin:0;font-family:'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}.holy-grail{display:flex;flex-direction:column;min-height:100vh}.hg-header{padding:1rem 2rem;background:rgba(45,121,255,.15);border-bottom:1px solid rgba(45,121,255,.2);font-weight:700;font-size:1.1rem;color:#60a5fa}.hg-body{display:flex;flex:1;gap:0}.hg-sidebar-left,.hg-sidebar-right{width:220px;padding:1.5rem;background:rgba(255,255,255,.02);border-right:1px solid rgba(255,255,255,.06);font-size:.85rem;color:rgba(255,255,255,.5)}.hg-sidebar-right{border-right:none;border-left:1px solid rgba(255,255,255,.06)}.hg-main{flex:1;padding:2rem;font-size:.9rem;line-height:1.7;color:rgba(255,255,255,.6)}.hg-footer{padding:1rem 2rem;text-align:center;font-size:.75rem;background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.06);color:rgba(255,255,255,.3)}@media(max-width:768px){.hg-body{flex-direction:column}.hg-sidebar-left,.hg-sidebar-right{width:100%}}",
+    js: "" },
+  { name: 'Sidebar Layout', emoji: '📑',
+    html: '<div class="sidebar-layout">\n  <nav class="sidebar">\n    <div class="sidebar-logo">⚡ App</div>\n    <a class="sidebar-link active" href="#">🏠 Dashboard</a>\n    <a class="sidebar-link" href="#">📊 Analytics</a>\n    <a class="sidebar-link" href="#">👥 Users</a>\n    <a class="sidebar-link" href="#">⚙️ Settings</a>\n  </nav>\n  <main class="main-content">\n    <h1>Dashboard</h1>\n    <p>Your main content goes here.</p>\n  </main>\n</div>',
+    css: "body{margin:0;font-family:'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0}.sidebar-layout{display:flex;min-height:100vh}.sidebar{width:240px;background:rgba(255,255,255,.03);border-right:1px solid rgba(255,255,255,.06);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:.25rem;flex-shrink:0}.sidebar-logo{font-size:1.25rem;font-weight:800;padding:.5rem .75rem;margin-bottom:1rem;color:#fff}.sidebar-link{display:block;padding:.65rem .75rem;border-radius:.5rem;font-size:.85rem;color:rgba(255,255,255,.5);text-decoration:none;transition:all .2s}.sidebar-link:hover{background:rgba(255,255,255,.05);color:#fff}.sidebar-link.active{background:rgba(45,121,255,.12);color:#60a5fa;font-weight:600}.main-content{flex:1;padding:2rem}h1{font-size:1.5rem;margin:0 0 .5rem}p{color:rgba(255,255,255,.5);font-size:.9rem}",
+    js: "document.querySelectorAll('.sidebar-link').forEach(link=>{\n  link.addEventListener('click', e=>{\n    e.preventDefault();\n    document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));\n    link.classList.add('active');\n  });\n});" },
+  { name: 'Card Grid Dashboard', emoji: '📊',
+    html: '<div class="dashboard-grid">\n  <div class="card stat-card">\n    <div class="stat-emoji">👥</div>\n    <div class="stat-value">12,847</div>\n    <div class="stat-label">Total Users</div>\n  </div>\n  <div class="card stat-card">\n    <div class="stat-emoji">💰</div>\n    <div class="stat-value">$48,293</div>\n    <div class="stat-label">Revenue</div>\n  </div>\n  <div class="card stat-card">\n    <div class="stat-emoji">📦</div>\n    <div class="stat-value">3,842</div>\n    <div class="stat-label">Orders</div>\n  </div>\n  <div class="card stat-card">\n    <div class="stat-emoji">📈</div>\n    <div class="stat-value">+24.5%</div>\n    <div class="stat-label">Growth</div>\n  </div>\n  <div class="card wide-card">\n    <h3>Recent Activity</h3>\n    <div class="activity-list">\n      <div class="activity-item">✅ New user signed up</div>\n      <div class="activity-item">💳 Payment processed — $249</div>\n      <div class="activity-item">📤 Report exported</div>\n    </div>\n  </div>\n  <div class="card">\n    <h3>Quick Actions</h3>\n    <button class="action-btn">+ Add User</button>\n    <button class="action-btn secondary">Generate Report</button>\n  </div>\n</div>',
+    css: "body{margin:0;padding:2rem;font-family:'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0}.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;max-width:900px;margin:0 auto}.card{padding:1.5rem;border-radius:1rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);transition:transform .2s}.card:hover{transform:translateY(-2px)}.wide-card{grid-column:1/-1}.stat-card{text-align:center}.stat-emoji{font-size:1.75rem;margin-bottom:.5rem}.stat-value{font-size:1.5rem;font-weight:800;color:#fff}.stat-label{font-size:.75rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.05em;margin-top:.25rem}h3{margin:0 0 1rem;font-size:.9rem;color:rgba(255,255,255,.7)}.activity-list{display:flex;flex-direction:column;gap:.5rem}.activity-item{padding:.5rem .75rem;border-radius:.5rem;font-size:.8rem;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04)}.action-btn{width:100%;padding:.6rem;border:none;border-radius:.5rem;margin-bottom:.5rem;font-size:.8rem;font-weight:600;cursor:pointer;background:linear-gradient(135deg,#2D79FF,#5B9BFF);color:#fff;transition:all .2s}.action-btn:hover{transform:scale(1.02);box-shadow:0 4px 16px rgba(45,121,255,.3)}.action-btn.secondary{background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.08)}.action-btn.secondary:hover{background:rgba(255,255,255,.08);color:#fff}",
+    js: "" },
+  { name: 'Landing Page', emoji: '🚀',
+    html: '<header class="landing-header">\n  <nav class="landing-nav">\n    <div class="nav-logo">🚀 Brand</div>\n    <div class="nav-links">\n      <a href="#">Features</a>\n      <a href="#">Pricing</a>\n      <a href="#">About</a>\n      <button class="cta-btn-sm">Get Started</button>\n    </div>\n  </nav>\n</header>\n<section class="hero-section">\n  <h1 class="hero-title">Build something <span class="gradient-text">amazing</span></h1>\n  <p class="hero-desc">The fastest way to ship beautiful products. Start building today.</p>\n  <div class="hero-actions">\n    <button class="cta-btn">Get Started Free</button>\n    <button class="cta-btn outline">Live Demo ▸</button>\n  </div>\n</section>\n<section class="features-section">\n  <div class="feature-card">\n    <div class="feature-icon">⚡</div>\n    <h3>Lightning Fast</h3>\n    <p>Sub-second load times with edge computing.</p>\n  </div>\n  <div class="feature-card">\n    <div class="feature-icon">🔒</div>\n    <h3>Secure by Default</h3>\n    <p>Enterprise-grade security built-in.</p>\n  </div>\n  <div class="feature-card">\n    <div class="feature-icon">🎨</div>\n    <h3>Beautiful UI</h3>\n    <p>Stunning components ready to use.</p>\n  </div>\n</section>',
+    css: "body{margin:0;font-family:'Segoe UI',sans-serif;background:#0a0a1a;color:#e2e8f0}.landing-header{position:sticky;top:0;backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06);z-index:10}.landing-nav{display:flex;align-items:center;justify-content:space-between;max-width:1000px;margin:0 auto;padding:.75rem 2rem}.nav-logo{font-size:1.1rem;font-weight:800;color:#fff}.nav-links{display:flex;align-items:center;gap:1.5rem}.nav-links a{color:rgba(255,255,255,.5);text-decoration:none;font-size:.85rem;transition:color .2s}.nav-links a:hover{color:#fff}.cta-btn-sm{padding:.4rem 1rem;border:none;border-radius:.5rem;background:linear-gradient(135deg,#2D79FF,#5B9BFF);color:#fff;font-size:.8rem;font-weight:600;cursor:pointer}.hero-section{text-align:center;padding:6rem 2rem 4rem;max-width:700px;margin:0 auto}.hero-title{font-size:3rem;font-weight:900;line-height:1.1;margin:0 0 1rem;color:#fff}.gradient-text{background:linear-gradient(135deg,#2D79FF,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.hero-desc{font-size:1.1rem;color:rgba(255,255,255,.5);margin:0 0 2rem;line-height:1.6}.hero-actions{display:flex;gap:.75rem;justify-content:center}.cta-btn{padding:.75rem 2rem;border:none;border-radius:.75rem;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s;background:linear-gradient(135deg,#2D79FF,#5B9BFF);color:#fff;box-shadow:0 4px 20px rgba(45,121,255,.25)}.cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(45,121,255,.35)}.cta-btn.outline{background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);box-shadow:none}.cta-btn.outline:hover{border-color:rgba(255,255,255,.3);color:#fff}.features-section{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;max-width:900px;margin:0 auto;padding:2rem}.feature-card{padding:2rem;border-radius:1rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);text-align:center;transition:transform .2s}.feature-card:hover{transform:translateY(-4px)}.feature-icon{font-size:2rem;margin-bottom:.75rem}h3{font-size:1rem;margin:0 0 .5rem;color:#fff}.feature-card p{font-size:.8rem;color:rgba(255,255,255,.45);margin:0;line-height:1.5}",
+    js: "" },
+  { name: 'Masonry Gallery', emoji: '🖼️',
+    html: '<h2 class="gallery-title">Photo Gallery</h2>\n<div class="masonry">\n  <div class="masonry-item tall"><img src="https://picsum.photos/400/600?random=1" alt="" /></div>\n  <div class="masonry-item"><img src="https://picsum.photos/400/300?random=2" alt="" /></div>\n  <div class="masonry-item"><img src="https://picsum.photos/400/350?random=3" alt="" /></div>\n  <div class="masonry-item tall"><img src="https://picsum.photos/400/500?random=4" alt="" /></div>\n  <div class="masonry-item"><img src="https://picsum.photos/400/300?random=5" alt="" /></div>\n  <div class="masonry-item"><img src="https://picsum.photos/400/400?random=6" alt="" /></div>\n  <div class="masonry-item tall"><img src="https://picsum.photos/400/550?random=7" alt="" /></div>\n  <div class="masonry-item"><img src="https://picsum.photos/400/350?random=8" alt="" /></div>\n</div>',
+    css: "body{margin:0;padding:2rem;font-family:'Segoe UI',sans-serif;background:#0a0a1a;color:#e2e8f0}.gallery-title{text-align:center;font-size:1.5rem;margin:0 0 2rem;color:#fff}.masonry{columns:3;column-gap:1rem;max-width:900px;margin:0 auto}.masonry-item{break-inside:avoid;margin-bottom:1rem;border-radius:.75rem;overflow:hidden;position:relative;cursor:pointer;transition:transform .3s}.masonry-item:hover{transform:scale(1.02)}.masonry-item img{width:100%;display:block;transition:filter .3s}.masonry-item:hover img{filter:brightness(1.1)}@media(max-width:768px){.masonry{columns:2}}@media(max-width:480px){.masonry{columns:1}}",
+    js: "document.querySelectorAll('.masonry-item').forEach(item=>{\n  item.addEventListener('click',()=>{\n    item.style.transform='scale(0.95)';\n    setTimeout(()=>item.style.transform='',300);\n  });\n});" },
+  { name: 'Pricing Table', emoji: '💎',
+    html: '<div class="pricing-container">\n  <h2>Choose Your Plan</h2>\n  <div class="pricing-grid">\n    <div class="pricing-card">\n      <div class="plan-name">Starter</div>\n      <div class="plan-price">$9<span>/mo</span></div>\n      <ul class="plan-features">\n        <li>✓ 5 Projects</li>\n        <li>✓ 10GB Storage</li>\n        <li>✓ Email Support</li>\n        <li class="disabled">✗ Analytics</li>\n      </ul>\n      <button class="plan-btn">Get Started</button>\n    </div>\n    <div class="pricing-card featured">\n      <div class="plan-badge">Popular</div>\n      <div class="plan-name">Pro</div>\n      <div class="plan-price">$29<span>/mo</span></div>\n      <ul class="plan-features">\n        <li>✓ Unlimited Projects</li>\n        <li>✓ 100GB Storage</li>\n        <li>✓ Priority Support</li>\n        <li>✓ Advanced Analytics</li>\n      </ul>\n      <button class="plan-btn featured">Get Started</button>\n    </div>\n    <div class="pricing-card">\n      <div class="plan-name">Enterprise</div>\n      <div class="plan-price">$99<span>/mo</span></div>\n      <ul class="plan-features">\n        <li>✓ Everything in Pro</li>\n        <li>✓ 1TB Storage</li>\n        <li>✓ 24/7 Phone Support</li>\n        <li>✓ Custom Integrations</li>\n      </ul>\n      <button class="plan-btn">Contact Sales</button>\n    </div>\n  </div>\n</div>',
+    css: "body{margin:0;padding:3rem 1.5rem;font-family:'Segoe UI',sans-serif;background:#0a0a1a;color:#e2e8f0}.pricing-container{max-width:900px;margin:0 auto;text-align:center}h2{font-size:1.75rem;margin:0 0 2.5rem;color:#fff}.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;align-items:start}.pricing-card{padding:2rem;border-radius:1rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);position:relative;transition:transform .3s}.pricing-card:hover{transform:translateY(-4px)}.pricing-card.featured{background:rgba(45,121,255,.06);border-color:rgba(45,121,255,.2);box-shadow:0 8px 32px rgba(45,121,255,.1)}.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);padding:.25rem 1rem;border-radius:9999px;font-size:.65rem;font-weight:700;background:linear-gradient(135deg,#2D79FF,#5B9BFF);color:#fff;text-transform:uppercase;letter-spacing:.05em}.plan-name{font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.5);margin-bottom:.5rem}.plan-price{font-size:2.5rem;font-weight:900;color:#fff;margin-bottom:1.5rem}.plan-price span{font-size:.9rem;font-weight:400;color:rgba(255,255,255,.35)}.plan-features{list-style:none;padding:0;margin:0 0 1.5rem;text-align:left}.plan-features li{padding:.5rem 0;font-size:.8rem;color:rgba(255,255,255,.6);border-bottom:1px solid rgba(255,255,255,.04)}.plan-features li.disabled{color:rgba(255,255,255,.2)}.plan-btn{width:100%;padding:.7rem;border:1px solid rgba(255,255,255,.1);border-radius:.6rem;background:transparent;color:rgba(255,255,255,.6);font-weight:600;font-size:.85rem;cursor:pointer;transition:all .2s}.plan-btn:hover{background:rgba(255,255,255,.05);color:#fff}.plan-btn.featured{background:linear-gradient(135deg,#2D79FF,#5B9BFF);color:#fff;border:none;box-shadow:0 4px 16px rgba(45,121,255,.25)}.plan-btn.featured:hover{box-shadow:0 8px 24px rgba(45,121,255,.35)}",
+    js: "document.querySelectorAll('.plan-btn').forEach(btn=>{\n  btn.addEventListener('click',function(){\n    this.textContent='✓ Selected!';\n    this.style.background='linear-gradient(135deg,#22c55e,#16a34a)';\n    setTimeout(()=>{this.textContent=this.classList.contains('featured')?'Get Started':'Contact Sales';this.style.background='';},1500);\n  });\n});" },
+];
+
+/* ═══════════════════════════════════════════════════════════
+   ASSETS PANEL — Quick image/font/icon insertion
+   ═══════════════════════════════════════════════════════════ */
+const ASSET_CATEGORIES = {
+  images: [
+    { name: '300×200', code: '<img src="https://picsum.photos/300/200" alt="Placeholder" />', emoji: '🖼️' },
+    { name: '400×300', code: '<img src="https://picsum.photos/400/300" alt="Placeholder" />', emoji: '📷' },
+    { name: '800×400 Banner', code: '<img src="https://picsum.photos/800/400" alt="Banner" />', emoji: '🏞️' },
+    { name: '150×150 Avatar', code: '<img src="https://picsum.photos/150/150" alt="Avatar" style="border-radius:50%;" />', emoji: '👤' },
+    { name: 'SVG Pattern', code: '<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">\n  <defs>\n    <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">\n      <circle cx="10" cy="10" r="2" fill="rgba(255,255,255,0.15)" />\n    </pattern>\n  </defs>\n  <rect width="100%" height="100%" fill="url(#dots)" />\n</svg>', emoji: '🔵' },
+  ],
+  fonts: [
+    { name: 'Inter', code: '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");\nbody { font-family: "Inter", sans-serif; }', emoji: '🔤', type: 'css' },
+    { name: 'Poppins', code: '@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap");\nbody { font-family: "Poppins", sans-serif; }', emoji: '🔡', type: 'css' },
+    { name: 'JetBrains Mono', code: '@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap");\ncode, pre { font-family: "JetBrains Mono", monospace; }', emoji: '💻', type: 'css' },
+    { name: 'Playfair Display', code: '@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&display=swap");\nh1, h2, h3 { font-family: "Playfair Display", serif; }', emoji: '✍️', type: 'css' },
+    { name: 'Space Grotesk', code: '@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");\nbody { font-family: "Space Grotesk", sans-serif; }', emoji: '🚀', type: 'css' },
+  ],
+  colors: [
+    { name: 'Blue Gradient', code: 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);', emoji: '🔵', type: 'css' },
+    { name: 'Sunset Gradient', code: 'background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);', emoji: '🌅', type: 'css' },
+    { name: 'Ocean Gradient', code: 'background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);', emoji: '🌊', type: 'css' },
+    { name: 'Emerald Gradient', code: 'background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);', emoji: '💚', type: 'css' },
+    { name: 'Dark Theme BG', code: 'background: #0f172a;\ncolor: #e2e8f0;', emoji: '🌙', type: 'css' },
+    { name: 'Glassmorphism BG', code: 'background: rgba(255, 255, 255, 0.05);\nbackdrop-filter: blur(20px);\nborder: 1px solid rgba(255, 255, 255, 0.1);', emoji: '🔮', type: 'css' },
+  ],
+};
+
+/* ═══════════════════════════════════════════════════════════
+   EMMET-LIKE ABBREVIATION EXPANSIONS
+   ═══════════════════════════════════════════════════════════ */
+function expandEmmetAbbreviation(abbr) {
+  if (!abbr || !abbr.trim()) return null;
+  const s = abbr.trim();
+
+  // Tag with id: div#main → <div id="main"></div>
+  const idMatch = s.match(/^(\w+)#([\w-]+)$/);
+  if (idMatch) return `<${idMatch[1]} id="${idMatch[2]}">\n  \n</${idMatch[1]}>`;
+
+  // Tag with class: div.container → <div class="container"></div>
+  const classMatch = s.match(/^(\w+)\.([\w.-]+)$/);
+  if (classMatch) {
+    const classes = classMatch[2].replace(/\./g, ' ');
+    return `<${classMatch[1]} class="${classes}">\n  \n</${classMatch[1]}>`;
+  }
+
+  // Multiplication: li*5 → 5 <li></li>
+  const mulMatch = s.match(/^(\w+)\*(\d+)$/);
+  if (mulMatch) {
+    const tag = mulMatch[1];
+    const count = Math.min(parseInt(mulMatch[2], 10), 20);
+    return Array.from({ length: count }, (_, i) => `<${tag}>Item ${i + 1}</${tag}>`).join('\n');
+  }
+
+  // Child combinator: ul>li*3 → <ul><li></li>×3</ul>
+  const childMulMatch = s.match(/^(\w+)>(\w+)\*(\d+)$/);
+  if (childMulMatch) {
+    const parent = childMulMatch[1];
+    const child = childMulMatch[2];
+    const count = Math.min(parseInt(childMulMatch[3], 10), 20);
+    const children = Array.from({ length: count }, (_, i) => `  <${child}>Item ${i + 1}</${child}>`).join('\n');
+    return `<${parent}>\n${children}\n</${parent}>`;
+  }
+
+  // Simple child combinator: div>p → <div><p></p></div>
+  const childMatch = s.match(/^(\w+)>(\w+)$/);
+  if (childMatch) return `<${childMatch[1]}>\n  <${childMatch[2]}></${childMatch[2]}>\n</${childMatch[1]}>`;
+
+  // Sibling combinator: h1+p+p → <h1></h1>\n<p></p>\n<p></p>
+  if (s.includes('+') && /^[\w+]+$/.test(s)) {
+    return s.split('+').map(tag => `<${tag}></${tag}>`).join('\n');
+  }
+
+  // Tag with class and multiplication: div.card*3
+  const classMulMatch = s.match(/^(\w+)\.([\w.-]+)\*(\d+)$/);
+  if (classMulMatch) {
+    const tag = classMulMatch[1];
+    const classes = classMulMatch[2].replace(/\./g, ' ');
+    const count = Math.min(parseInt(classMulMatch[3], 10), 20);
+    return Array.from({ length: count }, () => `<${tag} class="${classes}"></${tag}>`).join('\n');
+  }
+
+  // Common abbreviations
+  const COMMON = {
+    '!': '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Document</title>\n</head>\n<body>\n  \n</body>\n</html>',
+    'lorem': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.',
+    'lorem:short': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    'link:css': '<link rel="stylesheet" href="style.css" />',
+    'script:js': '<script src="script.js"></script>',
+    'viewport': '<meta name="viewport" content="width=device-width, initial-scale=1.0" />',
+    'img:placeholder': '<img src="https://picsum.photos/400/300" alt="Placeholder" />',
+    'btn': '<button type="button">Click me</button>',
+    'input:text': '<input type="text" name="" placeholder="" />',
+    'input:email': '<input type="email" name="email" placeholder="Email" />',
+    'input:password': '<input type="password" name="password" placeholder="Password" />',
+  };
+  if (COMMON[s]) return COMMON[s];
+
+  return null;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HEAD CONFIGURATION DEFAULTS
+   ═══════════════════════════════════════════════════════════ */
+const GOOGLE_FONTS_LIST = [
+  'Inter', 'Roboto', 'Open Sans', 'Poppins', 'Montserrat', 'Lato',
+  'Oswald', 'Raleway', 'Nunito', 'Playfair Display', 'JetBrains Mono',
+  'Space Grotesk', 'DM Sans', 'Outfit', 'Plus Jakarta Sans',
+];
 
 /* ═══════════════════════════════════════════════════════════
    SAMPLES
@@ -192,22 +334,44 @@ export default function FrontendPlayground() {
   const [lastSaved, setLastSaved] = useState(null);
   const [undoStack, setUndoStack] = useState({ html: [], css: [], js: [] });
   const [redoStack, setRedoStack] = useState({ html: [], css: [], js: [] });
+  const [showLayoutTemplates, setShowLayoutTemplates] = useState(false);
+  const [showAssetsPanel, setShowAssetsPanel] = useState(false);
+  const [assetCategory, setAssetCategory] = useState('images');
+  const [showEmmetBar, setShowEmmetBar] = useState(false);
+  const [emmetInput, setEmmetInput] = useState('');
+  const [emmetPreview, setEmmetPreview] = useState('');
+  const [splitView, setSplitView] = useLocalStorage('playground-splitview', false);
+  const [showHeadConfig, setShowHeadConfig] = useState(false);
+  const [headConfig, setHeadConfig] = useLocalStorage('playground-head', { googleFonts: [], customMeta: '', favicon: '' });
+  const [screenshotting, setScreenshotting] = useState(false);
   const lastPushRef = useRef(0);
   const { copied, copyToClipboard } = useCopyToClipboard();
   const iframeRef = useRef(null), debounceRef = useRef(null), fileInputRef = useRef(null), samplesButtonRef = useRef(null);
+  const layoutButtonRef = useRef(null);
 
   const samplesDropdownPos = useMemo(() => {
     if (!showSamples || !samplesButtonRef.current) return {};
     const rect = samplesButtonRef.current.getBoundingClientRect();
-    const dropdownWidth = 224; // min-width: 14rem
+    const dropdownWidth = 224;
     let left = rect.right - dropdownWidth;
     if (left < 8) left = 8;
-    // Ensure dropdown doesn't go off-screen bottom
-    const maxTop = window.innerHeight - 320; // approx dropdown height
+    const maxTop = window.innerHeight - 320;
     let top = rect.bottom + 6;
     if (top > maxTop) top = maxTop;
     return { position: 'fixed', top, left, zIndex: 9999 };
   }, [showSamples]);
+
+  const layoutDropdownPos = useMemo(() => {
+    if (!showLayoutTemplates || !layoutButtonRef.current) return {};
+    const rect = layoutButtonRef.current.getBoundingClientRect();
+    const dropdownWidth = 256;
+    let left = rect.right - dropdownWidth;
+    if (left < 8) left = 8;
+    const maxTop = window.innerHeight - 400;
+    let top = rect.bottom + 6;
+    if (top > maxTop) top = maxTop;
+    return { position: 'fixed', top, left, zIndex: 9999 };
+  }, [showLayoutTemplates]);
 
   const pushUndo = useCallback((tab, oldVal) => { const now = Date.now(); if (now - lastPushRef.current < 500) return; lastPushRef.current = now; setUndoStack(prev => ({ ...prev, [tab]: [...prev[tab].slice(-50), oldVal] })); setRedoStack(prev => ({ ...prev, [tab]: [] })); }, []);
   const handleUndo = useCallback(() => { const tab = activeTab, stack = undoStack[tab]; if (!stack.length) return; const cur = tab === 'html' ? html : tab === 'css' ? css : js; setUndoStack(s => ({ ...s, [tab]: s[tab].slice(0, -1) })); setRedoStack(s => ({ ...s, [tab]: [...s[tab], cur] })); const prev = stack[stack.length - 1]; if (tab === 'html') setHtml(prev); else if (tab === 'css') setCss(prev); else setJs(prev); }, [activeTab, undoStack, html, css, js, setHtml, setCss, setJs]);
@@ -224,6 +388,23 @@ export default function FrontendPlayground() {
     return { cssLinks: cssL, jsLinks: jsL };
   }, [enabledCdns]);
 
+  const headExtras = useMemo(() => {
+    let extra = '';
+    if (headConfig.googleFonts && headConfig.googleFonts.length > 0) {
+      const families = headConfig.googleFonts.map(f => f.replace(/ /g, '+')).join('&family=');
+      extra += `\n  <link rel="preconnect" href="https://fonts.googleapis.com">`;
+      extra += `\n  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>`;
+      extra += `\n  <link href="https://fonts.googleapis.com/css2?family=${families}:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">`;
+    }
+    if (headConfig.favicon) {
+      extra += `\n  <link rel="icon" href="${headConfig.favicon}">`;
+    }
+    if (headConfig.customMeta) {
+      extra += '\n  ' + headConfig.customMeta;
+    }
+    return extra;
+  }, [headConfig]);
+
   const previewBg = previewTheme === 'dark' ? '#1a1a2e' : '#fff';
   const previewHTML = useMemo(() => {
     const bodyBg = previewTheme === 'dark' ? 'background:#1a1a2e;color:#e2e8f0;' : '';
@@ -232,7 +413,7 @@ export default function FrontendPlayground() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Preview</title>${cdnLinks.cssLinks ? '\n  ' + cdnLinks.cssLinks : ''}
+  <title>Preview</title>${headExtras}${cdnLinks.cssLinks ? '\n  ' + cdnLinks.cssLinks : ''}
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html { height: 100%; }
@@ -257,10 +438,43 @@ export default function FrontendPlayground() {
   <\/script>
 </body>
 </html>`;
-  }, [html, css, js, cdnLinks, previewTheme]);
+  }, [html, css, js, cdnLinks, previewTheme, headExtras]);
+
+  const previewBlobUrl = useMemo(() => {
+    try {
+      const blob = new Blob([previewHTML], { type: 'text/html;charset=utf-8' });
+      return URL.createObjectURL(blob);
+    } catch {
+      return null;
+    }
+  }, [previewHTML]);
+
+  useEffect(() => {
+    return () => {
+      if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl);
+    };
+  }, [previewBlobUrl]);
 
   useEffect(() => { const h = (e) => { if (e.data?.type === 'console') { setConsoleOutput(prev => [...prev, { level: e.data.level, args: e.data.args, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }].slice(-200)); if (e.data.level === 'error') setShowConsole(true); } }; window.addEventListener('message', h); return () => window.removeEventListener('message', h); }, []);
   useEffect(() => { if (!autoRun) return; if (debounceRef.current) clearTimeout(debounceRef.current); debounceRef.current = setTimeout(() => setPreviewKey(k => k + 1), 600); return () => clearTimeout(debounceRef.current); }, [html, css, js, autoRun]);
+
+  // Load shared URL on mount
+  useEffect(() => {
+    try {
+      const hash = window.location.hash;
+      if (hash.startsWith('#playground=')) {
+        const encoded = hash.slice('#playground='.length);
+        const data = JSON.parse(decodeURIComponent(atob(encoded)));
+        if (data.h !== undefined) setHtml(data.h);
+        if (data.c !== undefined) setCss(data.c);
+        if (data.j !== undefined) setJs(data.j);
+        if (data.cdn) setEnabledCdns(data.cdn);
+        if (data.head) setHeadConfig(data.head);
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    } catch (e) { /* ignore invalid hash */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const runPreview = useCallback(() => { setConsoleOutput([]); setPreviewKey(k => k + 1); }, []);
   const handleReset = useCallback(() => { setHtml(''); setCss(''); setJs(''); setConsoleOutput([]); setPreviewKey(k => k + 1); setUndoStack({ html: [], css: [], js: [] }); setRedoStack({ html: [], css: [], js: [] }); }, [setHtml, setCss, setJs]);
@@ -276,6 +490,15 @@ export default function FrontendPlayground() {
       .map(n => CDN_LIBRARIES.find(l => l.name === n))
       .map(l => `  <script src="${l.url}"><\/script>`)
       .join('\n');
+    let headLines = [];
+    if (headConfig.googleFonts?.length > 0) {
+      const families = headConfig.googleFonts.map(f => f.replace(/ /g, '+')).join('&family=');
+      headLines.push(`  <link rel="preconnect" href="https://fonts.googleapis.com">`);
+      headLines.push(`  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>`);
+      headLines.push(`  <link href="https://fonts.googleapis.com/css2?family=${families}:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">`);
+    }
+    if (headConfig.favicon) headLines.push(`  <link rel="icon" href="${headConfig.favicon}">`);
+    if (headConfig.customMeta) headLines.push('  ' + headConfig.customMeta);
     return [
       '<!DOCTYPE html>',
       '<html lang="en">',
@@ -283,6 +506,7 @@ export default function FrontendPlayground() {
       '  <meta charset="UTF-8">',
       '  <meta name="viewport" content="width=device-width, initial-scale=1.0">',
       '  <title>Playground</title>',
+      ...headLines,
       cc || null,
       '  <style>',
       css.split('\n').map(l => '    ' + l).join('\n'),
@@ -297,12 +521,81 @@ export default function FrontendPlayground() {
       '</body>',
       '</html>',
     ].filter(Boolean).join('\n');
-  }, [html, css, js, enabledCdns]);
+  }, [html, css, js, enabledCdns, headConfig]);
   const handleExport = useCallback(() => { try { const blob = new Blob([getFullCode()], { type: 'text/html' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `playground-${Date.now()}.html`; a.click(); URL.revokeObjectURL(url); } catch (err) { console.error('Export failed:', err); } }, [getFullCode]);
   const handleFileUpload = useCallback((e) => { const file = e.target.files[0]; if (!file) return; try { const reader = new FileReader(); reader.onload = (ev) => { try { const c = ev.target.result || ''; const sm = c.match(/<style[^>]*>([\s\S]*?)<\/style>/i); const scm = c.match(/<script[^>]*>([\s\S]*?)<\/script>/i); const bm = c.match(/<body[^>]*>([\s\S]*?)<\/body>/i); if (bm) setHtml(bm[1].replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '').replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '').trim()); else setHtml(c.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '').replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '').replace(/<!DOCTYPE[^>]*>/i, '').replace(/<html[^>]*>/i, '').replace(/<\/html>/i, '').replace(/<head[^>]*>[\s\S]*?<\/head>/gi, '').replace(/<body[^>]*>/i, '').replace(/<\/body>/i, '').trim()); if (sm) setCss(sm[1].trim()); if (scm) setJs(scm[1].trim()); setConsoleOutput([]); } catch (err) { console.error('Failed to parse uploaded HTML file:', err); } }; reader.onerror = () => { console.error('Failed to read file:', reader.error?.message || 'Unknown error'); }; reader.readAsText(file); } catch (err) { console.error('File upload failed:', err); } e.target.value = ''; }, [setHtml, setCss, setJs]);
   const handleFormat = useCallback(() => { setIsFormatting(true); setTimeout(() => { try { if (activeTab === 'html') setHtmlTracked(formatHTML(html)); else if (activeTab === 'css') setCssTracked(formatCSS(css)); else setJsTracked(formatJS(js)); } catch (err) { console.error('Code formatting failed:', err); } setIsFormatting(false); }, 150); }, [activeTab, html, css, js, setHtmlTracked, setCssTracked, setJsTracked]);
   const handleInsertSnippet = useCallback((code) => { if (activeTab === 'html') setHtmlTracked(html ? html + '\n' + code : code); else if (activeTab === 'css') setCssTracked(css ? css + '\n\n' + code : code); else setJsTracked(js ? js + '\n\n' + code : code); setShowSnippets(false); }, [activeTab, html, css, js, setHtmlTracked, setCssTracked, setJsTracked]);
   const toggleCdn = useCallback((name) => { setEnabledCdns(prev => prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]); }, [setEnabledCdns]);
+
+  const handleLoadLayout = useCallback((template) => { setHtml(template.html); setCss(template.css); setJs(template.js); setConsoleOutput([]); setShowLayoutTemplates(false); }, [setHtml, setCss, setJs]);
+
+  const handleInsertAsset = useCallback((asset) => {
+    const target = asset.type === 'css' ? 'css' : 'html';
+    if (target === 'css') {
+      setCssTracked(css ? css + '\n\n' + asset.code : asset.code);
+      setActiveTab('css');
+    } else {
+      setHtmlTracked(html ? html + '\n' + asset.code : asset.code);
+      setActiveTab('html');
+    }
+  }, [html, css, setHtmlTracked, setCssTracked]);
+
+  const handleEmmetExpand = useCallback(() => {
+    const result = expandEmmetAbbreviation(emmetInput);
+    if (result) {
+      setHtmlTracked(html ? html + '\n' + result : result);
+      setActiveTab('html');
+      setEmmetInput('');
+      setEmmetPreview('');
+    }
+  }, [emmetInput, html, setHtmlTracked]);
+
+  const handleEmmetInputChange = useCallback((val) => {
+    setEmmetInput(val);
+    const preview = expandEmmetAbbreviation(val);
+    setEmmetPreview(preview || '');
+  }, []);
+
+  const handleScreenshot = useCallback(async () => {
+    if (!iframeRef.current || screenshotting) return;
+    setScreenshotting(true);
+    try {
+      const iframe = iframeRef.current;
+      const rect = iframe.getBoundingClientRect();
+      // Open print-ready window with preview content
+      const w = window.open('', '_blank', `width=${Math.round(rect.width)},height=${Math.round(rect.height)}`);
+      if (w) {
+        w.document.write(previewHTML);
+        w.document.close();
+        w.focus();
+        setTimeout(() => {
+          try { w.print(); } catch (e) { console.log('Print dialog opened'); }
+        }, 500);
+      }
+    } catch (err) {
+      console.error('Screenshot failed:', err);
+    }
+    setScreenshotting(false);
+  }, [screenshotting, previewHTML]);
+
+  const handleShareUrl = useCallback(() => {
+    try {
+      const data = JSON.stringify({ h: html, c: css, j: js, cdn: enabledCdns, head: headConfig });
+      const compressed = btoa(encodeURIComponent(data));
+      const url = `${window.location.origin}${window.location.pathname}#playground=${compressed}`;
+      copyToClipboard(url);
+    } catch (err) {
+      console.error('Share URL generation failed:', err);
+    }
+  }, [html, css, js, enabledCdns, headConfig, copyToClipboard]);
+
+  const toggleGoogleFont = useCallback((fontName) => {
+    setHeadConfig(prev => {
+      const fonts = prev.googleFonts || [];
+      return { ...prev, googleFonts: fonts.includes(fontName) ? fonts.filter(f => f !== fontName) : [...fonts, fontName] };
+    });
+  }, [setHeadConfig]);
 
   const TABS = [{ id: 'html', label: 'HTML', icon: Code, color: '#e34c26', lines: html.split('\n').filter(Boolean).length }, { id: 'css', label: 'CSS', icon: Palette, color: '#2965f1', lines: css.split('\n').filter(Boolean).length }, { id: 'js', label: 'JS', icon: Braces, color: '#f0db4f', lines: js.split('\n').filter(Boolean).length }];
   const currentCode = activeTab === 'html' ? html : activeTab === 'css' ? css : js;
@@ -326,6 +619,8 @@ export default function FrontendPlayground() {
               Write HTML, CSS & JS with live preview
               <span className="playground-badge-intellisense"><Zap size={8} /> CodeMirror</span>
               {enabledCdns.length > 0 && <span className="playground-badge-cdn"><Library size={8} /> {enabledCdns.length} CDN</span>}
+              {headConfig.googleFonts?.length > 0 && <span className="playground-badge-cdn"><Type size={8} /> {headConfig.googleFonts.length} Font{headConfig.googleFonts.length > 1 ? 's' : ''}</span>}
+              {splitView && <span className="playground-badge-intellisense"><LayoutGrid size={8} /> Split</span>}
             </p>
           </div>
         </div>
@@ -376,9 +671,32 @@ export default function FrontendPlayground() {
               document.body
             )}
           </div>
+          <div className="relative" ref={layoutButtonRef}>
+            <button onClick={() => setShowLayoutTemplates(!showLayoutTemplates)} className="btn btn-sm btn-ghost gap-1">
+              <PanelTop size={13} /><span className="hidden sm:inline">Layouts</span>
+              <ChevronDown size={11} className={`transition-transform duration-200 ${showLayoutTemplates ? 'rotate-180' : ''}`} />
+            </button>
+            {showLayoutTemplates && createPortal(
+              <AnimatePresence>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0" style={{ zIndex: 9998 }} onClick={() => setShowLayoutTemplates(false)} />
+                <motion.div initial={{ opacity: 0, y: -6, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6, scale: 0.95 }} transition={{ duration: 0.15 }} className="playground-dropdown-fixed" style={layoutDropdownPos}>
+                  <div className="playground-dropdown-header">Layout Templates</div>
+                  {LAYOUT_TEMPLATES.map(t => (
+                    <button key={t.name} onClick={() => handleLoadLayout(t)} className="playground-dropdown-item">
+                      <span>{t.emoji}</span><span>{t.name}</span>
+                    </button>
+                  ))}
+                </motion.div>
+              </AnimatePresence>,
+              document.body
+            )}
+          </div>
           <button onClick={() => copyToClipboard(getFullCode())} className="btn btn-sm btn-ghost gap-1">
             {copied ? <Check size={13} className="text-success" /> : <Copy size={13} />}
             <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy'}</span>
+          </button>
+          <button onClick={handleShareUrl} className="btn btn-sm btn-ghost gap-1" title="Copy shareable URL">
+            <Share2 size={13} /><span className="hidden sm:inline">Share</span>
           </button>
           <button onClick={handleExport} className="btn btn-sm btn-ghost gap-1">
             <Download size={13} /><span className="hidden sm:inline">Export</span>
@@ -431,6 +749,21 @@ export default function FrontendPlayground() {
             <Library size={12} /><span className="hidden sm:inline">CDN</span>
             {enabledCdns.length > 0 && <span className="playground-cdn-count">{enabledCdns.length}</span>}
           </button>
+          <button onClick={() => setShowAssetsPanel(!showAssetsPanel)} className={`playground-tool-btn ${showAssetsPanel ? 'text-primary' : ''}`} title="Quick asset insertion">
+            <Image size={12} /><span className="hidden sm:inline">Assets</span>
+          </button>
+          <div className="playground-divider-v-sm" />
+          <button onClick={() => setShowEmmetBar(!showEmmetBar)} className={`playground-tool-btn ${showEmmetBar ? 'text-primary' : ''}`} title="Emmet abbreviation expander">
+            <Zap size={12} /><span className="hidden sm:inline">Emmet</span>
+          </button>
+          <button onClick={() => setShowHeadConfig(!showHeadConfig)} className={`playground-tool-btn ${showHeadConfig ? 'text-primary' : ''}`} title="Configure head: fonts, meta tags">
+            <Settings2 size={12} /><span className="hidden sm:inline">Head</span>
+            {(headConfig.googleFonts?.length > 0 || headConfig.customMeta) && <span className="playground-cdn-count">{(headConfig.googleFonts?.length || 0) + (headConfig.customMeta ? 1 : 0)}</span>}
+          </button>
+          <button onClick={() => setSplitView(!splitView)} className={`playground-tool-btn ${splitView ? 'text-primary' : ''}`} title="Split editor: show all 3 panes">
+            <LayoutGrid size={12} /><span className="hidden sm:inline">Split</span>
+          </button>
+          <div className="playground-divider-v-sm" />
           <button onClick={() => setShowShortcuts(true)} className="playground-tool-btn" title="Keyboard shortcuts">
             <Keyboard size={12} /><span className="hidden sm:inline">Keys</span>
           </button>
@@ -508,6 +841,126 @@ export default function FrontendPlayground() {
         )}
       </AnimatePresence>
 
+      {/* ── Assets Panel ── */}
+      <AnimatePresence>
+        {showAssetsPanel && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }} className="overflow-hidden">
+            <div className="playground-cdn-panel">
+              <div className="playground-cdn-panel-header">
+                <div className="flex items-center gap-2">
+                  <Image size={13} className="text-primary" />
+                  <span className="text-xs font-bold">Quick Assets</span>
+                  <div className="playground-asset-tabs">
+                    {[{ id: 'images', label: '🖼️ Images' }, { id: 'fonts', label: '🔤 Fonts' }, { id: 'colors', label: '🎨 Colors' }].map(cat => (
+                      <button key={cat.id} onClick={() => setAssetCategory(cat.id)} className={`playground-asset-tab ${assetCategory === cat.id ? 'active' : ''}`}>{cat.label}</button>
+                    ))}
+                  </div>
+                </div>
+                <button onClick={() => setShowAssetsPanel(false)} className="playground-find-close"><X size={12} /></button>
+              </div>
+              <div className="playground-snippet-grid">
+                {(ASSET_CATEGORIES[assetCategory] || []).map(asset => (
+                  <button key={asset.name} onClick={() => handleInsertAsset(asset)} className="playground-snippet-item" title={`Insert into ${asset.type === 'css' ? 'CSS' : 'HTML'}`}>
+                    <span className="playground-snippet-item-icon">{asset.emoji}</span>
+                    <span className="playground-snippet-item-name">{asset.name}</span>
+                    {asset.type === 'css' && <span className="playground-cdn-item-type css">CSS</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Emmet Abbreviation Bar ── */}
+      <AnimatePresence>
+        {showEmmetBar && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }} className="overflow-hidden">
+            <div className="playground-emmet-bar">
+              <div className="playground-emmet-bar-inner">
+                <Zap size={12} className="text-primary flex-shrink-0" />
+                <input
+                  value={emmetInput}
+                  onChange={e => handleEmmetInputChange(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && emmetPreview) handleEmmetExpand(); if (e.key === 'Escape') setShowEmmetBar(false); }}
+                  placeholder="Type Emmet abbreviation... (e.g. ul>li*5, div.card*3, .container)"
+                  className="playground-emmet-input"
+                  autoFocus
+                />
+                <button onClick={handleEmmetExpand} disabled={!emmetPreview} className="playground-find-btn">Expand</button>
+                <button onClick={() => setShowEmmetBar(false)} className="playground-find-close"><X size={12} /></button>
+              </div>
+              {emmetPreview && (
+                <div className="playground-emmet-preview">
+                  <pre>{emmetPreview}</pre>
+                </div>
+              )}
+              <div className="playground-emmet-hints">
+                <span><kbd>div.cls</kbd> div with class</span>
+                <span><kbd>ul&gt;li*5</kbd> list with 5 items</span>
+                <span><kbd>div#app</kbd> div with id</span>
+                <span><kbd>h1+p+p</kbd> siblings</span>
+                <span><kbd>!</kbd> HTML boilerplate</span>
+                <span><kbd>lorem</kbd> placeholder text</span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Head Configuration Panel ── */}
+      <AnimatePresence>
+        {showHeadConfig && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }} className="overflow-hidden">
+            <div className="playground-cdn-panel">
+              <div className="playground-cdn-panel-header">
+                <div className="flex items-center gap-2">
+                  <Settings2 size={13} className="text-primary" />
+                  <span className="text-xs font-bold">Head Configuration</span>
+                  <span className="playground-cdn-hint">Fonts, meta tags, favicon</span>
+                </div>
+                <button onClick={() => setShowHeadConfig(false)} className="playground-find-close"><X size={12} /></button>
+              </div>
+              <div className="playground-head-config">
+                <div className="playground-head-section">
+                  <div className="playground-head-section-title"><Type size={11} /> Google Fonts</div>
+                  <div className="playground-cdn-grid">
+                    {GOOGLE_FONTS_LIST.map(font => {
+                      const isEnabled = headConfig.googleFonts?.includes(font);
+                      return (
+                        <button key={font} onClick={() => toggleGoogleFont(font)} className={`playground-cdn-item ${isEnabled ? 'active' : ''}`}>
+                          <span className="playground-cdn-item-name" style={{ fontFamily: isEnabled ? `"${font}", sans-serif` : undefined }}>{font}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="playground-head-section">
+                  <div className="playground-head-section-title"><Code size={11} /> Custom Meta Tags</div>
+                  <textarea
+                    value={headConfig.customMeta || ''}
+                    onChange={e => setHeadConfig(prev => ({ ...prev, customMeta: e.target.value }))}
+                    placeholder={'<meta name="description" content="...">\n<meta name="author" content="...">'}
+                    className="playground-head-textarea"
+                    rows={3}
+                  />
+                </div>
+                <div className="playground-head-section">
+                  <div className="playground-head-section-title"><Image size={11} /> Favicon URL</div>
+                  <input
+                    value={headConfig.favicon || ''}
+                    onChange={e => setHeadConfig(prev => ({ ...prev, favicon: e.target.value }))}
+                    placeholder="https://example.com/favicon.ico"
+                    className="playground-find-input"
+                    style={{ padding: '0.375rem 0.625rem', borderRadius: '0.375rem', background: 'color-mix(in oklch, var(--color-base-content) 4%, transparent)', border: '1px solid color-mix(in oklch, var(--color-base-content) 7%, transparent)', width: '100%', fontSize: '0.75rem', fontFamily: "'JetBrains Mono', monospace" }}
+                  />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Workspace ── */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.4 }} className={`playground-workspace ${isVertical ? 'vertical' : ''}`}>
         {/* Editor panel */}
@@ -543,17 +996,52 @@ export default function FrontendPlayground() {
           </AnimatePresence>
 
           {/* Editor area */}
-          <div className={`playground-editor-body ${isVertical ? 'stacked' : ''}`}>
-            <CodeMirrorEditor
-              value={currentCode}
-              onChange={setCurrentCode}
-              language={activeTab}
-              placeholder={activeTab === 'html' ? 'Start typing HTML... (try typing < for tag suggestions)' : activeTab === 'css' ? 'Start typing CSS... (try typing a property name)' : 'Start typing JavaScript... (try clg → console.log)'}
-              wordWrap={wordWrap}
-              onCursorChange={setCursorPos}
-              fontSize={editorFontSize}
-            />
-          </div>
+          {splitView ? (
+            <div className="playground-split-editor">
+              <div className="playground-split-pane">
+                <div className="playground-split-pane-header">
+                  <span className="playground-split-pane-dot" style={{ background: '#e34c26' }} />
+                  <span className="playground-split-pane-label">HTML</span>
+                  <span className="playground-split-pane-lines">{html.split('\n').filter(Boolean).length} ln</span>
+                </div>
+                <div className="playground-split-pane-body">
+                  <CodeMirrorEditor value={html} onChange={setHtmlTracked} language="html" placeholder="HTML..." wordWrap={wordWrap} onCursorChange={activeTab === 'html' ? setCursorPos : undefined} fontSize={editorFontSize} />
+                </div>
+              </div>
+              <div className="playground-split-pane">
+                <div className="playground-split-pane-header">
+                  <span className="playground-split-pane-dot" style={{ background: '#2965f1' }} />
+                  <span className="playground-split-pane-label">CSS</span>
+                  <span className="playground-split-pane-lines">{css.split('\n').filter(Boolean).length} ln</span>
+                </div>
+                <div className="playground-split-pane-body">
+                  <CodeMirrorEditor value={css} onChange={setCssTracked} language="css" placeholder="CSS..." wordWrap={wordWrap} onCursorChange={activeTab === 'css' ? setCursorPos : undefined} fontSize={editorFontSize} />
+                </div>
+              </div>
+              <div className="playground-split-pane">
+                <div className="playground-split-pane-header">
+                  <span className="playground-split-pane-dot" style={{ background: '#f0db4f' }} />
+                  <span className="playground-split-pane-label">JS</span>
+                  <span className="playground-split-pane-lines">{js.split('\n').filter(Boolean).length} ln</span>
+                </div>
+                <div className="playground-split-pane-body">
+                  <CodeMirrorEditor value={js} onChange={setJsTracked} language="js" placeholder="JavaScript..." wordWrap={wordWrap} onCursorChange={activeTab === 'js' ? setCursorPos : undefined} fontSize={editorFontSize} />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className={`playground-editor-body ${isVertical ? 'stacked' : ''}`}>
+              <CodeMirrorEditor
+                value={currentCode}
+                onChange={setCurrentCode}
+                language={activeTab}
+                placeholder={activeTab === 'html' ? 'Start typing HTML... (try typing < for tag suggestions)' : activeTab === 'css' ? 'Start typing CSS... (try typing a property name)' : 'Start typing JavaScript... (try clg → console.log)'}
+                wordWrap={wordWrap}
+                onCursorChange={setCursorPos}
+                fontSize={editorFontSize}
+              />
+            </div>
+          )}
 
           {/* Status bar */}
           <div className="playground-statusbar">
@@ -618,6 +1106,7 @@ export default function FrontendPlayground() {
                     <Library size={9} /> {enabledCdns.length}
                   </span>
                 )}
+                <button onClick={handleScreenshot} className={`playground-preview-btn ${screenshotting ? 'playground-formatting' : ''}`} title="Print / Screenshot preview"><Camera size={12} /></button>
                 <button onClick={runPreview} className="playground-preview-btn" title="Refresh"><RotateCcw size={12} /></button>
                 <button onClick={() => { const w = window.open('', '_blank'); w.document.write(previewHTML); w.document.close(); }} className="playground-preview-btn" title="Open in new window"><ExternalLink size={12} /></button>
               </div>
@@ -629,7 +1118,8 @@ export default function FrontendPlayground() {
                   <p className="playground-empty-title">Start coding or pick a template</p>
                   <p className="playground-empty-desc">
                     Powered by CodeMirror 6 — syntax highlighting, autocomplete, bracket matching,
-                    code folding, snippets, CDN injection & live preview
+                    code folding, snippets, CDN injection, Emmet expansion, split editor, shareable URLs,
+                    Google Fonts, layout templates & live preview
                   </p>
                   <div className="playground-empty-hints">
                     <span><kbd>Tab</kbd> Accept suggestion</span>
@@ -638,6 +1128,8 @@ export default function FrontendPlayground() {
                     <span><kbd>Ctrl F</kbd> Find & Replace</span>
                     <span><kbd>div.</kbd> div with class</span>
                     <span><kbd>clg</kbd> console.log</span>
+                    <span><kbd>Emmet</kbd> ul&gt;li*5</span>
+                    <span><kbd>Split</kbd> 3-pane editor</span>
                   </div>
                 </div>
               ) : !html && !css && js ? (
@@ -646,7 +1138,7 @@ export default function FrontendPlayground() {
                   <iframe
                     ref={iframeRef}
                     key={previewKey}
-                    srcDoc={previewHTML}
+                    src={previewBlobUrl}
                     className="w-full border-0"
                     style={{ height: 0, minHeight: 0, flex: 'none' }}
                     sandbox="allow-scripts allow-modals allow-forms allow-same-origin"
@@ -685,7 +1177,7 @@ export default function FrontendPlayground() {
                   <iframe
                     ref={iframeRef}
                     key={previewKey}
-                    srcDoc={previewHTML}
+                    src={previewBlobUrl}
                     className="w-full h-full border-0"
                     sandbox="allow-scripts allow-modals allow-forms allow-same-origin"
                     title="Preview"
@@ -751,6 +1243,12 @@ export default function FrontendPlayground() {
                       { key: 'Run button', desc: 'Execute & refresh preview' },
                       { key: 'Auto toggle', desc: 'Live preview on keystroke' },
                       { key: '+/- buttons', desc: 'Editor font size' },
+                      { key: 'Split button', desc: 'Toggle 3-pane split editor' },
+                      { key: 'Emmet bar', desc: 'Expand Emmet abbreviations' },
+                      { key: 'Share button', desc: 'Copy shareable URL' },
+                      { key: 'Layouts menu', desc: 'Pre-built layout templates' },
+                      { key: 'Assets panel', desc: 'Quick image/font/color insertion' },
+                      { key: 'Head config', desc: 'Google Fonts, meta, favicon' },
                     ]},
                   ].map(group => (
                     <div key={group.category} className="playground-shortcuts-group">

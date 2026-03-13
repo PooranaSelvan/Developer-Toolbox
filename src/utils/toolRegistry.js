@@ -12,20 +12,20 @@ const TOOLS = [
   {
     id: 'readme-generator',
     name: 'README Generator',
-    description: 'Generate professional README.md files with GitHub integration',
+    description: 'Generate professional README.md files with GitHub import, 8 templates, widget library, quality scoring & sharing',
     icon: FileText,
     path: '/readme-generator',
     category: 'developer',
-    tags: ['markdown', 'github', 'documentation'],
+    tags: ['markdown', 'github', 'documentation', 'readme', 'profile', 'badges', 'widgets', 'templates', 'share'],
   },
   {
     id: 'api-tester',
     name: 'API Tester',
-    description: 'Test APIs with a powerful Postman-like interface',
+    description: 'Test REST & WebSocket APIs with environments, assertions, bulk runner, diff, import/export & code generation',
     icon: Send,
     path: '/api-tester',
     category: 'developer',
-    tags: ['api', 'rest', 'http', 'postman'],
+    tags: ['api', 'rest', 'http', 'postman', 'websocket', 'environment', 'testing', 'bulk', 'diff', 'import', 'export', 'assertions'],
   },
   {
     id: 'mock-api',
@@ -123,11 +123,11 @@ const TOOLS = [
   {
     id: 'frontend-playground',
     name: 'Frontend Playground',
-    description: 'Paste code and test quickly with typing intelligence',
+    description: 'Code HTML, CSS & JS with live preview, Emmet, split view, CDN, layouts & sharing',
     icon: Layout,
     path: '/frontend-playground',
     category: 'frontend',
-    tags: ['html', 'css', 'javascript', 'playground', 'preview', 'live', 'editor'],
+    tags: ['html', 'css', 'javascript', 'playground', 'preview', 'live', 'editor', 'emmet', 'split', 'share', 'layout', 'fonts'],
   },
 
   // ─── Learning Tools ───

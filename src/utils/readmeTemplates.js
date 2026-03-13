@@ -1096,6 +1096,247 @@ export function libraryTemplate(data) {
   return md;
 }
 
+/* ═══════════════════════════════════════════════════════
+   Template: Profile README — GitHub Profile (username/username)
+   ═══════════════════════════════════════════════════════ */
+export function profileTemplate(data) {
+  const user = data.author || 'username';
+  let md = '';
+  const techBadges = generateTechBadges(data);
+
+  // ── Typing SVG Header ──
+  md += `<div align="center">\n\n`;
+  md += `<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=28&duration=3000&pause=1000&color=2D79FF&center=true&vCenter=true&random=false&width=500&lines=${encodeURIComponent(`Hi 👋, I'm ${data.projectName || user}`)};${encodeURIComponent(data.description || 'A passionate developer')}" alt="Typing SVG" />\n\n`;
+
+  // ── Social badges ──
+  const socialBadges = [];
+  socialBadges.push(`[![GitHub followers](https://img.shields.io/github/followers/${user}?style=for-the-badge&logo=github&color=181717)](https://github.com/${user})`);
+  if (data.authorTwitter) {
+    socialBadges.push(`[![Twitter](https://img.shields.io/badge/@${data.authorTwitter}-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/${data.authorTwitter})`);
+  }
+  if (data.authorWebsite) {
+    socialBadges.push(`[![Portfolio](https://img.shields.io/badge/Portfolio-000?style=for-the-badge&logo=vercel&logoColor=white)](${data.authorWebsite})`);
+  }
+  socialBadges.push(`![Profile Views](https://komarev.com/ghpvc/?username=${user}&color=blueviolet&style=for-the-badge&label=PROFILE+VIEWS)`);
+
+  md += socialBadges.join(' ') + '\n\n';
+  md += `</div>\n\n`;
+
+  // ── Divider ──
+  md += `<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">\n\n`;
+
+  // ── About Me ──
+  md += `## 🙋‍♂️ About Me\n\n`;
+  if (data.description) {
+    md += `${data.description}\n\n`;
+  }
+
+  // Quick facts bullets
+  const facts = [];
+  if (data.features) {
+    const lines = data.features.split('\n').filter(Boolean);
+    lines.forEach(line => {
+      facts.push(line.replace(/^[-*✅🔹•]\s*/u, '').trim());
+    });
+  }
+  if (facts.length > 0) {
+    facts.forEach(fact => {
+      md += `- ${fact}\n`;
+    });
+    md += '\n';
+  }
+
+  if (data.demoUrl) {
+    md += `- 🔗 **Portfolio:** [${data.demoUrl.replace(/https?:\/\//, '')}](${data.demoUrl})\n\n`;
+  }
+
+  // ── Tech Stack ──
+  if (data.techStack) {
+    md += `## 🛠️ Tech Stack\n\n`;
+    md += `<div align="center">\n\n`;
+    md += techBadges.join(' ') + '\n';
+    md += `\n</div>\n\n`;
+  }
+
+  // ── GitHub Stats ──
+  md += `## 📊 GitHub Stats\n\n`;
+  md += `<div align="center">\n\n`;
+  md += `<img src="https://github-readme-stats.vercel.app/api?username=${user}&show_icons=true&theme=tokyonight&hide_border=true&count_private=true" alt="GitHub Stats" height="180" />\n`;
+  md += `<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=${user}&layout=compact&theme=tokyonight&hide_border=true&langs_count=8" alt="Top Languages" height="180" />\n\n`;
+  md += `</div>\n\n`;
+
+  md += `<div align="center">\n\n`;
+  md += `<img src="https://github-readme-streak-stats.herokuapp.com/?user=${user}&theme=tokyonight&hide_border=true" alt="GitHub Streak" />\n\n`;
+  md += `</div>\n\n`;
+
+  // ── Trophies ──
+  md += `## 🏆 GitHub Trophies\n\n`;
+  md += `<div align="center">\n\n`;
+  md += `<img src="https://github-profile-trophy.vercel.app/?username=${user}&theme=tokyonight&no-frame=true&no-bg=true&row=1&column=7" alt="Trophies" />\n\n`;
+  md += `</div>\n\n`;
+
+  // ── Contribution Graph ──
+  md += `## 📈 Contribution Graph\n\n`;
+  md += `<img src="https://github-readme-activity-graph.vercel.app/graph?username=${user}&theme=tokyo-night&hide_border=true" alt="Contribution Graph" width="100%" />\n\n`;
+
+  // ── Current projects / Roadmap ──
+  if (data.roadmap) {
+    md += `## 🗺️ Current Focus\n\n`;
+    md += renderRoadmap(data);
+    md += '\n';
+  }
+
+  // ── Blog / Usage as articles ──
+  if (data.usage) {
+    md += `## ✍️ Latest Blog Posts\n\n`;
+    const posts = data.usage.split('\n').filter(Boolean);
+    posts.forEach(post => {
+      md += `- ${post}\n`;
+    });
+    md += `\n<!-- BLOG-POST-LIST:START -->\n<!-- BLOG-POST-LIST:END -->\n\n`;
+  }
+
+  // ── Fun section ──
+  md += `## 😄 Random Dev Quote\n\n`;
+  md += `<div align="center">\n\n`;
+  md += `<img src="https://quotes-github-readme.vercel.app/api?type=horizontal&theme=tokyonight" alt="Random Dev Quote" />\n\n`;
+  md += `</div>\n\n`;
+
+  // ── Acknowledgments as "Support" ──
+  if (data.acknowledgments) {
+    md += `## 💖 Support\n\n`;
+    md += renderAcknowledgments(data);
+    md += '\n';
+  }
+
+  md += renderCustomSections(data);
+
+  // ── Footer ──
+  md += `---\n\n`;
+  md += `<div align="center">\n\n`;
+  md += `**Thanks for visiting! ⭐ Star my repos if you find them interesting!**\n\n`;
+  md += `<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=80&section=footer" width="100%" />\n\n`;
+  md += `</div>\n`;
+
+  return md;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Template: Hackathon — Quick project submission README
+   ═══════════════════════════════════════════════════════ */
+export function hackathonTemplate(data) {
+  let md = '';
+  const badges = generateBadges(data);
+  const techBadges = generateTechBadges(data);
+
+  // ── Header ──
+  md += `<div align="center">\n\n`;
+  md += `# 🏆 ${data.projectName || 'Project Name'}\n\n`;
+
+  if (data.description) {
+    md += `### _${data.description}_\n\n`;
+  }
+
+  if (badges.length > 0 || techBadges.length > 0) {
+    md += [...badges, ...techBadges].join(' ') + '\n\n';
+  }
+
+  // Links row
+  const links = [];
+  if (data.demoUrl) links.push(`[🔗 Live Demo](${data.demoUrl})`);
+  links.push(`[📹 Demo Video](#-demo)`);
+  links.push(`[📊 Slides](#-presentation)`);
+  md += links.join(' • ') + '\n\n';
+
+  md += `</div>\n\n`;
+  md += `---\n\n`;
+
+  // ── Problem Statement ──
+  md += `## 💡 Problem Statement\n\n`;
+  if (data.description) {
+    md += `${data.description}\n\n`;
+  } else {
+    md += `Describe the problem your project solves...\n\n`;
+  }
+
+  // ── Solution ──
+  if (data.features) {
+    md += `## 🚀 Our Solution\n\n`;
+    md += renderFeaturesWithIcons(data);
+    md += '\n';
+  }
+
+  // ── Demo ──
+  md += `## 🎬 Demo\n\n`;
+  if (data.demoUrl) {
+    md += `🔗 **Live Demo:** [${data.demoUrl}](${data.demoUrl})\n\n`;
+  }
+  if (data.screenshots) {
+    md += data.screenshots + '\n\n';
+  } else {
+    md += `> Add screenshots, GIFs, or a video link of your project in action!\n\n`;
+  }
+
+  // ── Tech Stack ──
+  if (data.techStack) {
+    md += `## 🛠️ Built With\n\n`;
+    md += `<div align="center">\n\n${techBadges.join(' ')}\n\n</div>\n\n`;
+  }
+
+  // ── Setup ──
+  md += `## ⚡ Quick Setup\n\n`;
+  if (data.prerequisites) {
+    md += `### Prerequisites\n\n${data.prerequisites}\n\n`;
+  }
+  if (data.installation) {
+    md += `\`\`\`bash\n# Clone & install\ngit clone https://github.com/${data.author || 'team'}/${data.projectName?.toLowerCase().replace(/\s+/g, '-') || 'project'}.git\ncd ${data.projectName?.toLowerCase().replace(/\s+/g, '-') || 'project'}\n${data.installation}\n\`\`\`\n\n`;
+  }
+  if (data.envVars) {
+    md += `\`\`\`env\n${data.envVars}\n\`\`\`\n\n`;
+  }
+  if (data.usage) {
+    md += `\`\`\`bash\n${data.usage}\n\`\`\`\n\n`;
+  }
+
+  // ── API ──
+  if (data.apiReference) {
+    md += `## 📡 API Endpoints\n\n${renderApiReference(data)}`;
+  }
+
+  // ── Architecture ──
+  md += `## 🏗️ Architecture\n\n`;
+  md += `> _Add your system architecture diagram here_\n\n`;
+  md += `\`\`\`\n┌─────────────┐     ┌─────────────┐     ┌─────────────┐\n│   Frontend   │────▶│   Backend    │────▶│  Database    │\n│  (React)     │◀────│  (Node.js)   │◀────│  (MongoDB)   │\n└─────────────┘     └─────────────┘     └─────────────┘\n\`\`\`\n\n`;
+
+  // ── Future ──
+  if (data.roadmap) {
+    md += `## 🔮 What's Next\n\n${renderRoadmap(data)}\n`;
+  }
+
+  // ── Team ──
+  md += `## 👥 Team\n\n`;
+  if (data.author) {
+    md += `| Name | Role | GitHub |\n|:---|:---|:---|\n`;
+    md += `| ${data.author} | Lead Developer | [@${data.author}](https://github.com/${data.author}) |\n\n`;
+  }
+
+  // ── License ──
+  if (data.license) {
+    md += `## 📄 License\n\n[${data.license}](LICENSE)\n\n`;
+  }
+
+  md += renderCustomSections(data);
+
+  // ── Footer ──
+  md += `---\n\n`;
+  md += `<div align="center">\n\n`;
+  md += `**Built with ❤️ at [Hackathon Name]**\n\n`;
+  md += `⭐ Star this repo if you like our project!\n\n`;
+  md += `</div>\n`;
+
+  return md;
+}
+
 /* ═══ Template registry ═══ */
 export const TEMPLATES = {
   minimal:    { name: 'Minimal',     emoji: '📄', description: 'Elegant & clean for small projects',                fn: minimalTemplate },
@@ -1104,4 +1345,6 @@ export const TEMPLATES = {
   enterprise: { name: 'Enterprise',  emoji: '🏢', description: 'Comprehensive enterprise-grade documentation',      fn: enterpriseTemplate },
   apiDocs:    { name: 'API Docs',    emoji: '📡', description: 'Complete API documentation with status codes',       fn: apiDocsTemplate },
   library:    { name: 'Library',     emoji: '📦', description: 'npm/pip package with install badges & size info',    fn: libraryTemplate },
+  profile:    { name: 'Profile',     emoji: '👤', description: 'GitHub profile README with stats & widgets',         fn: profileTemplate },
+  hackathon:  { name: 'Hackathon',   emoji: '🏆', description: 'Quick project submission with problem/solution',     fn: hackathonTemplate },
 };

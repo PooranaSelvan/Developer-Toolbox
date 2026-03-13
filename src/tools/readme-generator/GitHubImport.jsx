@@ -37,7 +37,7 @@ export default function GitHubImport({ onImport, loading, error, success, progre
                 Deep Analysis
               </span>
             </h3>
-            <p className="text-xs opacity-50 mt-0.5">
+            <p className="text-xs text-base-content/60 mt-0.5">
               Paste any public repo URL — automatically analyzes structure, dependencies, tech stack & generates a complete README
             </p>
           </div>
@@ -104,9 +104,9 @@ export default function GitHubImport({ onImport, loading, error, success, progre
                     />
                   </div>
                 </div>
-                <span className="text-[11px] opacity-50 tabular-nums shrink-0 font-semibold">{progressStep}/4</span>
+                <span className="text-[11px] text-base-content/60 tabular-nums shrink-0 font-semibold">{progressStep}/4</span>
               </div>
-              <div className="flex items-center gap-2 text-xs opacity-60">
+              <div className="flex items-center gap-2 text-xs text-base-content/70">
                 <Loader2 size={11} className="animate-spin text-primary" />
                 {PROGRESS_STEPS[progressStep] || 'Processing...'}
               </div>

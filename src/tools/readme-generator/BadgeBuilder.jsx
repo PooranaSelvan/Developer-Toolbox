@@ -113,7 +113,7 @@ export default function BadgeBuilder({ badges = [], onChange }) {
               className="overflow-hidden"
             >
               <div className="mb-4 p-3 rounded-lg bg-base-200/50 border border-base-200">
-                <p className="text-[11px] font-medium opacity-50 mb-2.5">Click to add a preset badge:</p>
+                <p className="text-[11px] font-medium text-base-content/70 mb-2.5">Click to add a preset badge:</p>
                 <div className="flex flex-wrap gap-2">
                   {PRESET_BADGES.map((preset, i) => (
                     <motion.button
@@ -143,9 +143,9 @@ export default function BadgeBuilder({ badges = [], onChange }) {
 
         {/* Badge editor list */}
         {badges.length === 0 ? (
-          <div className="text-center py-6 text-xs opacity-40">
-            <Shield size={24} className="mx-auto mb-2 opacity-30" />
-            No custom badges yet. Click "Presets" or "Custom" to add.
+          <div className="text-center py-6 text-xs text-base-content/50">
+            <Shield size={24} className="mx-auto mb-2 text-base-content/30" />
+            No custom badges yet. Click &quot;Presets&quot; or &quot;Custom&quot; to add.
           </div>
         ) : (
           <div className="space-y-3">
@@ -168,7 +168,7 @@ export default function BadgeBuilder({ badges = [], onChange }) {
                     />
                     <button
                       onClick={() => removeBadge(index)}
-                      className="btn btn-ghost btn-xs text-error opacity-40 hover:opacity-100"
+                      className="btn btn-ghost btn-xs text-error/60 hover:text-error"
                     >
                       <Trash2 size={12} />
                     </button>
@@ -237,7 +237,7 @@ export default function BadgeBuilder({ badges = [], onChange }) {
         )}
 
         {badges.length > 0 && (
-          <p className="text-[11px] opacity-40 mt-3">
+          <p className="text-[11px] text-base-content/60 mt-3">
             {badges.filter((b) => b.text).length} badge{badges.filter((b) => b.text).length !== 1 ? 's' : ''} will appear at the top of your README
           </p>
         )}

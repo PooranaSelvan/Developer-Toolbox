@@ -5,7 +5,7 @@ import {
   BookOpen, ChevronDown, ChevronUp, Minus, GripVertical,
   Star, Zap, ArrowRight, Eye, EyeOff, Lightbulb,
   Timer, Target, CheckCircle2, Sparkles, Lock, Award,
-  Shield, Pause, X, HelpCircle, Gamepad2,
+  Shield, Pause, X, Gamepad2,
 } from 'lucide-react';
 import useCopyToClipboard from '../../hooks/useCopyToClipboard';
 import SEO from '../../components/SEO';
@@ -272,13 +272,7 @@ function getDailyChallenge() {
   return { ...FLEX_CHALLENGES[idx], isDaily: true, dailyDate: today.toDateString(), bonusXP: 50 };
 }
 
-// ─── Onboarding Steps ──────────────────────────────────────
-const ONBOARDING_STEPS = [
-  { target: 'playground', title: '🎮 Welcome to Flexbox Quest!', message: 'Learn CSS Flexbox through interactive challenges. Tweak properties and see results in real-time!' },
-  { target: 'challenges', title: '🏆 Challenge Mode', message: 'Complete puzzle levels to earn XP, stars, and badges. Each world tests different Flexbox skills!' },
-  { target: 'powerups', title: '⚡ Power-Ups', message: 'Use power-ups when you get stuck! Earn them by completing challenges and maintaining streaks.' },
-  { target: 'achievements', title: '🎖️ Achievements', message: 'Unlock achievements by reaching milestones. Can you collect them all?' },
-];
+
 
 function getRank(xp) {
   for (let i = RANKS.length - 1; i >= 0; i--) {
@@ -363,7 +357,7 @@ function PowerUpBar({ powerUps, onUse, disabled }) {
             <span className="text-sm">{pu.icon}</span>
             <span className="hidden sm:inline">{pu.label}</span>
             {count > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-white text-[8px] font-bold flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-primary-content text-[8px] font-bold flex items-center justify-center">
                 {count}
               </span>
             )}
@@ -460,68 +454,7 @@ function ComboIndicator({ combo, show }) {
   );
 }
 
-// ─── Onboarding / Tutorial Modal ───────────────────────────
-function OnboardingModal({ step, totalSteps, onNext, onSkip, onClose }) {
-  const currentStep = ONBOARDING_STEPS[step];
-  if (!currentStep) return null;
 
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-      onClick={onSkip}
-    >
-      <motion.div
-        initial={{ scale: 0.8, y: 30 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.8, y: 30 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-        className="section-card p-6 max-w-sm mx-4 border-2 border-primary/30"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="text-center mb-4">
-          <motion.div
-            initial={{ rotate: -15, scale: 0 }}
-            animate={{ rotate: 0, scale: 1 }}
-            transition={{ type: 'spring', delay: 0.1 }}
-            className="text-4xl mb-3"
-          >
-            {step === 0 ? '🎮' : step === 1 ? '🏆' : step === 2 ? '⚡' : '🎖️'}
-          </motion.div>
-          <h3 className="text-lg font-bold">{currentStep.title}</h3>
-          <p className="text-xs opacity-50 mt-2 leading-relaxed">{currentStep.message}</p>
-        </div>
-
-        {/* Progress dots */}
-        <div className="flex justify-center gap-1.5 mb-4">
-          {Array.from({ length: totalSteps }, (_, i) => (
-            <div
-              key={i}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                i === step ? 'bg-primary w-6' : i < step ? 'bg-primary/40' : 'bg-base-300/40'
-              }`}
-            />
-          ))}
-        </div>
-
-        <div className="flex items-center justify-between">
-          <button onClick={onSkip} className="btn btn-xs btn-ghost opacity-40">
-            Skip Tour
-          </button>
-          <button onClick={step < totalSteps - 1 ? onNext : onClose} className="btn btn-sm btn-primary gap-1">
-            {step < totalSteps - 1 ? (
-              <>Next <ArrowRight size={12} /></>
-            ) : (
-              <>Let's Go! <Zap size={12} /></>
-            )}
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
 
 // ─── Achievement Gallery Panel ─────────────────────────────
 function AchievementGallery({ unlockedIds }) {
@@ -549,7 +482,7 @@ function AchievementGallery({ unlockedIds }) {
             <h5 className="text-[10px] font-bold leading-tight">{ach.title}</h5>
             <p className="text-[9px] opacity-40 mt-1 leading-relaxed">{ach.description}</p>
             {unlocked && (
-              <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-warning text-white text-[8px] flex items-center justify-center font-bold shadow-sm">
+              <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-warning text-warning-content text-[8px] flex items-center justify-center font-bold shadow-sm">
                 ✓
               </div>
             )}
@@ -721,7 +654,7 @@ function PropSelect({ label, value, options, onChange, description, highlight })
               onClick={() => onChange(opt)}
               className={`px-2 py-1 rounded-lg text-[10px] font-mono font-semibold transition-all duration-150 border ${
                 isActive
-                  ? 'bg-primary text-white border-primary shadow-sm'
+                  ? 'bg-primary text-primary-content border-primary shadow-sm'
                   : 'border-base-300/50 hover:border-primary/30 hover:bg-primary/5 opacity-60 hover:opacity-100'
               }`}
             >
@@ -969,12 +902,6 @@ export default function FlexPlayground() {
   const [combo, setCombo] = useState(0);
   const [showCombo, setShowCombo] = useState(false);
   const comboTimeoutRef = useRef(null);
-
-  // Onboarding state
-  const [showOnboarding, setShowOnboarding] = useState(() => {
-    try { return !localStorage.getItem('flex-onboarding-done'); } catch { return true; }
-  });
-  const [onboardingStep, setOnboardingStep] = useState(0);
 
   const { copied, copyToClipboard } = useCopyToClipboard();
 
@@ -1301,18 +1228,6 @@ export default function FlexPlayground() {
     }
   }, [currentChallenge, powerUps, nextChallenge]);
 
-  // ── Onboarding handlers ──
-  const handleOnboardingNext = useCallback(() => {
-    if (onboardingStep < ONBOARDING_STEPS.length - 1) {
-      setOnboardingStep((s) => s + 1);
-    }
-  }, [onboardingStep]);
-
-  const handleOnboardingClose = useCallback(() => {
-    setShowOnboarding(false);
-    localStorage.setItem('flex-onboarding-done', 'true');
-  }, []);
-
   // ── Code generation ──
   const cssCode = useMemo(() => {
     const lines = ['.container {', '  display: flex;'];
@@ -1467,13 +1382,6 @@ export default function FlexPlayground() {
                 <span className="text-xs font-bold font-mono">{unlockedAchievements.length}/{FLEX_ACHIEVEMENTS.length}</span>
               </div>
             )}
-            <button
-              onClick={() => { setShowOnboarding(true); setOnboardingStep(0); }}
-              className="btn btn-sm btn-ghost gap-1 opacity-40 hover:opacity-100"
-              title="Show Tutorial"
-            >
-              <HelpCircle size={14} />
-            </button>
             <button onClick={handleReset} className="btn btn-sm btn-ghost btn-error gap-1.5">
               <RotateCcw size={14} /> Reset
             </button>
@@ -1500,19 +1408,6 @@ export default function FlexPlayground() {
             ))}
           </div>
         </motion.div>
-
-        {/* ── Onboarding Modal ── */}
-        <AnimatePresence>
-          {showOnboarding && (
-            <OnboardingModal
-              step={onboardingStep}
-              totalSteps={ONBOARDING_STEPS.length}
-              onNext={handleOnboardingNext}
-              onSkip={handleOnboardingClose}
-              onClose={handleOnboardingClose}
-            />
-          )}
-        </AnimatePresence>
 
         {/* ── Combo Indicator ── */}
         <AnimatePresence>

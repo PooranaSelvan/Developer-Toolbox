@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   Copy, Download, Check, RefreshCw, Save, FolderOpen,
   Trash2, FileCode, Maximize2, Minimize2, Clock, FileText,
-  ChevronDown
+  ChevronDown, Share2, Wand2, FileStack
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useCopyToClipboard from '../../hooks/useCopyToClipboard';
@@ -16,6 +16,9 @@ import ReadmePreview from './ReadmePreview';
 import TemplateSelector from './TemplateSelector';
 import BadgeBuilder from './BadgeBuilder';
 import CustomSections from './CustomSections';
+import WidgetInserter from './WidgetInserter';
+import ReadmeScore from './ReadmeScore';
+import SectionTemplates from './SectionTemplates';
 
 const INITIAL_FORM = {
   projectName: '',
@@ -77,6 +80,9 @@ export default function ReadmeGenerator() {
   const [showDrafts, setShowDrafts] = useState(false);
   const [draftName, setDraftName] = useState('');
   const [showSaveInput, setShowSaveInput] = useState(false);
+  const [showWidgets, setShowWidgets] = useState(false);
+  const [showSectionTemplates, setShowSectionTemplates] = useState(false);
+  const [shareSuccess, setShareSuccess] = useState(false);
 
   const { copied, copyToClipboard } = useCopyToClipboard();
   const { downloadFile } = useDownloadFile();
@@ -252,6 +258,69 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
     }
   };
 
+  // Insert widget markdown into custom sections
+  const handleWidgetInsert = useCallback((markdown) => {
+    setFormData((prev) => {
+      const currentSections = prev.customSections || [];
+      // Check if there's an existing "Widgets" custom section
+      const widgetIdx = currentSections.findIndex((s) => s.title === 'Widgets' || s.title === '');
+      if (widgetIdx >= 0 && !currentSections[widgetIdx].title) {
+        // Append to an existing untitled section
+        const updated = [...currentSections];
+        updated[widgetIdx] = {
+          ...updated[widgetIdx],
+          content: (updated[widgetIdx].content ? updated[widgetIdx].content + '\n\n' : '') + markdown,
+        };
+        return { ...prev, customSections: updated };
+      }
+      // Otherwise insert into the description or features depending on context
+      // For simplicity, append to description
+      const newDesc = prev.description ? prev.description + '\n\n' + markdown : markdown;
+      return { ...prev, description: newDesc };
+    });
+  }, []);
+
+  // Share as URL
+  const handleShareUrl = useCallback(() => {
+    try {
+      const shareData = { formData, template };
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(shareData))));
+      const url = `${window.location.origin}${window.location.pathname}#readme=${encoded}`;
+      navigator.clipboard.writeText(url).then(() => {
+        setShareSuccess(true);
+        setTimeout(() => setShareSuccess(false), 3000);
+      });
+    } catch (err) {
+      console.error('Share URL creation failed:', err);
+    }
+  }, [formData, template]);
+
+  // Load from URL hash on mount
+  useEffect(() => {
+    try {
+      const hash = window.location.hash;
+      if (hash.startsWith('#readme=')) {
+        const encoded = hash.slice(8);
+        const decoded = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+        if (decoded.formData) {
+          setFormData({ ...INITIAL_FORM, ...decoded.formData });
+        }
+        if (decoded.template && TEMPLATES[decoded.template]) {
+          setTemplate(decoded.template);
+        }
+        // Clean the hash after loading
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    } catch {
+      // Silently ignore invalid hash data
+    }
+  }, []);
+
+  // Handle section template apply
+  const handleSectionTemplateApply = useCallback((field, value) => {
+    handleFieldChange(field, value);
+  }, [handleFieldChange]);
+
   return (
     <div className={`max-w-7xl mx-auto space-y-4 ${isFullscreen ? 'fixed inset-0 z-50 bg-base-100 p-4 sm:p-6 overflow-auto max-w-none' : ''}`}>
       {/* GitHub Import */}
@@ -273,14 +342,14 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
             {/* Actions */}
             <div className="flex items-center gap-2 flex-wrap">
               {/* Stats pill */}
-              <div className="hidden md:flex items-center gap-3 text-[11px] opacity-50 mr-2 select-none bg-base-200/60 rounded-lg px-3 py-1.5">
+              <div className="hidden md:flex items-center gap-3 text-[11px] text-base-content/70 mr-2 select-none bg-base-200/60 rounded-lg px-3 py-1.5">
                 <span className="flex items-center gap-1">
                   <FileText size={10} />
                   <span className="font-semibold">{stats.words}</span> words
                 </span>
-                <span className="opacity-30">•</span>
+                <span className="text-base-content/30">•</span>
                 <span><span className="font-semibold">{stats.sections}</span> sections</span>
-                <span className="opacity-30">•</span>
+                <span className="text-base-content/30">•</span>
                 <span className="flex items-center gap-1"><Clock size={10} /><span className="font-semibold">{stats.readingTime}</span> min</span>
               </div>
 
@@ -313,11 +382,11 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
                       >
                         <div className="p-3 border-b border-base-200 flex items-center justify-between">
                           <span className="text-xs font-semibold">Saved Drafts</span>
-                          <span className="text-[11px] opacity-40">{savedDrafts.length}/20</span>
+                          <span className="text-[11px] text-base-content/50">{savedDrafts.length}/20</span>
                         </div>
                         <div className="max-h-72 overflow-y-auto">
                           {savedDrafts.length === 0 ? (
-                            <div className="p-6 text-center text-xs opacity-40">No saved drafts yet</div>
+                            <div className="p-6 text-center text-xs text-base-content/50">No saved drafts yet</div>
                           ) : (
                             savedDrafts.map((draft, idx) => (
                               <motion.div
@@ -332,13 +401,13 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
                                   className="flex-1 text-left"
                                 >
                                   <div className="text-xs font-medium truncate">{draft.name}</div>
-                                  <div className="text-[10px] opacity-40 mt-0.5">
+                                  <div className="text-[10px] text-base-content/50 mt-0.5">
                                     {TEMPLATES[draft.template]?.emoji} {TEMPLATES[draft.template]?.name} • {new Date(draft.savedAt).toLocaleDateString()}
                                   </div>
                                 </button>
                                 <button
                                   onClick={() => handleDeleteDraft(draft.id)}
-                                  className="btn btn-ghost btn-xs opacity-0 group-hover:opacity-60 hover:!opacity-100 hover:text-error"
+                                  className="btn btn-ghost btn-xs opacity-0 group-hover:opacity-70 hover:!opacity-100 hover:text-error"
                                 >
                                   <Trash2 size={12} />
                                 </button>
@@ -405,6 +474,48 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
 
               <div className="w-px h-5 bg-gradient-to-b from-transparent via-base-300 to-transparent hidden sm:block" />
 
+              {/* Widget Library toggle */}
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => { setShowWidgets(!showWidgets); setShowSectionTemplates(false); }}
+                className={`btn btn-sm gap-1.5 rounded-xl transition-all duration-200 ${showWidgets ? 'btn-primary shadow-md shadow-primary/20' : 'btn-ghost hover:bg-base-200/80'}`}
+                title="Widget Library — insert stats, badges, typing SVGs"
+              >
+                <Wand2 size={14} />
+                <span className="hidden sm:inline">Widgets</span>
+              </motion.button>
+
+              {/* Section Templates toggle */}
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => { setShowSectionTemplates(!showSectionTemplates); setShowWidgets(false); }}
+                className={`btn btn-sm gap-1.5 rounded-xl transition-all duration-200 ${showSectionTemplates ? 'btn-secondary shadow-md shadow-secondary/20' : 'btn-ghost hover:bg-base-200/80'}`}
+                title="Section Templates — pre-written content blocks"
+              >
+                <FileStack size={14} />
+                <span className="hidden sm:inline">Sections</span>
+              </motion.button>
+
+              <div className="w-px h-5 bg-gradient-to-b from-transparent via-base-300 to-transparent hidden sm:block" />
+
+              {/* Share URL */}
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={handleShareUrl}
+                className={`btn btn-sm gap-1.5 rounded-xl transition-all duration-300 ${
+                  shareSuccess ? 'btn-success shadow-md shadow-success/20' : 'btn-ghost hover:bg-base-200/80'
+                }`}
+                title="Share README via URL"
+              >
+                {shareSuccess ? <Check size={14} /> : <Share2 size={14} />}
+                <span className="hidden sm:inline">{shareSuccess ? 'Copied!' : 'Share'}</span>
+              </motion.button>
+
+              <div className="w-px h-5 bg-gradient-to-b from-transparent via-base-300 to-transparent hidden sm:block" />
+
               <motion.button
                 whileHover={{ scale: 1.04, rotate: 180 }}
                 whileTap={{ scale: 0.9 }}
@@ -435,7 +546,7 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
                 onClick={() => copyToClipboard(generatedMarkdown)}
                 className={`btn btn-sm gap-1.5 rounded-xl transition-all duration-300 ${
                   copied
-                    ? 'btn-success shadow-md shadow-success/20 text-success-content'
+                    ? 'btn-success shadow-md shadow-success/20'
                     : 'btn-outline hover:shadow-md border-base-300'
                 }`}
               >
@@ -476,7 +587,7 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
       </div>
 
       {/* Mobile stats */}
-      <div className="flex md:hidden items-center gap-3 text-[11px] opacity-40 px-1 select-none">
+      <div className="flex md:hidden items-center gap-3 text-[11px] text-base-content/60 px-1 select-none">
         <span>{stats.words} words</span>
         <span>•</span>
         <span>{stats.lines} lines</span>
@@ -486,15 +597,51 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
         <span className="flex items-center gap-1"><Clock size={10} />{stats.readingTime} min read</span>
       </div>
 
+      {/* Widget Library Panel — expandable above the editor */}
+      <AnimatePresence>
+        {showWidgets && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden"
+          >
+            <WidgetInserter
+              username={formData.author}
+              onInsert={handleWidgetInsert}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Section Templates Panel */}
+      <AnimatePresence>
+        {showSectionTemplates && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden"
+          >
+            <SectionTemplates
+              onApply={handleSectionTemplateApply}
+              formData={formData}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Mobile tabs — animated indicator */}
       <div className="tabs tabs-border lg:hidden">
-        {['edit', 'badges', 'preview'].map((tab) => (
+        {['edit', 'badges', 'score', 'preview'].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`tab ${activeTab === tab ? 'tab-active font-semibold' : ''}`}
           >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            {tab === 'score' ? 'Score' : tab.charAt(0).toUpperCase() + tab.slice(1)}
           </button>
         ))}
       </div>
@@ -502,7 +649,7 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
       {/* Main editor grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Left column — Form */}
-        <div className={`space-y-5 ${activeTab === 'preview' ? 'hidden lg:block' : ''} ${activeTab === 'badges' ? 'hidden lg:block' : ''}`}>
+        <div className={`space-y-5 ${activeTab === 'preview' ? 'hidden lg:block' : ''} ${activeTab === 'badges' ? 'hidden lg:block' : ''} ${activeTab === 'score' ? 'hidden lg:block' : ''}`}>
           <ReadmeForm formData={formData} onChange={handleFieldChange} />
 
           {/* Badge Builder (visible on desktop) */}
@@ -518,6 +665,11 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
             sections={formData.customSections}
             onChange={(sections) => handleFieldChange('customSections', sections)}
           />
+
+          {/* README Score (visible on desktop) */}
+          <div className="hidden lg:block">
+            <ReadmeScore markdown={generatedMarkdown} formData={formData} />
+          </div>
         </div>
 
         {/* Mobile Badge Tab */}
@@ -528,8 +680,13 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
           />
         </div>
 
+        {/* Mobile Score Tab */}
+        <div className={`lg:hidden ${activeTab !== 'score' ? 'hidden' : ''}`}>
+          <ReadmeScore markdown={generatedMarkdown} formData={formData} />
+        </div>
+
         {/* Right column — Preview */}
-        <div className={`${activeTab === 'edit' || activeTab === 'badges' ? 'hidden lg:block' : ''}`}>
+        <div className={`${activeTab === 'edit' || activeTab === 'badges' || activeTab === 'score' ? 'hidden lg:block' : ''}`}>
           <div className="lg:sticky lg:top-4">
             <ReadmePreview markdown={generatedMarkdown} stats={stats} />
           </div>
