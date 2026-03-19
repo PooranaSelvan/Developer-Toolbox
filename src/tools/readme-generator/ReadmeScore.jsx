@@ -1,20 +1,23 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ShieldCheck, ChevronDown, ChevronUp, AlertTriangle,
-  CheckCircle2, Info, Lightbulb, TrendingUp, Sparkles,
+  ShieldCheck, ChevronDown, AlertTriangle,
+  CheckCircle2, Lightbulb, Sparkles,
+  Wrench, Target, Award, ArrowRight,
 } from 'lucide-react';
+import { Shield, FileText, Terminal, Code, Users, Eye, Star, BookOpen, AlertCircle } from 'lucide-react';
 
 /* ════════════════════════════════════════════════
-   README Quality Scorer & Linter
-   Detailed analysis with actionable suggestions
+   README Quality Scorer & Linter — UPGRADED
+   Detailed analysis with actionable FIX suggestions
+   that auto-populate form fields when clicked
    ════════════════════════════════════════════════ */
 
 const CHECKS = [
   // Essential sections
   { id: 'has-title', category: 'structure', label: 'Has project title (H1)', weight: 10, test: (md) => /^#\s+.+/m.test(md) },
   { id: 'has-description', category: 'structure', label: 'Has description', weight: 8, test: (md, d) => !!d.description?.trim() },
-  { id: 'has-installation', category: 'setup', label: 'Has installation instructions', weight: 8, test: (md) => /install/i.test(md) && /```/.test(md) },
+  { id: 'has-installation', category: 'setup', label: 'Has installation instructions', weight: 8, test: (md, d) => !!d.installation?.trim() || (/install/i.test(md) && /```/.test(md)) },
   { id: 'has-usage', category: 'setup', label: 'Has usage / run instructions', weight: 7, test: (md, d) => !!d.usage?.trim() },
   { id: 'has-features', category: 'content', label: 'Lists features', weight: 6, test: (md, d) => !!d.features?.trim() },
   { id: 'has-license', category: 'community', label: 'Includes license info', weight: 7, test: (md, d) => !!d.license },
@@ -23,7 +26,7 @@ const CHECKS = [
   // Quality enhancers
   { id: 'has-badges', category: 'polish', label: 'Uses status badges', weight: 4, test: (md) => /shields\.io|badge/i.test(md) },
   { id: 'has-tech-stack', category: 'content', label: 'Lists tech stack', weight: 5, test: (md, d) => !!d.techStack?.trim() },
-  { id: 'has-toc', category: 'structure', label: 'Has table of contents', weight: 4, test: (md) => /table of contents/i.test(md) || (md.match(/^- \[.+\]\(#.+\)/gm) || []).length >= 3 },
+  { id: 'has-toc', category: 'structure', label: 'Has table of contents', weight: 4, test: (md) => /table of contents/i.test(md) || (md.match(/^\s*-\s*\[.+\]\(#.+\)/gm) || []).length >= 3 },
   { id: 'has-code-blocks', category: 'content', label: 'Contains code blocks', weight: 5, test: (md) => /```/.test(md) },
   { id: 'has-tables', category: 'content', label: 'Uses markdown tables', weight: 3, test: (md) => /\|.*\|.*\|/m.test(md) && /---/.test(md) },
   { id: 'has-screenshots', category: 'polish', label: 'Includes images or screenshots', weight: 4, test: (md, d) => !!d.screenshots?.trim() || /!\[.*\]\(.*\)/.test(md) },
@@ -51,28 +54,285 @@ const CATEGORY_META = {
   quality: { label: 'Quality', icon: '📊', color: 'accent' },
 };
 
-const SUGGESTIONS = [
-  { check: 'has-badges', tip: 'Add status badges — use the Badge Builder to add build, coverage, or version badges to the top of your README.' },
-  { check: 'has-screenshots', tip: 'Add screenshots or a demo GIF — visuals help people quickly understand your project.' },
-  { check: 'has-demo-url', tip: 'Link to a live demo — this helps reviewers and users try your project instantly.' },
-  { check: 'has-contributing', tip: 'Add contributing guidelines — this encourages community participation.' },
-  { check: 'has-license', tip: 'Add a license — this is critical for open source projects. Use the Author step to select one.' },
-  { check: 'has-env-vars', tip: 'Document environment variables — helps users configure the project correctly.' },
-  { check: 'has-roadmap', tip: 'Add a roadmap — shows the project is actively maintained and has future plans.' },
-  { check: 'has-faq', tip: 'Add an FAQ section — anticipate common questions to reduce issues.' },
-  { check: 'has-toc', tip: 'Your README is long enough to benefit from a Table of Contents — most templates auto-generate one.' },
-  { check: 'has-tech-stack', tip: 'List your tech stack — helps potential contributors and users understand the project foundation.' },
-  { check: 'has-installation', tip: 'Add installation steps with code blocks — clear setup instructions reduce friction.' },
-  { check: 'has-usage', tip: 'Add usage examples — show how to run and use the project.' },
-  { check: 'has-prerequisites', tip: 'List prerequisites (Node.js version, etc.) — prevents setup frustration.' },
-  { check: 'has-author', tip: 'Add author info — helps users find and connect with the maintainer.' },
+/* ════════════════════════════════════════════════
+   ACTIONABLE FIX SUGGESTIONS — the key upgrade!
+   Each suggestion has a fix action that auto-fills
+   ════════════════════════════════════════════════ */
+const FIX_SUGGESTIONS = [
+  {
+    check: 'has-installation',
+    severity: 'critical',
+    icon: Terminal,
+    title: '⚠️ Add installation section',
+    description: 'Your README is missing installation instructions. Users need to know how to set up your project.',
+    field: 'installation',
+    fixLabel: 'Add Installation Steps',
+    fixValue: `# Clone the repository\ngit clone https://github.com/username/project.git\ncd project\n\n# Install dependencies\nnpm install`,
+  },
+  {
+    check: 'has-badges',
+    severity: 'warning',
+    icon: Shield,
+    title: '🏷️ Your badges are missing',
+    description: 'Badges provide at-a-glance project status (build, version, license). They make your README look professional.',
+    field: 'badges',
+    fixLabel: 'Add Starter Badges',
+    fixValue: [
+      { label: 'build', text: 'passing', color: '2ea043', style: 'for-the-badge', url: '' },
+      { label: 'version', text: '1.0.0', color: '0969da', style: 'for-the-badge', url: '' },
+      { label: 'PRs', text: 'welcome', color: '8b5cf6', style: 'for-the-badge', url: '' },
+    ],
+  },
+  {
+    check: 'has-description',
+    severity: 'critical',
+    icon: FileText,
+    title: '📝 Add a project description',
+    description: 'A clear description is the first thing visitors read. Explain what your project does and why it matters.',
+    field: 'description',
+    fixLabel: 'Add Placeholder Description',
+    fixValue: 'A powerful, modern application that solves [problem] by providing [solution]. Built with [technologies] for optimal performance and developer experience.',
+  },
+  {
+    check: 'has-features',
+    severity: 'warning',
+    icon: Star,
+    title: '✨ List your project features',
+    description: 'Highlight what makes your project special. Features help users decide if your project fits their needs.',
+    field: 'features',
+    fixLabel: 'Add Feature Template',
+    fixValue: '🚀 Fast and lightweight\n🎨 Beautiful, responsive UI\n🔒 Secure by default\n📱 Mobile-friendly\n🔧 Easy to configure\n📖 Well documented',
+  },
+  {
+    check: 'has-usage',
+    severity: 'warning',
+    icon: Code,
+    title: '💻 Add usage examples',
+    description: 'Show users how to run your project. Code examples reduce confusion and support issues.',
+    field: 'usage',
+    fixLabel: 'Add Usage Template',
+    fixValue: '# Start the development server\nnpm run dev\n\n# Open in browser\nhttp://localhost:3000',
+  },
+  {
+    check: 'has-license',
+    severity: 'critical',
+    icon: BookOpen,
+    title: '📄 Choose a license',
+    description: 'Without a license, your code is technically not open source. The MIT license is the most popular choice.',
+    field: 'license',
+    fixLabel: 'Set MIT License',
+    fixValue: 'MIT',
+  },
+  {
+    check: 'has-contributing',
+    severity: 'info',
+    icon: Users,
+    title: '🤝 Add contributing guidelines',
+    description: 'Encourage community participation with clear contribution instructions.',
+    field: 'contributing',
+    fixLabel: 'Add Contributing Template',
+    fixValue: `Contributions are always welcome!\n\n1. Fork the project\n2. Create your feature branch (\`git checkout -b feature/AmazingFeature\`)\n3. Commit your changes (\`git commit -m 'Add some AmazingFeature'\`)\n4. Push to the branch (\`git push origin feature/AmazingFeature\`)\n5. Open a Pull Request`,
+  },
+  {
+    check: 'has-screenshots',
+    severity: 'info',
+    icon: Eye,
+    title: '📸 Add screenshots or demo GIF',
+    description: 'Visuals help users understand your project 10x faster than text. Add at least one screenshot.',
+    field: 'screenshots',
+    fixLabel: 'Add Screenshot Placeholder',
+    fixValue: '![Screenshot](https://via.placeholder.com/800x400?text=Add+Your+Screenshot+Here)',
+  },
+  {
+    check: 'has-demo-url',
+    severity: 'info',
+    icon: Eye,
+    title: '🔗 Link to a live demo',
+    description: 'A live demo lets users try your project instantly without installation.',
+    field: 'demoUrl',
+    fixLabel: 'Add Demo URL Placeholder',
+    fixValue: 'https://your-project.vercel.app',
+  },
+  {
+    check: 'has-tech-stack',
+    severity: 'warning',
+    icon: Code,
+    title: '🛠️ List your tech stack',
+    description: 'Help contributors understand the technologies used. Use the Context Analyzer to auto-detect from package.json.',
+    field: 'techStack',
+    fixLabel: 'Add Placeholder Stack',
+    fixValue: 'React, Node.js, TailwindCSS',
+  },
+  {
+    check: 'has-prerequisites',
+    severity: 'info',
+    icon: Terminal,
+    title: '⚙️ List prerequisites',
+    description: 'Tell users what they need installed before starting (Node.js version, databases, etc.).',
+    field: 'prerequisites',
+    fixLabel: 'Add Prerequisites Template',
+    fixValue: '- [Node.js](https://nodejs.org/) (v16 or higher)\n- npm or yarn\n- Git',
+  },
+  {
+    check: 'has-author',
+    severity: 'info',
+    icon: Users,
+    title: '👤 Add author information',
+    description: 'Let users know who maintains the project and how to reach you.',
+    field: 'author',
+    fixLabel: 'Add Author Placeholder',
+    fixValue: 'your-username',
+  },
+  {
+    check: 'has-env-vars',
+    severity: 'info',
+    icon: Terminal,
+    title: '🔐 Document environment variables',
+    description: 'If your project uses env vars, document them so users can configure properly.',
+    field: 'envVars',
+    fixLabel: 'Add Env Template',
+    fixValue: 'DATABASE_URL=your_database_connection_string\nAPI_KEY=your_api_key_here\nPORT=3000',
+  },
+  {
+    check: 'has-roadmap',
+    severity: 'info',
+    icon: Target,
+    title: '🗺️ Add a roadmap',
+    description: 'Show the project is actively maintained with planned features.',
+    field: 'roadmap',
+    fixLabel: 'Add Roadmap Template',
+    fixValue: 'Add dark mode support\nImprove performance\nAdd more tests\nWrite better documentation\nAdd i18n support',
+  },
 ];
 
-export default function ReadmeScore({ markdown, formData }) {
+const SEVERITY_CONFIG = {
+  critical: { color: 'error', bg: 'bg-error/8', border: 'border-error/20', badge: 'badge-error', label: 'Critical' },
+  warning: { color: 'warning', bg: 'bg-warning/8', border: 'border-warning/20', badge: 'badge-warning', label: 'Recommended' },
+  info: { color: 'info', bg: 'bg-info/8', border: 'border-info/20', badge: 'badge-info', label: 'Nice to have' },
+};
+
+/* ─── Fix Suggestion Card ─── */
+function FixSuggestionCard({ suggestion, onFix, isFixed }) {
+  const severity = SEVERITY_CONFIG[suggestion.severity] || SEVERITY_CONFIG.info;
+  const Icon = suggestion.icon;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      className={`rounded-xl border ${severity.border} ${severity.bg} p-3.5 transition-all duration-300 ${
+        isFixed ? 'opacity-50 scale-[0.98]' : 'hover:shadow-sm'
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
+          severity.color === 'error' ? 'bg-error/15' : severity.color === 'warning' ? 'bg-warning/15' : 'bg-info/15'
+        }`}>
+          <Icon size={14} className={
+            severity.color === 'error' ? 'text-error' : severity.color === 'warning' ? 'text-warning' : 'text-info'
+          } />
+        </div>
+        
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <h4 className="text-xs font-bold">{suggestion.title}</h4>
+            <span className={`badge badge-xs ${severity.badge} gap-0.5 opacity-80`}>
+              {severity.label}
+            </span>
+          </div>
+          <p className="text-[11px] text-base-content/60 leading-relaxed mb-2.5">
+            {suggestion.description}
+          </p>
+          
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => onFix(suggestion)}
+            disabled={isFixed}
+            className={`btn btn-xs gap-1.5 rounded-lg transition-all duration-300 ${
+              isFixed
+                ? 'btn-success cursor-default'
+                : 'btn-outline hover:btn-primary'
+            }`}
+          >
+            {isFixed ? (
+              <>
+                <CheckCircle2 size={10} />
+                Fixed!
+              </>
+            ) : (
+              <>
+                <Wrench size={10} />
+                {suggestion.fixLabel}
+                <ArrowRight size={9} />
+              </>
+            )}
+          </motion.button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ─── Score Ring SVG ─── */
+function ScoreRing({ score, size = 80 }) {
+  const radius = (size - 8) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (score / 100) * circumference;
+  
+  const color = score >= 80 ? '#22c55e' : score >= 60 ? '#3b82f6' : score >= 40 ? '#f59e0b' : '#ef4444';
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="transform -rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="4"
+          className="text-base-200"
+        />
+        <motion.circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth="4"
+          strokeLinecap="round"
+          initial={{ strokeDasharray: circumference, strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 1, ease: 'easeOut' }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center flex-col">
+        <motion.span
+          className="text-lg font-black tabular-nums"
+          style={{ color }}
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          {score}
+        </motion.span>
+        <span className="text-[8px] font-bold text-base-content/50 uppercase tracking-wider">Score</span>
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════
+   Main Component — Enhanced with Fix Actions
+   ════════════════════════════════════════════════ */
+export default function ReadmeScore({ markdown, formData, onFix }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [fixedItems, setFixedItems] = useState({});
+  const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'critical' | 'warning' | 'info'
 
   const analysis = useMemo(() => {
-    if (!markdown?.trim()) return { score: 0, passed: [], failed: [], suggestions: [], byCategory: {} };
+    if (!markdown?.trim()) return { score: 0, passed: [], failed: [], fixSuggestions: [], byCategory: {} };
 
     const results = CHECKS.map((check) => ({
       ...check,
@@ -86,10 +346,13 @@ export default function ReadmeScore({ markdown, formData }) {
     const passed = results.filter(r => r.passed);
     const failed = results.filter(r => !r.passed);
 
-    // Build suggestions from failed checks
-    const suggestions = SUGGESTIONS
+    // Build actionable fix suggestions from failed checks
+    const fixSuggestions = FIX_SUGGESTIONS
       .filter(s => failed.some(f => f.id === s.check))
-      .slice(0, 5);
+      .sort((a, b) => {
+        const severityOrder = { critical: 0, warning: 1, info: 2 };
+        return (severityOrder[a.severity] || 2) - (severityOrder[b.severity] || 2);
+      });
 
     // Group by category
     const byCategory = {};
@@ -104,8 +367,19 @@ export default function ReadmeScore({ markdown, formData }) {
       };
     });
 
-    return { score, passed, failed, suggestions, byCategory };
+    return { score, passed, failed, fixSuggestions, byCategory };
   }, [markdown, formData]);
+
+  const handleFix = useCallback((suggestion) => {
+    if (!onFix) return;
+
+    onFix(suggestion.field, suggestion.fixValue);
+    setFixedItems(prev => ({ ...prev, [suggestion.check]: true }));
+    
+    setTimeout(() => {
+      setFixedItems(prev => ({ ...prev, [suggestion.check]: false }));
+    }, 3000);
+  }, [onFix]);
 
   const getScoreLabel = (score) => {
     if (score >= 90) return { text: 'Exceptional', emoji: '🏆', color: 'text-success' };
@@ -117,6 +391,15 @@ export default function ReadmeScore({ markdown, formData }) {
   };
 
   const label = getScoreLabel(analysis.score);
+
+  const filteredSuggestions = analysis.fixSuggestions.filter(s => {
+    if (activeFilter === 'all') return true;
+    return s.severity === activeFilter;
+  });
+
+  const criticalCount = analysis.fixSuggestions.filter(s => s.severity === 'critical').length;
+  const warningCount = analysis.fixSuggestions.filter(s => s.severity === 'warning').length;
+  const infoCount = analysis.fixSuggestions.filter(s => s.severity === 'info').length;
 
   return (
     <div className="rounded-xl border border-base-300 bg-base-100 overflow-hidden">
@@ -130,9 +413,15 @@ export default function ReadmeScore({ markdown, formData }) {
         </div>
 
         <div className="flex-1 min-w-0 text-left">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h3 className="text-sm font-semibold">README Score</h3>
             <span className={`text-xs font-bold ${label.color}`}>{label.emoji} {label.text}</span>
+            {analysis.fixSuggestions.length > 0 && (
+              <span className="badge badge-xs badge-warning gap-0.5">
+                <Wrench size={8} />
+                {analysis.fixSuggestions.length} fix{analysis.fixSuggestions.length !== 1 ? 'es' : ''}
+              </span>
+            )}
           </div>
           {/* Mini progress bar */}
           <div className="flex items-center gap-2 mt-1.5">
@@ -148,7 +437,7 @@ export default function ReadmeScore({ markdown, formData }) {
             </div>
             <span className="text-xs font-bold tabular-nums text-base-content/70">{analysis.score}%</span>
             <span className="text-[10px] text-base-content/50 hidden sm:inline">
-              {analysis.passed.length}/{CHECKS.length} checks passed
+              {analysis.passed.length}/{CHECKS.length} checks
             </span>
           </div>
         </div>
@@ -169,58 +458,124 @@ export default function ReadmeScore({ markdown, formData }) {
             className="overflow-hidden"
           >
             <div className="px-4 sm:px-5 pb-4 sm:pb-5 space-y-4 border-t border-base-200">
-              {/* Category breakdown */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-4">
-                {Object.entries(CATEGORY_META).map(([key, meta]) => {
-                  const cat = analysis.byCategory[key];
-                  if (!cat) return null;
-                  return (
-                    <div
-                      key={key}
-                      className="rounded-lg border border-base-200 bg-base-200/20 p-2.5 text-center"
-                    >
-                      <p className="text-xs mb-1">
-                        <span className="mr-1">{meta.icon}</span>
-                        <span className="font-semibold">{meta.label}</span>
-                      </p>
-                      <div className="flex items-center justify-center gap-1.5">
-                        <div className="w-10 h-1.5 bg-base-300 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${
-                              cat.percent >= 80 ? 'bg-success' : cat.percent >= 50 ? 'bg-primary' : cat.percent >= 25 ? 'bg-warning' : 'bg-base-300'
-                            }`}
-                            style={{ width: `${cat.percent}%` }}
-                          />
+              
+              {/* ── Score + Category Grid ── */}
+              <div className="flex items-start gap-4 pt-4">
+                {/* Score Ring */}
+                <div className="shrink-0 hidden sm:block">
+                  <ScoreRing score={analysis.score} />
+                </div>
+
+                {/* Category breakdown */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 flex-1">
+                  {Object.entries(CATEGORY_META).map(([key, meta]) => {
+                    const cat = analysis.byCategory[key];
+                    if (!cat) return null;
+                    return (
+                      <div
+                        key={key}
+                        className="rounded-lg border border-base-200 bg-base-200/20 p-2.5 text-center"
+                      >
+                        <p className="text-xs mb-1">
+                          <span className="mr-1">{meta.icon}</span>
+                          <span className="font-semibold">{meta.label}</span>
+                        </p>
+                        <div className="flex items-center justify-center gap-1.5">
+                          <div className="w-10 h-1.5 bg-base-300 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${
+                                cat.percent >= 80 ? 'bg-success' : cat.percent >= 50 ? 'bg-primary' : cat.percent >= 25 ? 'bg-warning' : 'bg-base-300'
+                              }`}
+                              style={{ width: `${cat.percent}%` }}
+                            />
+                          </div>
+                          <span className="text-[10px] font-bold tabular-nums text-base-content/60">{cat.passed}/{cat.total}</span>
                         </div>
-                        <span className="text-[10px] font-bold tabular-nums text-base-content/60">{cat.passed}/{cat.total}</span>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
 
-              {/* Suggestions */}
-              {analysis.suggestions.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-xs font-bold flex items-center gap-1.5 text-warning">
-                    <Lightbulb size={12} />
-                    Top Suggestions
-                  </p>
-                  <div className="space-y-1.5">
-                    {analysis.suggestions.map((s, i) => (
-                      <motion.div
-                        key={s.check}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="flex items-start gap-2 text-[11px] p-2 rounded-lg bg-warning/5 border border-warning/10"
+              {/* ═══════════════════════════════════════
+                 ACTIONABLE FIX SUGGESTIONS — NEW!
+                 ═══════════════════════════════════════ */}
+              {analysis.fixSuggestions.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <p className="text-xs font-bold flex items-center gap-2">
+                      <Wrench size={13} className="text-warning" />
+                      Fix Suggestions
+                      <span className="badge badge-xs badge-warning">{analysis.fixSuggestions.length}</span>
+                    </p>
+
+                    {/* Severity Filter */}
+                    <div className="flex items-center gap-1 bg-base-200/40 rounded-lg p-0.5">
+                      <button
+                        onClick={() => setActiveFilter('all')}
+                        className={`btn btn-xs rounded-md ${activeFilter === 'all' ? 'btn-ghost bg-base-100 shadow-sm' : 'btn-ghost opacity-60'}`}
                       >
-                        <TrendingUp size={11} className="text-warning shrink-0 mt-0.5" />
-                        <span className="text-base-content/70">{s.tip}</span>
-                      </motion.div>
-                    ))}
+                        All ({analysis.fixSuggestions.length})
+                      </button>
+                      {criticalCount > 0 && (
+                        <button
+                          onClick={() => setActiveFilter('critical')}
+                          className={`btn btn-xs rounded-md gap-1 ${activeFilter === 'critical' ? 'btn-error btn-outline shadow-sm' : 'btn-ghost opacity-60'}`}
+                        >
+                          <AlertCircle size={9} />
+                          {criticalCount}
+                        </button>
+                      )}
+                      {warningCount > 0 && (
+                        <button
+                          onClick={() => setActiveFilter('warning')}
+                          className={`btn btn-xs rounded-md gap-1 ${activeFilter === 'warning' ? 'btn-warning btn-outline shadow-sm' : 'btn-ghost opacity-60'}`}
+                        >
+                          <AlertTriangle size={9} />
+                          {warningCount}
+                        </button>
+                      )}
+                      {infoCount > 0 && (
+                        <button
+                          onClick={() => setActiveFilter('info')}
+                          className={`btn btn-xs rounded-md gap-1 ${activeFilter === 'info' ? 'btn-info btn-outline shadow-sm' : 'btn-ghost opacity-60'}`}
+                        >
+                          <Lightbulb size={9} />
+                          {infoCount}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Suggestions List */}
+                  <div className="space-y-2.5 max-h-[50vh] overflow-y-auto scrollbar-thin pr-1">
+                    <AnimatePresence>
+                      {filteredSuggestions.map((suggestion) => (
+                        <FixSuggestionCard
+                          key={suggestion.check}
+                          suggestion={suggestion}
+                          onFix={handleFix}
+                          isFixed={fixedItems[suggestion.check]}
+                        />
+                      ))}
+                    </AnimatePresence>
                   </div>
                 </div>
+              )}
+
+              {/* ── All-green congratulations ── */}
+              {analysis.fixSuggestions.length === 0 && analysis.score > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="rounded-xl border border-success/20 bg-success/5 p-4 text-center"
+                >
+                  <Award size={24} className="mx-auto text-success mb-2" />
+                  <p className="text-sm font-bold text-success">Outstanding README! 🎉</p>
+                  <p className="text-[11px] text-base-content/60 mt-1">
+                    Your README passes all quality checks. Great documentation!
+                  </p>
+                </motion.div>
               )}
 
               {/* Full check list */}

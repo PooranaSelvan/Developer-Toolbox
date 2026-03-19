@@ -65,7 +65,7 @@ export default function GitHubImport({ onImport, loading, error, success, progre
             )}
           </div>
           <button
-            onClick={handleSubmit}
+            type="submit"
             disabled={loading || !url.trim()}
             className="btn btn-primary btn-sm gap-1.5 rounded-xl shrink-0"
           >

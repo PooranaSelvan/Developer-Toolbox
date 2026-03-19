@@ -12,9 +12,14 @@ export default function ScrollToTop() {
   const { pathname } = useLocation();
   const [showButton, setShowButton] = useState(false);
 
-  // Scroll to top on route change
+  // Scroll to top on route change — targets main content area (which has overflow-auto)
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    const mainEl = document.getElementById('main-content');
+    if (mainEl) {
+      mainEl.scrollTo({ top: 0, behavior: 'instant' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
   }, [pathname]);
 
   // Track scroll position for floating button

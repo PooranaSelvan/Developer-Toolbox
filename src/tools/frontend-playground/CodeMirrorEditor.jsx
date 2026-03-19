@@ -38,7 +38,8 @@ const CodeMirrorEditor = memo(function CodeMirrorEditor({
   const prevWrapRef = useRef(wordWrap);
   const prevFontRef = useRef(fontSize);
   const prevPlaceholderRef = useRef(placeholder);
-  const isExternalUpdate = useRef(false);
+  // Track the last value we sent UP to React, to avoid echoing it back down
+  const lastEmittedValueRef = useRef(value || '');
 
   // Keep callback refs fresh without recreating editor
   useEffect(() => {
@@ -59,9 +60,9 @@ const CodeMirrorEditor = memo(function CodeMirrorEditor({
       placeholderText: placeholder,
       wordWrap,
       onUpdate: (newDoc) => {
-        if (!isExternalUpdate.current) {
-          onChangeRef.current?.(newDoc);
-        }
+        // Always update the ref so we know what CodeMirror has
+        lastEmittedValueRef.current = newDoc;
+        onChangeRef.current?.(newDoc);
       },
       onCursorChange: (pos) => {
         onCursorRef.current?.(pos);
@@ -75,11 +76,6 @@ const CodeMirrorEditor = memo(function CodeMirrorEditor({
 
     viewRef.current = view;
 
-    // Apply initial font size
-    view.dispatch({
-      effects: view.state.update({}).effects,
-    });
-
     return () => {
       view.destroy();
       viewRef.current = null;
@@ -89,13 +85,21 @@ const CodeMirrorEditor = memo(function CodeMirrorEditor({
   }, []);
 
   // ─── Sync external value changes ───
+  // Only push value into CodeMirror when it genuinely differs from
+  // what CodeMirror last emitted (e.g. loading a sample, reset, undo).
+  // This prevents the echo-back loop that caused the browser to freeze
+  // when bracket auto-close or snippets modified the document.
   useEffect(() => {
     const view = viewRef.current;
     if (!view) return;
 
+    // If the incoming value is exactly what CodeMirror last told us,
+    // skip the dispatch — CodeMirror already has this content.
+    if (value === lastEmittedValueRef.current) return;
+
     const currentDoc = view.state.doc.toString();
     if (currentDoc !== value) {
-      isExternalUpdate.current = true;
+      lastEmittedValueRef.current = value || '';
       view.dispatch({
         changes: {
           from: 0,
@@ -103,7 +107,6 @@ const CodeMirrorEditor = memo(function CodeMirrorEditor({
           insert: value || '',
         },
       });
-      isExternalUpdate.current = false;
     }
   }, [value]);
 

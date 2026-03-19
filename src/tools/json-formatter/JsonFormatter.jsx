@@ -9,10 +9,10 @@ import { useState, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Braces, Copy, Check, Trash2, Download, Upload, Sparkles,
-  Minimize2, Maximize2, ArrowLeftRight, AlertTriangle, Info,
-  ChevronDown, ChevronUp, Search, X, FileJson, GitCompare,
-  RefreshCw, Code, Eye, TreePine, Hash, Type, ToggleLeft,
-  List, Layers, Filter, SortAsc, FileText, Diff,
+  Minimize2, Maximize2, ArrowLeftRight, AlertTriangle,
+  ChevronDown, Search, X, FileJson,
+  Code, TreePine, Hash, Type, ToggleLeft,
+  List, Layers, SortAsc, Diff,
 } from 'lucide-react';
 import useCopyToClipboard from '../../hooks/useCopyToClipboard';
 import useLocalStorage from '../../hooks/useLocalStorage';
@@ -24,7 +24,7 @@ const SAMPLE_JSON = [
   { name: 'Nested Array', json: '{"matrix":[[1,2,3],[4,5,6],[7,8,9]],"tags":["javascript","react","nodejs"],"metadata":{"version":"2.0","features":["search","filter","sort"]}}' },
 ];
 
-function analyzeJson(obj, path = '') {
+function analyzeJson(obj) {
   const stats = { strings: 0, numbers: 0, booleans: 0, nulls: 0, arrays: 0, objects: 0, totalKeys: 0, maxDepth: 0 };
 
   function traverse(val, depth) {
@@ -111,7 +111,7 @@ function TreeView({ data, level = 0, searchTerm = '' }) {
       return (
         <div key={fullPath}>
           <div className={`flex items-center gap-1.5 py-0.5 cursor-pointer hover:bg-base-200/60 rounded ${matchesSearch ? 'bg-warning/10' : ''}`} style={{ paddingLeft: level * 20 }} onClick={() => toggle(fullPath)}>
-            {isCollapsed ? <ChevronDown size={12} className="opacity-40" /> : <ChevronUp size={12} className="opacity-40" />}
+            {isCollapsed ? <ChevronDown size={12} className="opacity-40 -rotate-90" /> : <ChevronDown size={12} className="opacity-40" />}
             <span className="text-xs font-mono font-semibold text-primary">{key}</span>
             <span className="badge badge-xs badge-info">Array[{value.length}]</span>
           </div>
@@ -125,7 +125,7 @@ function TreeView({ data, level = 0, searchTerm = '' }) {
       return (
         <div key={fullPath}>
           <div className={`flex items-center gap-1.5 py-0.5 cursor-pointer hover:bg-base-200/60 rounded ${matchesSearch ? 'bg-warning/10' : ''}`} style={{ paddingLeft: level * 20 }} onClick={() => toggle(fullPath)}>
-            {isCollapsed ? <ChevronDown size={12} className="opacity-40" /> : <ChevronUp size={12} className="opacity-40" />}
+            {isCollapsed ? <ChevronDown size={12} className="opacity-40 -rotate-90" /> : <ChevronDown size={12} className="opacity-40" />}
             <span className="text-xs font-mono font-semibold text-primary">{key}</span>
             <span className="badge badge-xs badge-secondary">Object{`{${keys.length}}`}</span>
           </div>
@@ -154,7 +154,7 @@ export default function JsonFormatter() {
   const [indentSize, setIndentSize] = useState(2);
   const [activeTab, setActiveTab] = useState('format');
   const [searchTerm, setSearchTerm] = useState('');
-  const [history, setHistory] = useLocalStorage('json-formatter-history', []);
+  const [, setHistory] = useLocalStorage('json-formatter-history', []);
   const { copied, copyToClipboard } = useCopyToClipboard();
   const fileInputRef = useRef(null);
 

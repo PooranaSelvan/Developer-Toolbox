@@ -29,10 +29,10 @@ const WIDGET_CATEGORIES = [
         id: 'streak-stats',
         name: 'GitHub Streak Stats',
         description: 'Current streak, longest streak & total contributions',
-        previewUrl: (u) => `https://github-readme-streak-stats.herokuapp.com/?user=${u}&theme=radical&hide_border=true`,
+        previewUrl: (u) => `https://streak-stats.demolab.com/?user=${u}&theme=radical&hide_border=true`,
         generate: (u, opts) => {
           const theme = opts?.theme || 'radical';
-          return `<p align="center">\n  <img src="https://github-readme-streak-stats.herokuapp.com/?user=${u}&theme=${theme}&hide_border=true" alt="GitHub Streak" />\n</p>`;
+          return `<p align="center">\n  <img src="https://streak-stats.demolab.com/?user=${u}&theme=${theme}&hide_border=true" alt="GitHub Streak" />\n</p>`;
         },
         options: [{ id: 'theme', label: 'Theme', type: 'select', values: ['radical', 'tokyonight', 'dracula', 'gruvbox', 'nord', 'dark', 'default'] }],
       },

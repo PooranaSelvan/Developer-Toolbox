@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Palette, Sparkles, Menu, Home, ChevronRight, LayoutDashboard, X } from 'lucide-react';
+import { Palette, Sparkles, Menu, Home, ChevronRight, LayoutDashboard } from 'lucide-react';
 import { getTools, CATEGORIES } from '../utils/toolRegistry';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -10,7 +10,6 @@ export default function Header({ onMenuToggle }) {
   const tools = getTools();
   const currentTool = tools.find((t) => t.path === location.pathname);
   const { theme, setTheme, themes } = useTheme();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
 
   const quickThemes = ['toolbox', 'toolbox-dark', 'light', 'dark', 'dracula', 'nord', 'cyberpunk', 'coffee'];
@@ -30,16 +29,13 @@ export default function Header({ onMenuToggle }) {
       <div className="header-accent-line" />
 
       <div className="flex items-center gap-3 min-w-0">
-        {/* Mobile menu toggle with morphing animation */}
+        {/* Mobile menu toggle */}
         <button 
-          onClick={() => { onMenuToggle(); setMenuOpen(!menuOpen); }} 
+          onClick={onMenuToggle} 
           className="btn btn-ghost btn-sm btn-square lg:hidden shrink-0 rounded-xl"
           aria-label="Toggle navigation menu"
-          aria-expanded={menuOpen}
         >
-          <span className={`transition-all duration-300 ease-spring ${menuOpen ? 'rotate-90 scale-90' : 'rotate-0 scale-100'}`}>
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
-          </span>
+          <Menu size={20} />
         </button>
 
         {/* Breadcrumb / Page indicator */}

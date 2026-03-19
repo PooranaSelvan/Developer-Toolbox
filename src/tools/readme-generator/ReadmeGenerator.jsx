@@ -11,6 +11,7 @@ import useLocalStorage from '../../hooks/useLocalStorage';
 import { TEMPLATES } from '../../utils/readmeTemplates';
 import { parseGitHubUrl, deepAnalyzeRepo } from '../../services/githubService';
 import GitHubImport from './GitHubImport';
+import ContextAnalyzer from './ContextAnalyzer';
 import ReadmeForm from './ReadmeForm';
 import ReadmePreview from './ReadmePreview';
 import TemplateSelector from './TemplateSelector';
@@ -102,7 +103,7 @@ export default function ReadmeGenerator() {
     return { words, chars, lines, readingTime, sections };
   }, [generatedMarkdown]);
 
-  // Autosave to localStorage every 30 seconds
+  // Autosave to localStorage — debounced 5s after last change
   useEffect(() => {
     const hasContent = Object.entries(formData).some(([key, val]) => {
       if (key === 'badges' || key === 'customSections') return Array.isArray(val) && val.length > 0;
@@ -110,7 +111,7 @@ export default function ReadmeGenerator() {
     });
     if (!hasContent) return;
 
-const timer = setTimeout(() => {
+    const timer = setTimeout(() => {
       try {
         localStorage.setItem('readme-generator-autosave', JSON.stringify({
           formData,
@@ -120,7 +121,8 @@ const timer = setTimeout(() => {
       } catch (err) {
         console.warn('Failed to autosave README draft:', err?.message || 'Storage quota exceeded');
       }
-    }, 30000);    return () => clearTimeout(timer);
+    }, 5000);
+    return () => clearTimeout(timer);
   }, [formData, template]);
 
   
@@ -234,22 +236,27 @@ const timer = setTimeout(() => {
 
   const handleExportHtml = () => {
     try {
+      // Escape the markdown content for safe embedding in a <script> tag
+      const escapedMarkdown = JSON.stringify(generatedMarkdown);
       const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${formData.projectName || 'README'}</title>
+  <title>${(formData.projectName || 'README').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5/github-markdown.min.css">
   <style>
-    body { max-width: 980px; margin: 0 auto; padding: 40px 20px; }
+    body { max-width: 980px; margin: 0 auto; padding: 40px 20px; background: #0d1117; color: #c9d1d9; }
     .markdown-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }
   </style>
 </head>
-<body class="markdown-body">
-${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+<body>
+<div id="content" class="markdown-body"></div>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></` + `script>
-<script>document.body.innerHTML = '<div class="markdown-body">' + marked.parse(document.body.innerText) + '</div>';</` + `script>
+<script>
+  const md = ${escapedMarkdown};
+  document.getElementById('content').innerHTML = marked.parse(md);
+</` + `script>
 </body>
 </html>`;
     downloadFile(html, 'README.html', 'text/html');
@@ -262,10 +269,10 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
   const handleWidgetInsert = useCallback((markdown) => {
     setFormData((prev) => {
       const currentSections = prev.customSections || [];
-      // Check if there's an existing "Widgets" custom section
-      const widgetIdx = currentSections.findIndex((s) => s.title === 'Widgets' || s.title === '');
-      if (widgetIdx >= 0 && !currentSections[widgetIdx].title) {
-        // Append to an existing untitled section
+      // Find existing "Widgets" section or create one
+      const widgetIdx = currentSections.findIndex((s) => s.title === 'Widgets');
+      if (widgetIdx >= 0) {
+        // Append to existing Widgets section
         const updated = [...currentSections];
         updated[widgetIdx] = {
           ...updated[widgetIdx],
@@ -273,20 +280,44 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
         };
         return { ...prev, customSections: updated };
       }
-      // Otherwise insert into the description or features depending on context
-      // For simplicity, append to description
-      const newDesc = prev.description ? prev.description + '\n\n' + markdown : markdown;
-      return { ...prev, description: newDesc };
+      // Create a new Widgets custom section
+      return {
+        ...prev,
+        customSections: [
+          ...currentSections,
+          { title: 'Widgets', content: markdown },
+        ],
+      };
     });
   }, []);
 
-  // Share as URL
+  // Share as URL — encode formData as base64 URL-safe
   const handleShareUrl = useCallback(() => {
     try {
       const shareData = { formData, template };
-      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(shareData))));
+      const jsonStr = JSON.stringify(shareData);
+      // Convert to UTF-8 bytes, then base64
+      const encoded = btoa(Array.from(new TextEncoder().encode(jsonStr), (b) => String.fromCharCode(b)).join(''));
       const url = `${window.location.origin}${window.location.pathname}#readme=${encoded}`;
+
+      // Check URL length — browsers typically support up to ~2MB but 64KB is a safe limit for sharing
+      if (url.length > 65000) {
+        console.warn('Share URL is very large (' + Math.round(url.length / 1024) + 'KB). Some browsers may truncate it.');
+      }
+
       navigator.clipboard.writeText(url).then(() => {
+        setShareSuccess(true);
+        setTimeout(() => setShareSuccess(false), 3000);
+      }).catch(() => {
+        // Fallback: try to copy via textarea
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
         setShareSuccess(true);
         setTimeout(() => setShareSuccess(false), 3000);
       });
@@ -301,7 +332,8 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
       const hash = window.location.hash;
       if (hash.startsWith('#readme=')) {
         const encoded = hash.slice(8);
-        const decoded = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+        const bytes = Uint8Array.from(atob(encoded), (c) => c.charCodeAt(0));
+        const decoded = JSON.parse(new TextDecoder().decode(bytes));
         if (decoded.formData) {
           setFormData({ ...INITIAL_FORM, ...decoded.formData });
         }
@@ -321,6 +353,21 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
     handleFieldChange(field, value);
   }, [handleFieldChange]);
 
+  // Handle context analyzer apply — supports both single and batch field updates
+  const handleContextApply = useCallback((fieldOrBatch, value) => {
+    // Support batch mode: handleContextApply({ field1: val1, field2: val2 })
+    if (typeof fieldOrBatch === 'object' && fieldOrBatch !== null && value === undefined) {
+      setFormData((prev) => ({ ...prev, ...fieldOrBatch }));
+    } else {
+      handleFieldChange(fieldOrBatch, value);
+    }
+  }, [handleFieldChange]);
+
+  // Handle score fix suggestions — auto-populate fields from fix actions
+  const handleScoreFix = useCallback((field, value) => {
+    handleFieldChange(field, value);
+  }, [handleFieldChange]);
+
   return (
     <div className={`max-w-7xl mx-auto space-y-4 ${isFullscreen ? 'fixed inset-0 z-50 bg-base-100 p-4 sm:p-6 overflow-auto max-w-none' : ''}`}>
       {/* GitHub Import */}
@@ -331,6 +378,12 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
         success={githubSuccess}
         progressStep={githubProgress}
         successMeta={githubMeta}
+      />
+
+      {/* Context-Aware Generator — NEW: package.json analysis, code→API docs */}
+      <ContextAnalyzer
+        onApply={handleContextApply}
+        formData={formData}
       />
 
       {/* Toolbar */}
@@ -668,7 +721,7 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
 
           {/* README Score (visible on desktop) */}
           <div className="hidden lg:block">
-            <ReadmeScore markdown={generatedMarkdown} formData={formData} />
+            <ReadmeScore markdown={generatedMarkdown} formData={formData} onFix={handleScoreFix} />
           </div>
         </div>
 
@@ -682,7 +735,7 @@ ${generatedMarkdown.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
 
         {/* Mobile Score Tab */}
         <div className={`lg:hidden ${activeTab !== 'score' ? 'hidden' : ''}`}>
-          <ReadmeScore markdown={generatedMarkdown} formData={formData} />
+          <ReadmeScore markdown={generatedMarkdown} formData={formData} onFix={handleScoreFix} />
         </div>
 
         {/* Right column — Preview */}

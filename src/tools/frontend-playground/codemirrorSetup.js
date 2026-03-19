@@ -573,12 +573,15 @@ export function createEditorState({
       // Autocompletion UI configuration — NO override, so BOTH built-in
       // language completions AND our custom snippets work together
       autocompletion({
-        maxRenderedOptions: 30,
+        maxRenderedOptions: 20,
         activateOnTyping: true,
-        activateOnTypingDelay: 80,
+        activateOnTypingDelay: 150,
         closeOnBlur: true,
         icons: true,
         tooltipClass: () => 'playground-cm-tooltip',
+        // Don't trigger autocomplete for brackets/quotes — these are handled
+        // by closeBrackets and triggering autocomplete on them causes lag
+        activateOnCompletion: () => false,
       }),
 
       // Syntax highlighting

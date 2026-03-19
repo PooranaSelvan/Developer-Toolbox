@@ -59,8 +59,8 @@ export function ThemeProvider({ children }) {
 
   const setTheme = useCallback((newTheme) => {
     try {
-      // Validate theme before applying
-      if (newTheme && (VALID_THEME_IDS.has(newTheme) || typeof newTheme === 'string')) {
+      // Validate theme before applying — must be a known theme ID
+      if (newTheme && typeof newTheme === 'string' && VALID_THEME_IDS.has(newTheme)) {
         setThemeState(newTheme);
       } else {
         console.warn(`[ThemeContext] Invalid theme: "${newTheme}", falling back to default.`);

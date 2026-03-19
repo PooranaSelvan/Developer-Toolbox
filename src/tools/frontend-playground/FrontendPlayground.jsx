@@ -373,14 +373,23 @@ export default function FrontendPlayground() {
     return { position: 'fixed', top, left, zIndex: 9999 };
   }, [showLayoutTemplates]);
 
+  const htmlRef = useRef(html);
+  const cssRef = useRef(css);
+  const jsRef = useRef(js);
+  useEffect(() => { htmlRef.current = html; }, [html]);
+  useEffect(() => { cssRef.current = css; }, [css]);
+  useEffect(() => { jsRef.current = js; }, [js]);
+
   const pushUndo = useCallback((tab, oldVal) => { const now = Date.now(); if (now - lastPushRef.current < 500) return; lastPushRef.current = now; setUndoStack(prev => ({ ...prev, [tab]: [...prev[tab].slice(-50), oldVal] })); setRedoStack(prev => ({ ...prev, [tab]: [] })); }, []);
   const handleUndo = useCallback(() => { const tab = activeTab, stack = undoStack[tab]; if (!stack.length) return; const cur = tab === 'html' ? html : tab === 'css' ? css : js; setUndoStack(s => ({ ...s, [tab]: s[tab].slice(0, -1) })); setRedoStack(s => ({ ...s, [tab]: [...s[tab], cur] })); const prev = stack[stack.length - 1]; if (tab === 'html') setHtml(prev); else if (tab === 'css') setCss(prev); else setJs(prev); }, [activeTab, undoStack, html, css, js, setHtml, setCss, setJs]);
   const handleRedo = useCallback(() => { const tab = activeTab, stack = redoStack[tab]; if (!stack.length) return; const cur = tab === 'html' ? html : tab === 'css' ? css : js; setRedoStack(s => ({ ...s, [tab]: s[tab].slice(0, -1) })); setUndoStack(s => ({ ...s, [tab]: [...s[tab], cur] })); const next = stack[stack.length - 1]; if (tab === 'html') setHtml(next); else if (tab === 'css') setCss(next); else setJs(next); }, [activeTab, redoStack, html, css, js, setHtml, setCss, setJs]);
-  const setHtmlTracked = useCallback((val) => { pushUndo('html', html); setHtml(val); }, [html, pushUndo, setHtml]);
-  const setCssTracked = useCallback((val) => { pushUndo('css', css); setCss(val); }, [css, pushUndo, setCss]);
-  const setJsTracked = useCallback((val) => { pushUndo('js', js); setJs(val); }, [js, pushUndo, setJs]);
+  // Tracked setters use refs to avoid stale closure → prevents re-creating
+  // callbacks on every keystroke which was causing cascading re-renders
+  const setHtmlTracked = useCallback((val) => { pushUndo('html', htmlRef.current); setHtml(val); }, [pushUndo, setHtml]);
+  const setCssTracked = useCallback((val) => { pushUndo('css', cssRef.current); setCss(val); }, [pushUndo, setCss]);
+  const setJsTracked = useCallback((val) => { pushUndo('js', jsRef.current); setJs(val); }, [pushUndo, setJs]);
 
-  useEffect(() => { const t = setTimeout(() => setLastSaved(new Date()), 1500); return () => clearTimeout(t); }, [html, css, js]);
+  useEffect(() => { const t = setTimeout(() => setLastSaved(new Date()), 2000); return () => clearTimeout(t); }, [html, css, js]);
 
   const cdnLinks = useMemo(() => {
     const cssL = enabledCdns.filter(n => CDN_LIBRARIES.find(l => l.name === n && l.type === 'css')).map(n => CDN_LIBRARIES.find(l => l.name === n)).map(l => `<link rel="stylesheet" href="${l.url}">`).join('\n    ');
@@ -440,23 +449,32 @@ export default function FrontendPlayground() {
 </html>`;
   }, [html, css, js, cdnLinks, previewTheme, headExtras]);
 
+  const prevBlobUrlRef = useRef(null);
   const previewBlobUrl = useMemo(() => {
     try {
+      // Revoke the previous blob URL immediately when creating a new one
+      // to prevent memory leaks from accumulating blob URLs
+      if (prevBlobUrlRef.current) {
+        URL.revokeObjectURL(prevBlobUrlRef.current);
+      }
       const blob = new Blob([previewHTML], { type: 'text/html;charset=utf-8' });
-      return URL.createObjectURL(blob);
+      const url = URL.createObjectURL(blob);
+      prevBlobUrlRef.current = url;
+      return url;
     } catch {
       return null;
     }
   }, [previewHTML]);
 
+  // Cleanup on unmount only
   useEffect(() => {
     return () => {
-      if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl);
+      if (prevBlobUrlRef.current) URL.revokeObjectURL(prevBlobUrlRef.current);
     };
-  }, [previewBlobUrl]);
+  }, []);
 
   useEffect(() => { const h = (e) => { if (e.data?.type === 'console') { setConsoleOutput(prev => [...prev, { level: e.data.level, args: e.data.args, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }].slice(-200)); if (e.data.level === 'error') setShowConsole(true); } }; window.addEventListener('message', h); return () => window.removeEventListener('message', h); }, []);
-  useEffect(() => { if (!autoRun) return; if (debounceRef.current) clearTimeout(debounceRef.current); debounceRef.current = setTimeout(() => setPreviewKey(k => k + 1), 600); return () => clearTimeout(debounceRef.current); }, [html, css, js, autoRun]);
+  useEffect(() => { if (!autoRun) return; if (debounceRef.current) clearTimeout(debounceRef.current); debounceRef.current = setTimeout(() => { debounceRef.current = null; setPreviewKey(k => k + 1); }, 800); return () => { if (debounceRef.current) { clearTimeout(debounceRef.current); debounceRef.current = null; } }; }, [html, css, js, autoRun]);
 
   // Load shared URL on mount
   useEffect(() => {
@@ -597,7 +615,7 @@ export default function FrontendPlayground() {
     });
   }, [setHeadConfig]);
 
-  const TABS = [{ id: 'html', label: 'HTML', icon: Code, color: '#e34c26', lines: html.split('\n').filter(Boolean).length }, { id: 'css', label: 'CSS', icon: Palette, color: '#2965f1', lines: css.split('\n').filter(Boolean).length }, { id: 'js', label: 'JS', icon: Braces, color: '#f0db4f', lines: js.split('\n').filter(Boolean).length }];
+  const TABS = useMemo(() => [{ id: 'html', label: 'HTML', icon: Code, color: '#e34c26', lines: html.split('\n').filter(Boolean).length }, { id: 'css', label: 'CSS', icon: Palette, color: '#2965f1', lines: css.split('\n').filter(Boolean).length }, { id: 'js', label: 'JS', icon: Braces, color: '#f0db4f', lines: js.split('\n').filter(Boolean).length }], [html, css, js]);
   const currentCode = activeTab === 'html' ? html : activeTab === 'css' ? css : js;
   const setCurrentCode = activeTab === 'html' ? setHtmlTracked : activeTab === 'css' ? setCssTracked : setJsTracked;
   const viewportWidth = VIEWPORTS.find(v => v.id === viewport)?.width || '100%';

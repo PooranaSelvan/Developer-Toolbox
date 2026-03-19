@@ -2,11 +2,13 @@ import { motion } from 'framer-motion';
 import { Plus, Trash2, ChevronUp, ChevronDown, LayoutList } from 'lucide-react';
 
 
-const EMPTY_SECTION = { title: '', content: '' };
+let _sectionIdCounter = 0;
+
+const createSection = () => ({ id: `cs-${Date.now()}-${++_sectionIdCounter}`, title: '', content: '' });
 
 export default function CustomSections({ sections = [], onChange }) {
   const addSection = () => {
-    onChange([...sections, { ...EMPTY_SECTION }]);
+    onChange([...sections, createSection()]);
   };
 
   const updateSection = (index, field, value) => {
@@ -59,7 +61,7 @@ export default function CustomSections({ sections = [], onChange }) {
           <div className="space-y-3">
             {sections.map((section, index) => (
               <motion.div
-                key={index}
+                key={section.id || index}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
